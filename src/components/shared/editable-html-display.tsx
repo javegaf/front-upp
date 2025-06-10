@@ -3,7 +3,7 @@
 
 import type { HTMLAttributes } from 'react';
 import { useEffect, useRef } from 'react';
-import { Bold, Table as TableIcon } from 'lucide-react'; // Renamed Table to TableIcon to avoid conflict
+import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, Table as TableIcon } from 'lucide-react'; // Renamed Table to TableIcon to avoid conflict
 import { Button } from '@/components/ui/button';
 
 interface EditableHtmlDisplayProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onInput' | 'dangerouslySetInnerHTML' | 'contentEditable' | 'suppressContentEditableWarning'> {
@@ -44,18 +44,23 @@ export function EditableHtmlDisplay({
       editorRef.current.focus(); // Ensure editor has focus
       document.execCommand(command, false, value);
       // The 'input' event should fire after execCommand, which will call handleInput.
-      // If not, a manual call to onHtmlChange might be needed here:
-      // onHtmlChange(editorRef.current.innerHTML);
-      // Forcing an update if handleInput isn't triggered consistently by execCommand:
-      if (editorRef.current.innerHTML !== (divProps as any)?.dangerouslySetInnerHTML?.__html) {
-         handleInput({ currentTarget: editorRef.current } as React.FormEvent<HTMLDivElement>);
+      // Forcing an update if handleInput isn't triggered consistently by execCommand in some rare cases:
+      if (editorRef.current) { // Check ref again, just in case
+        const currentContent = editorRef.current.innerHTML;
+        // A minimal check, could be more sophisticated.
+        // This is to ensure onHtmlChange is called if the input event doesn't fire reliably for some commands.
+        // However, onInput event should generally cover this.
+        // For now, we rely on onInput to call handleInput and thus onHtmlChange.
       }
     }
   };
 
-  const handleBoldClick = () => {
-    execCommand('bold');
-  };
+  const handleBoldClick = () => execCommand('bold');
+  const handleItalicClick = () => execCommand('italic');
+  const handleUnderlineClick = () => execCommand('underline');
+  const handleStrikethroughClick = () => execCommand('strikeThrough');
+  const handleUnorderedListClick = () => execCommand('insertUnorderedList');
+  const handleOrderedListClick = () => execCommand('insertOrderedList');
 
   const handleInsertTableClick = () => {
     // Basic 2x2 table
@@ -86,9 +91,24 @@ export function EditableHtmlDisplay({
   return (
     <div className="rounded-md border border-input shadow-sm">
       {editable && (
-        <div className="flex space-x-1 border-b border-input p-2 bg-muted/50 rounded-t-md">
+        <div className="flex flex-wrap space-x-1 border-b border-input p-2 bg-muted/50 rounded-t-md">
           <Button variant="outline" size="sm" onClick={handleBoldClick} title="Bold (Ctrl+B)" className="h-8 w-8 p-0">
             <Bold className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleItalicClick} title="Italic (Ctrl+I)" className="h-8 w-8 p-0">
+            <Italic className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleUnderlineClick} title="Underline (Ctrl+U)" className="h-8 w-8 p-0">
+            <Underline className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleStrikethroughClick} title="Strikethrough" className="h-8 w-8 p-0">
+            <Strikethrough className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleUnorderedListClick} title="Bulleted List" className="h-8 w-8 p-0">
+            <List className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleOrderedListClick} title="Numbered List" className="h-8 w-8 p-0">
+            <ListOrdered className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="sm" onClick={handleInsertTableClick} title="Insert Table" className="h-8 w-8 p-0">
             <TableIcon className="h-4 w-4" />
