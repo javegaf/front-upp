@@ -86,10 +86,10 @@ export default function AdscripcionPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [availableStudents, setAvailableStudents] = useState<Alumno[]>(mockAlumnosDisponibles);
   const [selectedStudents, setSelectedStudents] = useState<Alumno[]>([]);
-  
+
   const [availableColegios, setAvailableColegios] = useState<Colegio[]>([]);
   const [selectedColegioId, setSelectedColegioId] = useState<string | null>(null);
-  
+
   const initialEmailPlaceholder = useMemo(() => generateEmailPreview(null), []);
   // currentTemplateHtml stores the template HTML to load into the editor (when colegio changes)
   const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailPlaceholder);
@@ -108,8 +108,8 @@ export default function AdscripcionPage() {
   useEffect(() => {
     const colegio = availableColegios.find(c => c.id === selectedColegioId) || null;
     const newTemplate = generateEmailPreview(colegio);
-    setCurrentTemplateHtml(newTemplate); 
-    setEditedHtml(newTemplate); 
+    setCurrentTemplateHtml(newTemplate);
+    setEditedHtml(newTemplate);
   }, [selectedColegioId, availableColegios]);
 
 
@@ -340,11 +340,11 @@ export default function AdscripcionPage() {
                       <p><span className="font-semibold">Estudiantes seleccionados:</span> {selectedStudents.length}</p>
                     </div>
                   )}
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email-editor-contenteditable">Editor de Correo</Label>
                     <EditableHtmlDisplay
-                      key={selectedColegioId || 'no-colegio-selected'} 
+                      key={selectedColegioId || 'no-colegio-selected'}
                       initialHtml={currentTemplateHtml}
                       onHtmlChange={setEditedHtml}
                       editable={!!selectedColegioId}
@@ -356,17 +356,17 @@ export default function AdscripcionPage() {
                       aria-label="Contenido del correo editable"
                     />
                   </div>
-                                    
+
                   <div className="flex justify-between items-center mt-4">
                     <Button variant="outline" disabled={!selectedColegioId}>
                        <Building className="mr-2 h-4 w-4" />
                        Enviar Notificación (Próximamente)
                     </Button>
-                    <Button 
+                    <Button
                       onClick={() => goToNextStep(ADSCRIPCION_STEPS.STEP3)}
                       disabled={!isStep2Valid}
                     >
-                      Siguiente Paso <ChevronRight className="ml-2 h-4 w-4" />
+                      Hazlo más claro <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -407,3 +407,5 @@ export default function AdscripcionPage() {
     </div>
   );
 }
+
+    
