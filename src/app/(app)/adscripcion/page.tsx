@@ -308,7 +308,7 @@ export default function AdscripcionPage() {
                 <CardHeader>
                   <CardTitle>Paso 2: Notificación al Establecimiento</CardTitle>
                   <CardDescription>
-                    Selecciona el establecimiento y edita el código fuente HTML del correo de notificación.
+                    Selecciona el establecimiento, edita el código HTML del correo y previsualiza el resultado.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -343,17 +343,26 @@ export default function AdscripcionPage() {
                     </div>
                   )}
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="email-editor">Editor de Correo (HTML)</Label>
-                    <Textarea
-                      id="email-editor"
-                      value={emailPreview}
-                      onChange={(e) => setEmailPreview(e.target.value)}
-                      rows={25} 
-                      className="text-sm font-mono w-full"
-                      disabled={!selectedColegioId}
-                      placeholder={!selectedColegioId ? "Seleccione un establecimiento para cargar y editar la plantilla HTML..." : "Edite el código HTML del correo aquí..."}
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="email-editor">Editor de Correo (HTML)</Label>
+                      <Textarea
+                        id="email-editor"
+                        value={emailPreview}
+                        onChange={(e) => setEmailPreview(e.target.value)}
+                        rows={25} 
+                        className="text-sm font-mono w-full h-full" // Ensure textarea takes full height in its column
+                        disabled={!selectedColegioId}
+                        placeholder={!selectedColegioId ? "Seleccione un establecimiento para cargar y editar la plantilla HTML..." : "Edite el código HTML del correo aquí..."}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Vista Previa del Correo Renderizado</Label>
+                      <div
+                        className="p-4 border rounded-md min-h-[400px] bg-muted/20 overflow-y-auto h-full text-sm" // Ensure preview takes full height
+                        dangerouslySetInnerHTML={{ __html: emailPreview || "<p class='text-muted-foreground italic'>Seleccione un establecimiento y edite el HTML para ver la vista previa.</p>" }}
+                      />
+                    </div>
                   </div>
                   
                   <div className="flex justify-between items-center mt-4">
