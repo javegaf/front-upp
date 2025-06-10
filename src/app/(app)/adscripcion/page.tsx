@@ -2,14 +2,19 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import type { Alumno } from "@/lib/definitions";
+import type { Alumno, Colegio } from "@/lib/definitions";
+import { mockColegios } from "@/lib/definitions"; // Importar mockColegios
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight } from "lucide-react";
+import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Building } from "lucide-react";
 import Image from "next/image";
+
 
 // Mock data - en una aplicación real, esto vendría de una API
 const mockAlumnosDisponibles: Alumno[] = [
@@ -26,13 +31,61 @@ const ADSCRIPCION_STEPS = {
   STEP3: "notificacion-estudiantes",
 };
 
+const generateEmailPreview = (colegio: Colegio | null): string => {
+  if (!colegio) return "Por favor, seleccione un establecimiento para generar la vista previa del correo.";
+
+  const jefeUTP = colegio.personaContacto;
+  const nombreColegio = colegio.nombre;
+
+  return `Estimado/a ${jefeUTP}
+
+Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de jefe de UTP del ${nombreColegio} el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad, de acuerdo con el siguiente calendario de prácticas UCSC primer semestre 2025: 
+
+NIVEL DE PRÁCTICA         FECHA INICIO         FECHA TÉRMINO         Nº SEMANAS 
+P. PROFESIONAL             Semana 10 de marzo    Semana 16 de junio    15
+PPV - PPIV - PPIII – PPII - PPI     Semana 17 de marzo    Semana 16 de junio    14
+
+La nómina de estudiantes adscritos a su establecimiento se informa en el siguiente enlace, el que debe copiar y pegar en el navegador web. En dicha nómina se detalla nombre del estudiante, RUT, correo electrónico, carrera y nivel de práctica pedagógica que les corresponde cursar durante el primer semestre 2025. 
+https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true
+
+Al iniciar su pasantía, cada estudiante deberá hacer entrega de su carpeta de práctica con documentación institucional y personal; la cual considera: 
+•	Certificado de Antecedentes   
+•	Certificado de Inhabilidades para trabajar con menores de edad 
+•	Certificado de Inhabilidades por maltrato relevante 
+•	Horario universitario 
+•	Otra documentación  
+
+Eventualmente, esta nómina puede variar en consideración a los cupos autorizados por su establecimiento debido a que el proceso de inscripción de asignaturas UCSC aún está abierto. 
+
+Finalmente, como UPP agradecemos el espacio formativo otorgado por su comunidad educativa.  
+
+Se despide atentamente,   
+Equipo Unidad de Prácticas Pedagógicas UCSC`;
+};
+
+
 export default function AdscripcionPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [availableStudents, setAvailableStudents] = useState<Alumno[]>(mockAlumnosDisponibles);
   const [selectedStudents, setSelectedStudents] = useState<Alumno[]>([]);
+  
+  const [availableColegios, setAvailableColegios] = useState<Colegio[]>([]);
+  const [selectedColegioId, setSelectedColegioId] = useState<string | null>(null);
+  const [emailPreview, setEmailPreview] = useState<string>("");
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
+
+  useEffect(() => {
+    // Simular carga de colegios
+    setAvailableColegios(mockColegios);
+  }, []);
+
+  useEffect(() => {
+    const colegio = availableColegios.find(c => c.id === selectedColegioId) || null;
+    setEmailPreview(generateEmailPreview(colegio));
+  }, [selectedColegioId, availableColegios]);
+
 
   const filteredAvailableStudents = useMemo(() => {
     if (!searchTerm) {
@@ -57,6 +110,8 @@ export default function AdscripcionPage() {
   };
 
   const isStep1Valid = selectedStudents.length > 0;
+  const isStep2Valid = selectedColegioId !== null && emailPreview.length > 0;
+
 
   const goToNextStep = (nextStep: string) => {
     setUnlockedSteps((prev) => [...new Set([...prev, nextStep])]);
@@ -68,6 +123,10 @@ export default function AdscripcionPage() {
       setCurrentStep(newStep);
     }
   };
+
+  const selectedColegio = useMemo(() => {
+    return availableColegios.find(c => c.id === selectedColegioId) || null;
+  }, [selectedColegioId, availableColegios]);
 
   return (
     <div className="space-y-6">
@@ -111,7 +170,6 @@ export default function AdscripcionPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Sección de Búsqueda y Adición de Alumnos */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Buscar y Agregar Alumnos</h3>
                     <div className="relative">
@@ -163,7 +221,6 @@ export default function AdscripcionPage() {
                     )}
                   </div>
 
-                  {/* Sección de Alumnos Seleccionados */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Alumnos Seleccionados para Adscripción ({selectedStudents.length})</h3>
                     {selectedStudents.length > 0 ? (
@@ -227,28 +284,59 @@ export default function AdscripcionPage() {
                 <CardHeader>
                   <CardTitle>Paso 2: Notificación al Establecimiento</CardTitle>
                   <CardDescription>
-                    Comunica a los colegios o centros de práctica los estudiantes asignados.
+                    Selecciona el establecimiento y revisa el correo de notificación antes de enviarlo.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col items-center justify-center text-center min-h-[250px] space-y-4">
-                    <Image
-                      src="https://placehold.co/500x250.png"
-                      alt="Notificación al establecimiento"
-                      width={500}
-                      height={250}
-                      className="rounded-md object-contain opacity-70"
-                      data-ai-hint="official notification document"
-                    />
-                    <p className="text-muted-foreground">
-                      Este paso permitirá generar y enviar las notificaciones formales a los establecimientos.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      (Funcionalidad en desarrollo)
-                    </p>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="colegio-select">Seleccionar Establecimiento</Label>
+                    <Select
+                      value={selectedColegioId || undefined}
+                      onValueChange={(value) => setSelectedColegioId(value)}
+                    >
+                      <SelectTrigger id="colegio-select" className="w-full sm:w-[400px]">
+                        <SelectValue placeholder="Seleccione un colegio..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableColegios.map((colegio) => (
+                          <SelectItem key={colegio.id} value={colegio.id}>
+                            {colegio.nombre}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div className="flex justify-end mt-4">
-                    <Button onClick={() => goToNextStep(ADSCRIPCION_STEPS.STEP3)}>
+
+                  {selectedColegio && (
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Detalles del Establecimiento:</p>
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold">Contacto:</span> {selectedColegio.personaContacto} ({selectedColegio.emailContacto})
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email-preview">Vista Previa del Correo</Label>
+                    <Textarea
+                      id="email-preview"
+                      value={emailPreview}
+                      onChange={(e) => setEmailPreview(e.target.value)}
+                      rows={20}
+                      className="text-sm"
+                      disabled={!selectedColegioId}
+                    />
+                  </div>
+                  
+                  <div className="flex justify-between items-center mt-4">
+                    <Button variant="outline" disabled={!selectedColegioId}>
+                       <Building className="mr-2 h-4 w-4" />
+                       Enviar Notificación (Próximamente)
+                    </Button>
+                    <Button 
+                      onClick={() => goToNextStep(ADSCRIPCION_STEPS.STEP3)}
+                      disabled={!isStep2Valid}
+                    >
                       Siguiente Paso <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -281,7 +369,6 @@ export default function AdscripcionPage() {
                       (Funcionalidad en desarrollo)
                     </p>
                   </div>
-                   {/* No hay botón de "Siguiente Paso" en el último paso, podría ser "Finalizar Proceso" */}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -290,5 +377,4 @@ export default function AdscripcionPage() {
       </Card>
     </div>
   );
-
-    
+}
