@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Building } from "lucide-react";
 import Image from "next/image";
+import { EditableHtmlDisplay } from "@/components/shared/editable-html-display";
 
 
 // Mock data - en una aplicación real, esto vendría de una API
@@ -96,11 +97,12 @@ export default function AdscripcionPage() {
   const [availableColegios, setAvailableColegios] = useState<Colegio[]>([]);
   const [selectedColegioId, setSelectedColegioId] = useState<string | null>(null);
   
-  const initialEmailHtml = useMemo(() => generateEmailPreview(null), []);
-  const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailHtml); // Stores the template HTML for the selected colegio
-  const [editedHtml, setEditedHtml] = useState<string>(initialEmailHtml); // Stores the live edited HTML from user input
+  const initialEmailPlaceholder = useMemo(() => generateEmailPreview(null), []);
+  // currentTemplateHtml stores the template HTML to load into the editor (when colegio changes)
+  const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailPlaceholder);
+  // editedHtml stores the live edited HTML from user input via the EditableHtmlDisplay component
+  const [editedHtml, setEditedHtml] = useState<string>(initialEmailPlaceholder);
 
-  const emailEditorRef = useRef<HTMLDivElement>(null);
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
@@ -113,17 +115,9 @@ export default function AdscripcionPage() {
   useEffect(() => {
     const colegio = availableColegios.find(c => c.id === selectedColegioId) || null;
     const newTemplate = generateEmailPreview(colegio);
-    setCurrentTemplateHtml(newTemplate); // This will trigger the effect below to update the DOM
+    setCurrentTemplateHtml(newTemplate); // This will be passed to EditableHtmlDisplay as initialHtml
     setEditedHtml(newTemplate); // This resets the user's current edits to the new template
   }, [selectedColegioId, availableColegios]);
-
-  // Effect to set the content of the contentEditable div when currentTemplateHtml changes
-  // This runs when a new colegio is selected and its template is loaded into currentTemplateHtml
-  useEffect(() => {
-    if (emailEditorRef.current) {
-      emailEditorRef.current.innerHTML = currentTemplateHtml;
-    }
-  }, [currentTemplateHtml]); // Only re-run if the template source itself changes
 
 
   const filteredAvailableStudents = useMemo(() => {
@@ -149,7 +143,7 @@ export default function AdscripcionPage() {
   };
 
   const isStep1Valid = selectedStudents.length > 0;
-  const isStep2Valid = selectedColegioId !== null && editedHtml.length > 0 && editedHtml !== initialEmailHtml;
+  const isStep2Valid = selectedColegioId !== null && editedHtml.length > 0 && editedHtml !== initialEmailPlaceholder;
 
 
   const goToNextStep = (nextStep: string) => {
@@ -323,7 +317,7 @@ export default function AdscripcionPage() {
                 <CardHeader>
                   <CardTitle>Paso 2: Notificación al Establecimiento</CardTitle>
                   <CardDescription>
-                    Selecciona el establecimiento y edita el correo de notificación directamente. El contenido se actualiza a medida que escribes.
+                    Selecciona el establecimiento y edita el correo de notificación. El contenido se actualiza a medida que escribes.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -356,19 +350,14 @@ export default function AdscripcionPage() {
                   
                   <div className="space-y-2">
                     <Label htmlFor="email-editor-contenteditable">Editor de Correo (HTML Editable)</Label>
-                    <div
-                      ref={emailEditorRef}
-                      id="email-editor-contenteditable"
-                      key={selectedColegioId || 'no-colegio-selected'} // CRITICAL: Remounts div on colegio change
-                      contentEditable={!!selectedColegioId}
-                      suppressContentEditableWarning={true}
+                    <EditableHtmlDisplay
+                      key={selectedColegioId || 'no-colegio-selected'} // CRITICAL: Remounts component on colegio change
+                      initialHtml={currentTemplateHtml}
+                      onHtmlChange={setEditedHtml}
+                      editable={!!selectedColegioId}
                       className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto rounded-md border border-input bg-background p-4 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring prose prose-sm max-w-none
                         ${!selectedColegioId ? 'cursor-not-allowed opacity-70' : ''}
                       `}
-                      onInput={(e) => {
-                        setEditedHtml(e.currentTarget.innerHTML);
-                      }}
-                      // Content is set via ref and useEffect when currentTemplateHtml changes
                       role="textbox"
                       aria-multiline="true"
                       aria-label="Contenido del correo editable"
@@ -407,7 +396,7 @@ export default function AdscripcionPage() {
                       width={500}
                       height={250}
                       className="rounded-md object-contain opacity-70"
-                      data-ai-hint="student communication email"
+                      data-ai-hint="student communication"
                     />
                     <p className="text-muted-foreground">
                       Gestiona el envío de comunicaciones a los estudiantes con la información relevante a su práctica.
@@ -425,6 +414,3 @@ export default function AdscripcionPage() {
     </div>
   );
 }
-
-
-    
