@@ -5,6 +5,7 @@ import type { HTMLAttributes } from 'react';
 import { useEffect, useRef } from 'react';
 import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, Table as TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from "@/lib/utils"; // Added import
 
 interface EditableHtmlDisplayProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onInput' | 'dangerouslySetInnerHTML' | 'contentEditable' | 'suppressContentEditableWarning'> {
   initialHtml: string;
