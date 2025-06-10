@@ -95,7 +95,11 @@ export default function AdscripcionPage() {
   
   const [availableColegios, setAvailableColegios] = useState<Colegio[]>([]);
   const [selectedColegioId, setSelectedColegioId] = useState<string | null>(null);
-  const [emailPreview, setEmailPreview] = useState<string>(generateEmailPreview(null));
+  
+  const initialEmailHtml = useMemo(() => generateEmailPreview(null), []);
+  const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailHtml);
+  const [editedHtml, setEditedHtml] = useState<string>(initialEmailHtml);
+
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
@@ -106,7 +110,9 @@ export default function AdscripcionPage() {
 
   useEffect(() => {
     const colegio = availableColegios.find(c => c.id === selectedColegioId) || null;
-    setEmailPreview(generateEmailPreview(colegio));
+    const newTemplate = generateEmailPreview(colegio);
+    setCurrentTemplateHtml(newTemplate);
+    setEditedHtml(newTemplate); 
   }, [selectedColegioId, availableColegios]);
 
 
@@ -133,7 +139,7 @@ export default function AdscripcionPage() {
   };
 
   const isStep1Valid = selectedStudents.length > 0;
-  const isStep2Valid = selectedColegioId !== null && emailPreview.length > 0 && emailPreview !== generateEmailPreview(null);
+  const isStep2Valid = selectedColegioId !== null && editedHtml.length > 0 && editedHtml !== initialEmailHtml;
 
 
   const goToNextStep = (nextStep: string) => {
@@ -307,7 +313,7 @@ export default function AdscripcionPage() {
                 <CardHeader>
                   <CardTitle>Paso 2: Notificación al Establecimiento</CardTitle>
                   <CardDescription>
-                    Selecciona el establecimiento y edita el correo de notificación directamente en la vista previa.
+                    Selecciona el establecimiento y edita el correo de notificación directamente. El contenido se actualiza a medida que escribes.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -342,14 +348,14 @@ export default function AdscripcionPage() {
                     <Label htmlFor="email-editor-contenteditable">Editor de Correo (Vista Previa Editable)</Label>
                     <div
                       id="email-editor-contenteditable"
-                      key={selectedColegioId || 'no-colegio-selected'} // Force re-mount on colegio change
+                      key={selectedColegioId || 'no-colegio-selected'} 
                       contentEditable={!!selectedColegioId}
                       suppressContentEditableWarning={true}
                       className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto rounded-md border border-input bg-background p-4 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring prose prose-sm max-w-none
                         ${!selectedColegioId ? 'cursor-not-allowed opacity-70' : ''}
                       `}
-                      onInput={(e) => setEmailPreview(e.currentTarget.innerHTML)}
-                      dangerouslySetInnerHTML={{ __html: emailPreview }}
+                      onInput={(e) => setEditedHtml(e.currentTarget.innerHTML)}
+                      dangerouslySetInnerHTML={{ __html: currentTemplateHtml }}
                       role="textbox"
                       aria-multiline="true"
                       aria-label="Contenido del correo editable"
@@ -406,5 +412,3 @@ export default function AdscripcionPage() {
     </div>
   );
 }
-
-    
