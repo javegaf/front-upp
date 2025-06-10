@@ -41,19 +41,19 @@ const generateEmailPreview = (colegio: Colegio | null): string => {
 
 Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de jefe de UTP del ${nombreColegio} el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad, de acuerdo con el siguiente calendario de prácticas UCSC primer semestre 2025: 
 
-NIVEL DE PRÁCTICA         FECHA INICIO         FECHA TÉRMINO         Nº SEMANAS 
-P. PROFESIONAL             Semana 10 de marzo    Semana 16 de junio    15
-PPV - PPIV - PPIII – PPII - PPI     Semana 17 de marzo    Semana 16 de junio    14
+NIVEL DE PRÁCTICA\t\tFECHA INICIO\t\tFECHA TÉRMINO\t\tNº SEMANAS 
+P. PROFESIONAL\t\t\tSemana 10 de marzo\tSemana 16 de junio\t15
+PPV - PPIV - PPIII – PPII - PPI\tSemana 17 de marzo\tSemana 16 de junio\t14
 
 La nómina de estudiantes adscritos a su establecimiento se informa en el siguiente enlace, el que debe copiar y pegar en el navegador web. En dicha nómina se detalla nombre del estudiante, RUT, correo electrónico, carrera y nivel de práctica pedagógica que les corresponde cursar durante el primer semestre 2025. 
 https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true
 
 Al iniciar su pasantía, cada estudiante deberá hacer entrega de su carpeta de práctica con documentación institucional y personal; la cual considera: 
-•	Certificado de Antecedentes   
-•	Certificado de Inhabilidades para trabajar con menores de edad 
-•	Certificado de Inhabilidades por maltrato relevante 
-•	Horario universitario 
-•	Otra documentación  
+•\tCertificado de Antecedentes   
+•\tCertificado de Inhabilidades para trabajar con menores de edad 
+•\tCertificado de Inhabilidades por maltrato relevante 
+•\tHorario universitario 
+•\tOtra documentación  
 
 Eventualmente, esta nómina puede variar en consideración a los cupos autorizados por su establecimiento debido a que el proceso de inscripción de asignaturas UCSC aún está abierto. 
 
@@ -323,7 +323,7 @@ export default function AdscripcionPage() {
                       value={emailPreview}
                       onChange={(e) => setEmailPreview(e.target.value)}
                       rows={20}
-                      className="text-sm"
+                      className="text-sm font-mono"
                       disabled={!selectedColegioId}
                     />
                   </div>
@@ -378,3 +378,4 @@ export default function AdscripcionPage() {
     </div>
   );
 }
+
