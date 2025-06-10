@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import type { Alumno } from "@/lib/definitions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
