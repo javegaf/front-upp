@@ -32,7 +32,7 @@ const ADSCRIPCION_STEPS = {
 };
 
 const generateEmailPreview = (colegio: Colegio | null): string => {
-  if (!colegio) return "<p>Por favor, seleccione un establecimiento para generar la vista previa del correo.</p>";
+  if (!colegio) return "<p>Por favor, seleccione un establecimiento para generar la plantilla del correo.</p>";
 
   const jefeUTP = colegio.personaContacto;
   const nombreColegio = colegio.nombre;
@@ -42,7 +42,7 @@ const generateEmailPreview = (colegio: Colegio | null): string => {
 
 <p>Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de jefe de UTP del ${nombreColegio} el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad, de acuerdo con el siguiente calendario de prácticas UCSC primer semestre 2025:</p>
 
-<table style="width:100%; border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<table style="width:100%; border-collapse: collapse; margin-top: 1em; margin-bottom: 1em; border: 1px solid #ddd;">
   <thead>
     <tr>
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">NIVEL DE PRÁCTICA</th>
@@ -308,7 +308,7 @@ export default function AdscripcionPage() {
                 <CardHeader>
                   <CardTitle>Paso 2: Notificación al Establecimiento</CardTitle>
                   <CardDescription>
-                    Selecciona el establecimiento y revisa/edita el correo de notificación antes de enviarlo.
+                    Selecciona el establecimiento y edita el código fuente HTML del correo de notificación.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -337,27 +337,22 @@ export default function AdscripcionPage() {
                       <p className="text-sm text-muted-foreground">
                         <span className="font-semibold">Contacto:</span> {selectedColegio.personaContacto} ({selectedColegio.emailContacto})
                       </p>
+                       <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold">Estudiantes seleccionados:</span> {selectedStudents.length}
+                      </p>
                     </div>
                   )}
                   
                   <div className="space-y-2">
-                    <Label>Vista Previa del Correo (HTML Renderizado)</Label>
-                     <div 
-                        className="p-4 border rounded-md bg-muted/50 min-h-[200px] text-sm prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: selectedColegioId ? emailPreview : "<p>Seleccione un establecimiento para ver la vista previa.</p>" }}
-                      />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email-editor">Editar Código Fuente del Correo (HTML)</Label>
+                    <Label htmlFor="email-editor">Editor de Correo (HTML)</Label>
                     <Textarea
                       id="email-editor"
                       value={emailPreview}
                       onChange={(e) => setEmailPreview(e.target.value)}
-                      rows={20}
-                      className="text-sm font-mono" // font-mono ayuda a editar HTML
+                      rows={25} 
+                      className="text-sm font-mono w-full"
                       disabled={!selectedColegioId}
-                      placeholder={!selectedColegioId ? "Seleccione un establecimiento para cargar la plantilla..." : "Código HTML del correo..."}
+                      placeholder={!selectedColegioId ? "Seleccione un establecimiento para cargar y editar la plantilla HTML..." : "Edite el código HTML del correo aquí..."}
                     />
                   </div>
                   
@@ -411,3 +406,4 @@ export default function AdscripcionPage() {
     </div>
   );
 }
+
