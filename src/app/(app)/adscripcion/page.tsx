@@ -91,9 +91,7 @@ export default function AdscripcionPage() {
   const [selectedColegioId, setSelectedColegioId] = useState<string | null>(null);
 
   const initialEmailPlaceholder = useMemo(() => generateEmailPreview(null), []);
-  // currentTemplateHtml stores the template HTML to load into the editor (when colegio changes)
   const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailPlaceholder);
-  // editedHtml stores the live edited HTML from user input via the EditableHtmlDisplay component
   const [editedHtml, setEditedHtml] = useState<string>(initialEmailPlaceholder);
 
 
@@ -104,7 +102,6 @@ export default function AdscripcionPage() {
     setAvailableColegios(mockColegios);
   }, []);
 
-  // Effect to update the template and reset edited HTML when a new colegio is selected
   useEffect(() => {
     const colegio = availableColegios.find(c => c.id === selectedColegioId) || null;
     const newTemplate = generateEmailPreview(colegio);
@@ -344,15 +341,13 @@ export default function AdscripcionPage() {
                   <div className="space-y-2">
                     <Label htmlFor="email-editor-contenteditable">Editor de Correo</Label>
                     <EditableHtmlDisplay
-                      key={selectedColegioId || 'no-colegio-selected'}
+                      key={selectedColegioId || 'no-colegio-selected'} // Force re-mount on colegio change
                       initialHtml={currentTemplateHtml}
                       onHtmlChange={setEditedHtml}
                       editable={!!selectedColegioId}
-                      className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto bg-background p-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-table:my-2
+                      className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto 
                         ${!selectedColegioId ? 'cursor-not-allowed opacity-70' : ''}
                       `}
-                      role="textbox"
-                      aria-multiline="true"
                       aria-label="Contenido del correo editable"
                     />
                   </div>
@@ -366,7 +361,7 @@ export default function AdscripcionPage() {
                       onClick={() => goToNextStep(ADSCRIPCION_STEPS.STEP3)}
                       disabled={!isStep2Valid}
                     >
-                      Hazlo más claro <ChevronRight className="ml-2 h-4 w-4" />
+                      Siguiente Paso <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -407,5 +402,7 @@ export default function AdscripcionPage() {
     </div>
   );
 }
+
+    
 
     
