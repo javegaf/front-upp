@@ -97,9 +97,10 @@ export default function AdscripcionPage() {
   const [selectedColegioId, setSelectedColegioId] = useState<string | null>(null);
   
   const initialEmailHtml = useMemo(() => generateEmailPreview(null), []);
-  const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailHtml);
-  const [editedHtml, setEditedHtml] = useState<string>(initialEmailHtml);
+  const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailHtml); // Stores the template HTML for the selected colegio
+  const [editedHtml, setEditedHtml] = useState<string>(initialEmailHtml); // Stores the live edited HTML from user input
 
+  const emailEditorRef = useRef<HTMLDivElement>(null);
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
@@ -108,12 +109,21 @@ export default function AdscripcionPage() {
     setAvailableColegios(mockColegios);
   }, []);
 
+  // Effect to update the template and reset edited HTML when a new colegio is selected
   useEffect(() => {
     const colegio = availableColegios.find(c => c.id === selectedColegioId) || null;
     const newTemplate = generateEmailPreview(colegio);
-    setCurrentTemplateHtml(newTemplate);
-    setEditedHtml(newTemplate); 
+    setCurrentTemplateHtml(newTemplate); // This will trigger the effect below to update the DOM
+    setEditedHtml(newTemplate); // This resets the user's current edits to the new template
   }, [selectedColegioId, availableColegios]);
+
+  // Effect to set the content of the contentEditable div when currentTemplateHtml changes
+  // This runs when a new colegio is selected and its template is loaded into currentTemplateHtml
+  useEffect(() => {
+    if (emailEditorRef.current) {
+      emailEditorRef.current.innerHTML = currentTemplateHtml;
+    }
+  }, [currentTemplateHtml]); // Only re-run if the template source itself changes
 
 
   const filteredAvailableStudents = useMemo(() => {
@@ -345,17 +355,20 @@ export default function AdscripcionPage() {
                   )}
                   
                   <div className="space-y-2">
-                    <Label htmlFor="email-editor-contenteditable">Editor de Correo (Vista Previa Editable)</Label>
+                    <Label htmlFor="email-editor-contenteditable">Editor de Correo (HTML Editable)</Label>
                     <div
+                      ref={emailEditorRef}
                       id="email-editor-contenteditable"
-                      key={selectedColegioId || 'no-colegio-selected'} 
+                      key={selectedColegioId || 'no-colegio-selected'} // CRITICAL: Remounts div on colegio change
                       contentEditable={!!selectedColegioId}
                       suppressContentEditableWarning={true}
                       className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto rounded-md border border-input bg-background p-4 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring prose prose-sm max-w-none
                         ${!selectedColegioId ? 'cursor-not-allowed opacity-70' : ''}
                       `}
-                      onInput={(e) => setEditedHtml(e.currentTarget.innerHTML)}
-                      dangerouslySetInnerHTML={{ __html: currentTemplateHtml }}
+                      onInput={(e) => {
+                        setEditedHtml(e.currentTarget.innerHTML);
+                      }}
+                      // Content is set via ref and useEffect when currentTemplateHtml changes
                       role="textbox"
                       aria-multiline="true"
                       aria-label="Contenido del correo editable"
@@ -412,3 +425,6 @@ export default function AdscripcionPage() {
     </div>
   );
 }
+
+
+    
