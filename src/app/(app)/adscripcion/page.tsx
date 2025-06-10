@@ -1,14 +1,13 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import type { Alumno, Colegio } from "@/lib/definitions";
 import { mockColegios } from "@/lib/definitions"; // Importar mockColegios
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -32,7 +31,7 @@ const ADSCRIPCION_STEPS = {
 };
 
 const generateEmailPreview = (colegio: Colegio | null): string => {
-  if (!colegio) return "<p>Por favor, seleccione un establecimiento para generar la plantilla del correo.</p>";
+  if (!colegio) return "<p class='text-muted-foreground p-4 text-center'>Por favor, seleccione un establecimiento para generar y editar la plantilla del correo.</p>";
 
   const jefeUTP = colegio.personaContacto;
   const nombreColegio = colegio.nombre;
@@ -68,7 +67,7 @@ const generateEmailPreview = (colegio: Colegio | null): string => {
 </table>
 
 <p>La nómina de estudiantes adscritos a su establecimiento se informa en el siguiente enlace, el que debe copiar y pegar en el navegador web. En dicha nómina se detalla nombre del estudiante, RUT, correo electrónico, carrera y nivel de práctica pedagógica que les corresponde cursar durante el primer semestre 2025.<br>
-<a href="https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true">https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true</a></p>
+<a href="https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true" target="_blank" rel="noopener noreferrer">https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true</a></p>
 
 <p>Al iniciar su pasantía, cada estudiante deberá hacer entrega de su carpeta de práctica con documentación institucional y personal; la cual considera:</p>
 <ul>
@@ -96,7 +95,7 @@ export default function AdscripcionPage() {
   
   const [availableColegios, setAvailableColegios] = useState<Colegio[]>([]);
   const [selectedColegioId, setSelectedColegioId] = useState<string | null>(null);
-  const [emailPreview, setEmailPreview] = useState<string>("");
+  const [emailPreview, setEmailPreview] = useState<string>(generateEmailPreview(null));
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
@@ -134,7 +133,7 @@ export default function AdscripcionPage() {
   };
 
   const isStep1Valid = selectedStudents.length > 0;
-  const isStep2Valid = selectedColegioId !== null && emailPreview.length > 0;
+  const isStep2Valid = selectedColegioId !== null && emailPreview.length > 0 && emailPreview !== generateEmailPreview(null);
 
 
   const goToNextStep = (nextStep: string) => {
@@ -308,7 +307,7 @@ export default function AdscripcionPage() {
                 <CardHeader>
                   <CardTitle>Paso 2: Notificación al Establecimiento</CardTitle>
                   <CardDescription>
-                    Selecciona el establecimiento y edita el contenido HTML del correo de notificación.
+                    Selecciona el establecimiento y edita el correo de notificación directamente en la vista previa.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -332,27 +331,28 @@ export default function AdscripcionPage() {
                   </div>
 
                   {selectedColegio && (
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">Detalles del Establecimiento:</p>
-                      <p className="text-sm text-muted-foreground">
-                        <span className="font-semibold">Contacto:</span> {selectedColegio.personaContacto} ({selectedColegio.emailContacto})
-                      </p>
-                       <p className="text-sm text-muted-foreground">
-                        <span className="font-semibold">Estudiantes seleccionados:</span> {selectedStudents.length}
-                      </p>
+                    <div className="space-y-1 text-sm">
+                      <p><span className="font-semibold">Establecimiento:</span> {selectedColegio.nombre}</p>
+                      <p><span className="font-semibold">Contacto:</span> {selectedColegio.personaContacto} ({selectedColegio.emailContacto})</p>
+                      <p><span className="font-semibold">Estudiantes seleccionados:</span> {selectedStudents.length}</p>
                     </div>
                   )}
                   
                   <div className="space-y-2">
-                    <Label htmlFor="email-editor">Editor de Correo (HTML)</Label>
-                    <Textarea
-                      id="email-editor"
-                      value={emailPreview}
-                      onChange={(e) => setEmailPreview(e.target.value)}
-                      rows={25} 
-                      className="text-sm font-mono w-full"
-                      disabled={!selectedColegioId}
-                      placeholder={!selectedColegioId ? "Seleccione un establecimiento para cargar y editar la plantilla HTML..." : "Edite el código HTML del correo aquí..."}
+                    <Label htmlFor="email-editor-contenteditable">Editor de Correo (Vista Previa Editable)</Label>
+                    <div
+                      id="email-editor-contenteditable"
+                      key={selectedColegioId || 'no-colegio-selected'} // Force re-mount on colegio change
+                      contentEditable={!!selectedColegioId}
+                      suppressContentEditableWarning={true}
+                      className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto rounded-md border border-input bg-background p-4 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring prose prose-sm max-w-none
+                        ${!selectedColegioId ? 'cursor-not-allowed opacity-70' : ''}
+                      `}
+                      onInput={(e) => setEmailPreview(e.currentTarget.innerHTML)}
+                      dangerouslySetInnerHTML={{ __html: emailPreview }}
+                      role="textbox"
+                      aria-multiline="true"
+                      aria-label="Contenido del correo editable"
                     />
                   </div>
                                     
@@ -407,3 +407,4 @@ export default function AdscripcionPage() {
   );
 }
 
+    
