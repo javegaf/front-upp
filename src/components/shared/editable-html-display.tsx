@@ -3,7 +3,7 @@
 
 import type { HTMLAttributes } from 'react';
 import { useEffect, useRef } from 'react';
-import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, Table as TableIcon } from 'lucide-react'; // Renamed Table to TableIcon to avoid conflict
+import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, Table as TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface EditableHtmlDisplayProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onInput' | 'dangerouslySetInnerHTML' | 'contentEditable' | 'suppressContentEditableWarning'> {
@@ -24,9 +24,6 @@ export function EditableHtmlDisplay({
 
   useEffect(() => {
     if (editorRef.current) {
-      // Only update if the content is actually different to avoid unnecessary cursor jumps
-      // if the parent component re-renders but initialHtml hasn't changed.
-      // This is primarily for when the underlying template (initialHtml) changes.
       if (editorRef.current.innerHTML !== initialHtml) {
         editorRef.current.innerHTML = initialHtml;
       }
@@ -41,16 +38,13 @@ export function EditableHtmlDisplay({
 
   const execCommand = (command: string, value: string | null = null) => {
     if (editorRef.current && editable) {
-      editorRef.current.focus(); // Ensure editor has focus
+      editorRef.current.focus(); 
       document.execCommand(command, false, value);
-      // The 'input' event should fire after execCommand, which will call handleInput.
-      // Forcing an update if handleInput isn't triggered consistently by execCommand in some rare cases:
-      if (editorRef.current) { // Check ref again, just in case
-        const currentContent = editorRef.current.innerHTML;
-        // A minimal check, could be more sophisticated.
-        // This is to ensure onHtmlChange is called if the input event doesn't fire reliably for some commands.
-        // However, onInput event should generally cover this.
-        // For now, we rely on onInput to call handleInput and thus onHtmlChange.
+      // Explicitly update React state after execCommand
+      // This ensures changes (especially for lists/tables) are captured
+      // even if onInput doesn't fire reliably for these commands.
+      if (editorRef.current) {
+        onHtmlChange(editorRef.current.innerHTML);
       }
     }
   };
@@ -63,7 +57,6 @@ export function EditableHtmlDisplay({
   const handleOrderedListClick = () => execCommand('insertOrderedList');
 
   const handleInsertTableClick = () => {
-    // Basic 2x2 table
     const tableHtml = `
       <table border="1" style="width:100%; border-collapse: collapse; margin-bottom: 1em;">
         <thead>
@@ -83,47 +76,49 @@ export function EditableHtmlDisplay({
           </tr>
         </tbody>
       </table>
-      <p></p> {/* Add a paragraph after the table for easier continued typing */}
+      <p></p> 
     `;
     execCommand('insertHTML', tableHtml);
   };
 
   return (
-    <div className="rounded-md border border-input shadow-sm">
+    <div className="rounded-md border border-input shadow-sm bg-card">
       {editable && (
-        <div className="flex flex-wrap space-x-1 border-b border-input p-2 bg-muted/50 rounded-t-md">
-          <Button variant="outline" size="sm" onClick={handleBoldClick} title="Bold (Ctrl+B)" className="h-8 w-8 p-0">
+        <div className="flex flex-wrap items-center gap-1 border-b border-input p-2 bg-muted/50 rounded-t-md">
+          <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleBoldClick} title="Bold (Ctrl+B)" className="h-8 w-8 p-0">
             <Bold className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleItalicClick} title="Italic (Ctrl+I)" className="h-8 w-8 p-0">
+          <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleItalicClick} title="Italic (Ctrl+I)" className="h-8 w-8 p-0">
             <Italic className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleUnderlineClick} title="Underline (Ctrl+U)" className="h-8 w-8 p-0">
+          <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleUnderlineClick} title="Underline (Ctrl+U)" className="h-8 w-8 p-0">
             <Underline className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleStrikethroughClick} title="Strikethrough" className="h-8 w-8 p-0">
+          <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleStrikethroughClick} title="Strikethrough" className="h-8 w-8 p-0">
             <Strikethrough className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleUnorderedListClick} title="Bulleted List" className="h-8 w-8 p-0">
+          <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleUnorderedListClick} title="Bulleted List" className="h-8 w-8 p-0">
             <List className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleOrderedListClick} title="Numbered List" className="h-8 w-8 p-0">
+          <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleOrderedListClick} title="Numbered List" className="h-8 w-8 p-0">
             <ListOrdered className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleInsertTableClick} title="Insert Table" className="h-8 w-8 p-0">
+          <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleInsertTableClick} title="Insert Table" className="h-8 w-8 p-0">
             <TableIcon className="h-4 w-4" />
           </Button>
-          {/* Add more buttons here as needed */}
         </div>
       )}
       <div
         ref={editorRef}
         contentEditable={editable}
-        suppressContentEditableWarning={true} // Necessary for contentEditable with React
-        className={className} // This will include prose styles from parent
+        suppressContentEditableWarning={true}
+        className={cn(
+          "min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-table:my-2",
+           editable ? "bg-background" : "bg-muted/30 cursor-not-allowed opacity-70",
+           className
+        )}
         onInput={handleInput}
         {...divProps}
-        // The initial HTML is set via useEffect when `initialHtml` prop changes
       />
     </div>
   );
