@@ -39,9 +39,7 @@ const generateEmailPreview = (colegio: Colegio | null): string => {
 
   return `
 <p>Estimado/a ${jefeUTP},</p>
-
 <p>Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de jefe de UTP del ${nombreColegio} el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad, de acuerdo con el siguiente calendario de prácticas UCSC primer semestre 2025:</p>
-
 <table style="width:100%; border-collapse: collapse; margin-top: 1em; margin-bottom: 1em; border: 1px solid #ddd;">
   <thead>
     <tr>
@@ -66,10 +64,8 @@ const generateEmailPreview = (colegio: Colegio | null): string => {
     </tr>
   </tbody>
 </table>
-
 <p>La nómina de estudiantes adscritos a su establecimiento se informa en el siguiente enlace, el que debe copiar y pegar en el navegador web. En dicha nómina se detalla nombre del estudiante, RUT, correo electrónico, carrera y nivel de práctica pedagógica que les corresponde cursar durante el primer semestre 2025.<br>
 <a href="https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true" target="_blank" rel="noopener noreferrer">https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true</a></p>
-
 <p>Al iniciar su pasantía, cada estudiante deberá hacer entrega de su carpeta de práctica con documentación institucional y personal; la cual considera:</p>
 <ul>
   <li>Certificado de Antecedentes</li>
@@ -78,11 +74,8 @@ const generateEmailPreview = (colegio: Colegio | null): string => {
   <li>Horario universitario</li>
   <li>Otra documentación</li>
 </ul>
-
 <p>Eventualmente, esta nómina puede variar en consideración a los cupos autorizados por su establecimiento debido a que el proceso de inscripción de asignaturas UCSC aún está abierto.</p>
-
 <p>Finalmente, como UPP agradecemos el espacio formativo otorgado por su comunidad educativa.</p>
-
 <p>Se despide atentamente,<br>
 Equipo Unidad de Prácticas Pedagógicas UCSC</p>
 `;
@@ -115,8 +108,8 @@ export default function AdscripcionPage() {
   useEffect(() => {
     const colegio = availableColegios.find(c => c.id === selectedColegioId) || null;
     const newTemplate = generateEmailPreview(colegio);
-    setCurrentTemplateHtml(newTemplate); // This will be passed to EditableHtmlDisplay as initialHtml
-    setEditedHtml(newTemplate); // This resets the user's current edits to the new template
+    setCurrentTemplateHtml(newTemplate); 
+    setEditedHtml(newTemplate); 
   }, [selectedColegioId, availableColegios]);
 
 
@@ -143,7 +136,7 @@ export default function AdscripcionPage() {
   };
 
   const isStep1Valid = selectedStudents.length > 0;
-  const isStep2Valid = selectedColegioId !== null && editedHtml.length > 0 && editedHtml !== initialEmailPlaceholder;
+  const isStep2Valid = selectedColegioId !== null && editedHtml.length > 0 && editedHtml !== initialEmailPlaceholder && editedHtml !== generateEmailPreview(null);
 
 
   const goToNextStep = (nextStep: string) => {
@@ -349,13 +342,13 @@ export default function AdscripcionPage() {
                   )}
                   
                   <div className="space-y-2">
-                    <Label htmlFor="email-editor-contenteditable">Editor de Correo (HTML Editable)</Label>
+                    <Label htmlFor="email-editor-contenteditable">Editor de Correo</Label>
                     <EditableHtmlDisplay
-                      key={selectedColegioId || 'no-colegio-selected'} // CRITICAL: Remounts component on colegio change
+                      key={selectedColegioId || 'no-colegio-selected'} 
                       initialHtml={currentTemplateHtml}
                       onHtmlChange={setEditedHtml}
                       editable={!!selectedColegioId}
-                      className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto rounded-md border border-input bg-background p-4 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring prose prose-sm max-w-none
+                      className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto bg-background p-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-table:my-2
                         ${!selectedColegioId ? 'cursor-not-allowed opacity-70' : ''}
                       `}
                       role="textbox"
