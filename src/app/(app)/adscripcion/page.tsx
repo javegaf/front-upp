@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2 } from "lucide-react";
+import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 // Mock data - en una aplicación real, esto vendría de una API
@@ -20,10 +20,19 @@ const mockAlumnosDisponibles: Alumno[] = [
   { id: "105", nombres: "Sofía", apellidos: "González Ríos", email: "sofia.gonzalez@example.com", carrera: "Pedagogía en Inglés", semestre: 7, telefono: "+56912345674" },
 ];
 
+const ADSCRIPCION_STEPS = {
+  STEP1: "seleccion-estudiantes",
+  STEP2: "notificacion-establecimiento",
+  STEP3: "notificacion-estudiantes",
+};
+
 export default function AdscripcionPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [availableStudents, setAvailableStudents] = useState<Alumno[]>(mockAlumnosDisponibles);
   const [selectedStudents, setSelectedStudents] = useState<Alumno[]>([]);
+
+  const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
+  const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
 
   const filteredAvailableStudents = useMemo(() => {
     if (!searchTerm) {
@@ -47,6 +56,18 @@ export default function AdscripcionPage() {
     setSelectedStudents((prevSelected) => prevSelected.filter((s) => s.id !== studentToRemove.id));
   };
 
+  const isStep1Valid = selectedStudents.length > 0;
+
+  const goToNextStep = (nextStep: string) => {
+    setUnlockedSteps((prev) => [...new Set([...prev, nextStep])]);
+    setCurrentStep(nextStep);
+  };
+
+  const handleTabChange = (newStep: string) => {
+    if (unlockedSteps.includes(newStep)) {
+      setCurrentStep(newStep);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -65,23 +86,23 @@ export default function AdscripcionPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="seleccion-estudiantes" className="w-full">
+          <Tabs value={currentStep} onValueChange={handleTabChange} className="w-full">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6">
-              <TabsTrigger value="seleccion-estudiantes">
+              <TabsTrigger value={ADSCRIPCION_STEPS.STEP1} disabled={!unlockedSteps.includes(ADSCRIPCION_STEPS.STEP1)}>
                 <Users className="mr-2 h-4 w-4" />
                 Paso 1: Selección de Estudiantes
               </TabsTrigger>
-              <TabsTrigger value="notificacion-establecimiento">
+              <TabsTrigger value={ADSCRIPCION_STEPS.STEP2} disabled={!unlockedSteps.includes(ADSCRIPCION_STEPS.STEP2)}>
                 <BellRing className="mr-2 h-4 w-4" />
                 Paso 2: Notificación al Establecimiento
               </TabsTrigger>
-              <TabsTrigger value="notificacion-estudiantes">
+              <TabsTrigger value={ADSCRIPCION_STEPS.STEP3} disabled={!unlockedSteps.includes(ADSCRIPCION_STEPS.STEP3)}>
                 <BellPlus className="mr-2 h-4 w-4" />
                 Paso 3: Notificación a Estudiantes
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="seleccion-estudiantes">
+            <TabsContent value={ADSCRIPCION_STEPS.STEP1}>
               <Card>
                 <CardHeader>
                   <CardTitle>Paso 1: Selección de Estudiantes</CardTitle>
@@ -104,7 +125,7 @@ export default function AdscripcionPage() {
                       />
                     </div>
                     {filteredAvailableStudents.length > 0 ? (
-                      <Card className="border shadow-sm">
+                      <Card className="border shadow-sm max-h-60 overflow-y-auto">
                         <Table>
                           <TableHeader>
                             <TableRow>
@@ -189,11 +210,19 @@ export default function AdscripcionPage() {
                       </div>
                     )}
                   </div>
+                  <div className="flex justify-end mt-4">
+                    <Button
+                      onClick={() => goToNextStep(ADSCRIPCION_STEPS.STEP2)}
+                      disabled={!isStep1Valid}
+                    >
+                      Siguiente Paso <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="notificacion-establecimiento">
+            <TabsContent value={ADSCRIPCION_STEPS.STEP2}>
               <Card>
                 <CardHeader>
                   <CardTitle>Paso 2: Notificación al Establecimiento</CardTitle>
@@ -201,26 +230,33 @@ export default function AdscripcionPage() {
                     Comunica a los colegios o centros de práctica los estudiantes asignados.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center text-center min-h-[250px] space-y-4">
-                  <Image
-                    src="https://placehold.co/500x250.png"
-                    alt="Notificación al establecimiento"
-                    width={500}
-                    height={250}
-                    className="rounded-md object-contain opacity-70"
-                    data-ai-hint="official notification document"
-                  />
-                  <p className="text-muted-foreground">
-                    Este paso permitirá generar y enviar las notificaciones formales a los establecimientos.
-                  </p>
-                   <p className="text-sm text-muted-foreground">
-                    (Funcionalidad en desarrollo)
-                  </p>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col items-center justify-center text-center min-h-[250px] space-y-4">
+                    <Image
+                      src="https://placehold.co/500x250.png"
+                      alt="Notificación al establecimiento"
+                      width={500}
+                      height={250}
+                      className="rounded-md object-contain opacity-70"
+                      data-ai-hint="official notification document"
+                    />
+                    <p className="text-muted-foreground">
+                      Este paso permitirá generar y enviar las notificaciones formales a los establecimientos.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      (Funcionalidad en desarrollo)
+                    </p>
+                  </div>
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextStep(ADSCRIPCION_STEPS.STEP3)}>
+                      Siguiente Paso <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="notificacion-estudiantes">
+            <TabsContent value={ADSCRIPCION_STEPS.STEP3}>
               <Card>
                 <CardHeader>
                   <CardTitle>Paso 3: Notificación a Estudiantes</CardTitle>
@@ -228,21 +264,24 @@ export default function AdscripcionPage() {
                     Informa a los estudiantes sobre los detalles de su asignación de práctica.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center text-center min-h-[250px] space-y-4">
-                  <Image
-                    src="https://placehold.co/500x250.png"
-                    alt="Notificación a estudiantes"
-                    width={500}
-                    height={250}
-                    className="rounded-md object-contain opacity-70"
-                    data-ai-hint="student communication email"
-                  />
-                  <p className="text-muted-foreground">
-                    Gestiona el envío de comunicaciones a los estudiantes con la información relevante a su práctica.
-                  </p>
-                   <p className="text-sm text-muted-foreground">
-                    (Funcionalidad en desarrollo)
-                  </p>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col items-center justify-center text-center min-h-[250px] space-y-4">
+                    <Image
+                      src="https://placehold.co/500x250.png"
+                      alt="Notificación a estudiantes"
+                      width={500}
+                      height={250}
+                      className="rounded-md object-contain opacity-70"
+                      data-ai-hint="student communication email"
+                    />
+                    <p className="text-muted-foreground">
+                      Gestiona el envío de comunicaciones a los estudiantes con la información relevante a su práctica.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      (Funcionalidad en desarrollo)
+                    </p>
+                  </div>
+                   {/* No hay botón de "Siguiente Paso" en el último paso, podría ser "Finalizar Proceso" */}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -251,4 +290,5 @@ export default function AdscripcionPage() {
       </Card>
     </div>
   );
-}
+
+    
