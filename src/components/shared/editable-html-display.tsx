@@ -5,7 +5,7 @@ import type { HTMLAttributes } from 'react';
 import { useEffect, useRef } from 'react';
 import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, Table as TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from "@/lib/utils"; // Added import
+import { cn } from "@/lib/utils";
 
 interface EditableHtmlDisplayProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onInput' | 'dangerouslySetInnerHTML' | 'contentEditable' | 'suppressContentEditableWarning'> {
   initialHtml: string;
@@ -23,14 +23,25 @@ export function EditableHtmlDisplay({
 }: EditableHtmlDisplayProps) {
   const editorRef = useRef<HTMLDivElement>(null);
 
+  // Effect to load initialHtml into the editor when the component mounts or initialHtml prop changes.
   useEffect(() => {
     if (editorRef.current) {
+      // Only update if the initialHtml is genuinely different from current content
+      // This prevents overwriting user edits if initialHtml prop hasn't changed
+      // but the component re-renders for other reasons.
       if (editorRef.current.innerHTML !== initialHtml) {
         editorRef.current.innerHTML = initialHtml;
+        // If we just reset the editor's content from initialHtml (e.g. new template),
+        // we should also inform the parent that the "edited" state is now this initialHtml.
+        onHtmlChange(initialHtml);
       }
     }
-  }, [initialHtml]);
+  // onHtmlChange is a stable function (setState from parent), so it's okay in the dep array.
+  // This effect runs when a new template (initialHtml) is provided.
+  }, [initialHtml, onHtmlChange]);
 
+  // Handler for user input (typing, pasting, etc.)
+  // This ensures that direct manipulations by the user are captured.
   const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
     if (editable && editorRef.current) {
       onHtmlChange(editorRef.current.innerHTML);
@@ -39,11 +50,11 @@ export function EditableHtmlDisplay({
 
   const execCommand = (command: string, value: string | null = null) => {
     if (editorRef.current && editable) {
-      editorRef.current.focus(); 
+      editorRef.current.focus(); // Ensure editor has focus
       document.execCommand(command, false, value);
-      // Explicitly update React state after execCommand
-      // This ensures changes (especially for lists/tables) are captured
-      // even if onInput doesn't fire reliably for these commands.
+      // After execCommand, DOM is modified. Read the new innerHTML and inform parent.
+      // This is crucial for commands that might not reliably fire 'input' events
+      // or for ensuring immediate state sync with React.
       if (editorRef.current) {
         onHtmlChange(editorRef.current.innerHTML);
       }
@@ -78,7 +89,7 @@ export function EditableHtmlDisplay({
         </tbody>
       </table>
       <p></p> 
-    `;
+    `; // Added <p></p> to ensure there's a new paragraph line after table insertion for better UX.
     execCommand('insertHTML', tableHtml);
   };
 
@@ -118,8 +129,9 @@ export function EditableHtmlDisplay({
            editable ? "bg-background" : "bg-muted/30 cursor-not-allowed opacity-70",
            className
         )}
-        onInput={handleInput}
+        onInput={handleInput} // This handles direct typing, pasting etc.
         {...divProps}
+        // initialHtml is loaded via useEffect. No dangerouslySetInnerHTML here.
       />
     </div>
   );
