@@ -1,2071 +1,67 @@
 {
-    "openapi": "3.1.0",
-    "info": {
-      "title": "FastAPI",
-      "version": "0.1.0"
-    },
-    "paths": {
-      "/api/v1/comunas": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read All Comunas",
-          "operationId": "read_all_comunas_api_v1_comunas_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "items": {
-                      "$ref": "#/components/schemas/Comuna"
-                    },
-                    "type": "array",
-                    "title": "Response Read All Comunas Api V1 Comunas Get"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Create Comuna",
-          "operationId": "create_comuna_api_v1_comunas_post",
-          "requestBody": {
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FastAPI",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/comunas": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read All Comunas",
+        "operationId": "read_all_comunas_api_v1_comunas_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ComunaBase"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
+                  "items": {
                     "$ref": "#/components/schemas/Comuna"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
+                  },
+                  "type": "array",
+                  "title": "Response Read All Comunas Api V1 Comunas Get"
                 }
               }
             }
           }
         }
       },
-      "/api/v1/comunas/{comuna_id}": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read Comuna",
-          "operationId": "read_comuna_api_v1_comunas__comuna_id__get",
-          "parameters": [
-            {
-              "name": "comuna_id",
-              "in": "path",
-              "required": true,
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Create Comuna",
+        "operationId": "create_comuna_api_v1_comunas_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
               "schema": {
-                "type": "integer",
-                "title": "Comuna Id"
+                "$ref": "#/components/schemas/ComunaBase"
               }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Comuna"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
+          },
+          "required": true
         },
-        "put": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Update Comuna",
-          "operationId": "update_comuna_api_v1_comunas__comuna_id__put",
-          "parameters": [
-            {
-              "name": "comuna_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Comuna Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
+        "responses": {
+          "200": {
+            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ComunaBase"
+                  "$ref": "#/components/schemas/Comuna"
                 }
               }
             }
           },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Comuna"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Delete Comuna",
-          "operationId": "delete_comuna_api_v1_comunas__comuna_id__delete",
-          "parameters": [
-            {
-              "name": "comuna_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Comuna Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/carreras": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read All Carreras",
-          "operationId": "read_all_carreras_api_v1_carreras_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "items": {
-                      "$ref": "#/components/schemas/Carrera"
-                    },
-                    "type": "array",
-                    "title": "Response Read All Carreras Api V1 Carreras Get"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Create Carrera",
-          "operationId": "create_carrera_api_v1_carreras_post",
-          "requestBody": {
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CarreraBase"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Carrera"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/carreras/{carrera_id}": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read Carrera",
-          "operationId": "read_carrera_api_v1_carreras__carrera_id__get",
-          "parameters": [
-            {
-              "name": "carrera_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Carrera Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Carrera"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "put": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Update Carrera",
-          "operationId": "update_carrera_api_v1_carreras__carrera_id__put",
-          "parameters": [
-            {
-              "name": "carrera_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Carrera Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CarreraBase"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Carrera"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Delete Carrera",
-          "operationId": "delete_carrera_api_v1_carreras__carrera_id__delete",
-          "parameters": [
-            {
-              "name": "carrera_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Carrera Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/tutores": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read All Tutores",
-          "operationId": "read_all_tutores_api_v1_tutores_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "items": {
-                      "$ref": "#/components/schemas/Tutor"
-                    },
-                    "type": "array",
-                    "title": "Response Read All Tutores Api V1 Tutores Get"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Create Tutor",
-          "operationId": "create_tutor_api_v1_tutores_post",
-          "requestBody": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TutorBase"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Tutor"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/tutores/{tutor_id}": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read Tutor",
-          "operationId": "read_tutor_api_v1_tutores__tutor_id__get",
-          "parameters": [
-            {
-              "name": "tutor_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Tutor Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Tutor"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "put": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Update Tutor",
-          "operationId": "update_tutor_api_v1_tutores__tutor_id__put",
-          "parameters": [
-            {
-              "name": "tutor_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Tutor Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TutorBase"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Tutor"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Delete Tutor",
-          "operationId": "delete_tutor_api_v1_tutores__tutor_id__delete",
-          "parameters": [
-            {
-              "name": "tutor_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Tutor Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/directivos": {
-        "post": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Create Directivo",
-          "operationId": "create_directivo_api_v1_directivos_post",
-          "parameters": [
-            {
-              "name": "establecimiento_id",
-              "in": "query",
-              "required": true,
-              "schema": {
-                "type": "string",
-                "format": "uuid",
-                "title": "Establecimiento Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DirectivoBase"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Directivo"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read All Directivos",
-          "operationId": "read_all_directivos_api_v1_directivos_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Directivo"
-                    },
-                    "title": "Response Read All Directivos Api V1 Directivos Get"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/directivos/{directivo_id}": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read Directivo",
-          "operationId": "read_directivo_api_v1_directivos__directivo_id__get",
-          "parameters": [
-            {
-              "name": "directivo_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Directivo Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Directivo"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "put": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Update Directivo",
-          "operationId": "update_directivo_api_v1_directivos__directivo_id__put",
-          "parameters": [
-            {
-              "name": "directivo_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Directivo Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DirectivoBase"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Directivo"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Delete Directivo",
-          "operationId": "delete_directivo_api_v1_directivos__directivo_id__delete",
-          "parameters": [
-            {
-              "name": "directivo_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Directivo Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/establecimientos": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read All Establecimientos",
-          "operationId": "read_all_establecimientos_api_v1_establecimientos_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "items": {
-                      "$ref": "#/components/schemas/Establecimiento"
-                    },
-                    "type": "array",
-                    "title": "Response Read All Establecimientos Api V1 Establecimientos Get"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Create Establecimiento",
-          "operationId": "create_establecimiento_api_v1_establecimientos_post",
-          "requestBody": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EstablecimientoBase"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Establecimiento"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/establecimientos/{establecimiento_id}": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read Establecimiento",
-          "operationId": "read_establecimiento_api_v1_establecimientos__establecimiento_id__get",
-          "parameters": [
-            {
-              "name": "establecimiento_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Establecimiento Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Establecimiento"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "put": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Update Establecimiento",
-          "operationId": "update_establecimiento_api_v1_establecimientos__establecimiento_id__put",
-          "parameters": [
-            {
-              "name": "establecimiento_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Establecimiento Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EstablecimientoBase"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Establecimiento"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Delete Establecimiento",
-          "operationId": "delete_establecimiento_api_v1_establecimientos__establecimiento_id__delete",
-          "parameters": [
-            {
-              "name": "establecimiento_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Establecimiento Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/nivelpractica": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read All Nivelpractica",
-          "operationId": "read_all_nivelpractica_api_v1_nivelpractica_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "items": {
-                      "$ref": "#/components/schemas/NivelPractica"
-                    },
-                    "type": "array",
-                    "title": "Response Read All Nivelpractica Api V1 Nivelpractica Get"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Create Nivelpractica",
-          "operationId": "create_nivelpractica_api_v1_nivelpractica_post",
-          "requestBody": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NivelPracticaBase"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/NivelPractica"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/nivelpractica/{nivelpractica_id}": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read Nivelpractica",
-          "operationId": "read_nivelpractica_api_v1_nivelpractica__nivelpractica_id__get",
-          "parameters": [
-            {
-              "name": "nivelpractica_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Nivelpractica Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/NivelPractica"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "put": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Update Nivelpractica",
-          "operationId": "update_nivelpractica_api_v1_nivelpractica__nivelpractica_id__put",
-          "parameters": [
-            {
-              "name": "nivelpractica_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Nivelpractica Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NivelPracticaBase"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/NivelPractica"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Delete Nivelpractica",
-          "operationId": "delete_nivelpractica_api_v1_nivelpractica__nivelpractica_id__delete",
-          "parameters": [
-            {
-              "name": "nivelpractica_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Nivelpractica Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/estudiantes": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read All Estudiantes",
-          "operationId": "read_all_estudiantes_api_v1_estudiantes_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "items": {
-                      "$ref": "#/components/schemas/Estudiante"
-                    },
-                    "type": "array",
-                    "title": "Response Read All Estudiantes Api V1 Estudiantes Get"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Create Estudiante",
-          "operationId": "create_estudiante_api_v1_estudiantes_post",
-          "requestBody": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EstudianteBase"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Estudiante"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/estudiantes/{estudiante_id}": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read Estudiante",
-          "operationId": "read_estudiante_api_v1_estudiantes__estudiante_id__get",
-          "parameters": [
-            {
-              "name": "estudiante_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Estudiante Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Estudiante"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "put": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Update Estudiante",
-          "operationId": "update_estudiante_api_v1_estudiantes__estudiante_id__put",
-          "parameters": [
-            {
-              "name": "estudiante_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Estudiante Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EstudianteBase"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Estudiante"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Delete Estudiante",
-          "operationId": "delete_estudiante_api_v1_estudiantes__estudiante_id__delete",
-          "parameters": [
-            {
-              "name": "estudiante_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Estudiante Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/cupos": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read All Cupos",
-          "operationId": "read_all_cupos_api_v1_cupos_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "items": {
-                      "$ref": "#/components/schemas/Cupo"
-                    },
-                    "type": "array",
-                    "title": "Response Read All Cupos Api V1 Cupos Get"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Create Cupo",
-          "operationId": "create_cupo_api_v1_cupos_post",
-          "requestBody": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CupoBase"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Cupo"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/cupos/{cupo_id}": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read Cupo",
-          "operationId": "read_cupo_api_v1_cupos__cupo_id__get",
-          "parameters": [
-            {
-              "name": "cupo_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Cupo Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Cupo"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "put": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Update Cupo",
-          "operationId": "update_cupo_api_v1_cupos__cupo_id__put",
-          "parameters": [
-            {
-              "name": "cupo_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Cupo Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CupoBase"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Cupo"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Delete Cupo",
-          "operationId": "delete_cupo_api_v1_cupos__cupo_id__delete",
-          "parameters": [
-            {
-              "name": "cupo_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Cupo Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/fichas": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read All Fichas",
-          "operationId": "read_all_fichas_api_v1_fichas_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "items": {
-                      "$ref": "#/components/schemas/Ficha"
-                    },
-                    "type": "array",
-                    "title": "Response Read All Fichas Api V1 Fichas Get"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Create Ficha",
-          "operationId": "create_ficha_api_v1_fichas_post",
-          "requestBody": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FichaBase"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Ficha"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/fichas/{ficha_id}": {
-        "get": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Read Ficha",
-          "operationId": "read_ficha_api_v1_fichas__ficha_id__get",
-          "parameters": [
-            {
-              "name": "ficha_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Ficha Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Ficha"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "put": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Update Ficha",
-          "operationId": "update_ficha_api_v1_fichas__ficha_id__put",
-          "parameters": [
-            {
-              "name": "ficha_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Ficha Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FichaBase"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Ficha"
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "api"
-          ],
-          "summary": "Delete Ficha",
-          "operationId": "delete_ficha_api_v1_fichas__ficha_id__delete",
-          "parameters": [
-            {
-              "name": "ficha_id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Ficha Id"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/email/send-email/student": {
-        "post": {
-          "tags": [
-            "email"
-          ],
-          "summary": "Send Email Student",
-          "operationId": "send_email_student_api_v1_email_send_email_student_post",
-          "parameters": [
-            {
-              "name": "ficha_id",
-              "in": "query",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "title": "Ficha Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmailSchema"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/email/send-email/stablishment": {
-        "post": {
-          "tags": [
-            "email"
-          ],
-          "summary": "Send Email Stablishment",
-          "operationId": "send_email_stablishment_api_v1_email_send_email_stablishment_post",
-          "parameters": [
-            {
-              "name": "establecimiento_id",
-              "in": "query",
-              "required": true,
-              "schema": {
-                "type": "string",
-                "format": "uuid",
-                "title": "Establecimiento Id"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Body_send_email_stablishment_api_v1_email_send_email_stablishment_post"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/email/email-template/student": {
-        "get": {
-          "tags": [
-            "email"
-          ],
-          "summary": "Get Student Email Template Route",
-          "operationId": "get_student_email_template_route_api_v1_email_email_template_student_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "text/html": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "email"
-          ],
-          "summary": "Set Student Email Template Route",
-          "operationId": "set_student_email_template_route_api_v1_email_email_template_student_post",
-          "parameters": [
-            {
-              "name": "html",
-              "in": "query",
-              "required": true,
-              "schema": {
-                "type": "string",
-                "title": "Html"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/email/email-template/stablishment": {
-        "get": {
-          "tags": [
-            "email"
-          ],
-          "summary": "Get Stablishment Email Template Route",
-          "operationId": "get_stablishment_email_template_route_api_v1_email_email_template_stablishment_get",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "text/html": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": [
-            "email"
-          ],
-          "summary": "Set Stablishment Email Template Route",
-          "operationId": "set_stablishment_email_template_route_api_v1_email_email_template_stablishment_post",
-          "parameters": [
-            {
-              "name": "html",
-              "in": "query",
-              "required": true,
-              "schema": {
-                "type": "string",
-                "title": "Html"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/carga_masiva/": {
-        "post": {
-          "tags": [
-            "carga_masiva"
-          ],
-          "summary": "Carga Masiva",
-          "description": "Endpoint to handle bulk data upload from an Excel file.\n\nArgs:\n    file (UploadFile): The uploaded Excel file.\n    session (SessionDep): Database session dependency.\n\nReturns:\n    dict: A message indicating the result of the operation.",
-          "operationId": "carga_masiva_api_v1_carga_masiva__post",
-          "requestBody": {
-            "content": {
-              "multipart/form-data": {
-                "schema": {
-                  "$ref": "#/components/schemas/Body_carga_masiva_api_v1_carga_masiva__post"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
-                }
-              }
-            },
-            "422": {
-              "description": "Validation Error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/HTTPValidationError"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/api/v1/carga_masiva/vaciadoDB": {
-        "delete": {
-          "tags": [
-            "carga_masiva"
-          ],
-          "summary": "Vaciar Db",
-          "description": "Endpoint to handle database clearing.",
-          "operationId": "vaciar_db_api_v1_carga_masiva_vaciadoDB_delete",
-          "responses": {
-            "200": {
-              "description": "Successful Response",
-              "content": {
-                "application/json": {
-                  "schema": {
-  
-                  }
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -2073,858 +69,2850 @@
         }
       }
     },
-    "components": {
-      "schemas": {
-        "Body_carga_masiva_api_v1_carga_masiva__post": {
-          "properties": {
-            "file": {
-              "type": "string",
-              "format": "binary",
-              "title": "File"
+    "/api/v1/comunas/{comuna_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read Comuna",
+        "operationId": "read_comuna_api_v1_comunas__comuna_id__get",
+        "parameters": [
+          {
+            "name": "comuna_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Comuna Id"
             }
-          },
-          "type": "object",
-          "required": [
-            "file"
-          ],
-          "title": "Body_carga_masiva_api_v1_carga_masiva__post"
-        },
-        "Body_send_email_stablishment_api_v1_email_send_email_stablishment_post": {
-          "properties": {
-            "email": {
-              "$ref": "#/components/schemas/EmailSchema"
-            },
-            "body": {
-              "$ref": "#/components/schemas/StablishmentBody"
-            }
-          },
-          "type": "object",
-          "required": [
-            "email",
-            "body"
-          ],
-          "title": "Body_send_email_stablishment_api_v1_email_send_email_stablishment_post"
-        },
-        "Carrera": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 300,
-              "title": "Nombre",
-              "description": "Nombre de la carrera"
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comuna"
                 }
-              ],
-              "title": "Id",
-              "description": "ID de la carrera"
+              }
             }
           },
-          "type": "object",
-          "required": [
-            "nombre"
-          ],
-          "title": "Carrera"
-        },
-        "CarreraBase": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 300,
-              "title": "Nombre",
-              "description": "Nombre de la carrera"
-            }
-          },
-          "type": "object",
-          "required": [
-            "nombre"
-          ],
-          "title": "CarreraBase"
-        },
-        "Comuna": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 200,
-              "title": "Nombre",
-              "description": "Nombre de la comuna"
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
-              ],
-              "title": "Id"
+              }
             }
-          },
-          "type": "object",
-          "required": [
-            "nombre"
-          ],
-          "title": "Comuna"
-        },
-        "ComunaBase": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 200,
-              "title": "Nombre",
-              "description": "Nombre de la comuna"
-            }
-          },
-          "type": "object",
-          "required": [
-            "nombre"
-          ],
-          "title": "ComunaBase"
-        },
-        "Cupo": {
-          "properties": {
-            "establecimiento_id": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Establecimiento Id",
-              "description": "ID del establecimiento asociado al cupo"
-            },
-            "nivel_practica_id": {
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Update Comuna",
+        "operationId": "update_comuna_api_v1_comunas__comuna_id__put",
+        "parameters": [
+          {
+            "name": "comuna_id",
+            "in": "path",
+            "required": true,
+            "schema": {
               "type": "integer",
-              "title": "Nivel Practica Id",
-              "description": "ID del nivel de práctica asociado al cupo"
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
+              "title": "Comuna Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComunaBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comuna"
                 }
-              ],
-              "title": "Id",
-              "description": "ID del cupo"
+              }
             }
           },
-          "type": "object",
-          "required": [
-            "establecimiento_id",
-            "nivel_practica_id"
-          ],
-          "title": "Cupo"
-        },
-        "CupoBase": {
-          "properties": {
-            "establecimiento_id": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Establecimiento Id",
-              "description": "ID del establecimiento asociado al cupo"
-            },
-            "nivel_practica_id": {
-              "type": "integer",
-              "title": "Nivel Practica Id",
-              "description": "ID del nivel de práctica asociado al cupo"
-            }
-          },
-          "type": "object",
-          "required": [
-            "establecimiento_id",
-            "nivel_practica_id"
-          ],
-          "title": "CupoBase"
-        },
-        "Directivo": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Nombre",
-              "description": "Nombre del directivo"
-            },
-            "email": {
-              "type": "string",
-              "maxLength": 100,
-              "title": "Email",
-              "description": "Email del directivo"
-            },
-            "cargo": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Cargo",
-              "description": "Cargo del directivo"
-            },
-            "establecimiento_id": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Establecimiento Id",
-              "description": "ID del establecimiento al que pertenece el directivo"
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
-              ],
-              "title": "Id",
-              "description": "ID del directivo"
+              }
             }
-          },
-          "type": "object",
-          "required": [
-            "nombre",
-            "email",
-            "cargo",
-            "establecimiento_id"
-          ],
-          "title": "Directivo"
-        },
-        "DirectivoBase": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Nombre",
-              "description": "Nombre del directivo"
-            },
-            "email": {
-              "type": "string",
-              "maxLength": 100,
-              "title": "Email",
-              "description": "Email del directivo"
-            },
-            "cargo": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Cargo",
-              "description": "Cargo del directivo"
-            },
-            "establecimiento_id": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Establecimiento Id",
-              "description": "ID del establecimiento al que pertenece el directivo"
-            }
-          },
-          "type": "object",
-          "required": [
-            "nombre",
-            "email",
-            "cargo",
-            "establecimiento_id"
-          ],
-          "title": "DirectivoBase"
-        },
-        "EmailSchema": {
-          "properties": {
-            "subject": {
-              "type": "string",
-              "title": "Subject"
-            },
-            "email": {
-              "items": {
-                "type": "string",
-                "format": "email"
-              },
-              "type": "array",
-              "title": "Email"
-            }
-          },
-          "type": "object",
-          "required": [
-            "subject",
-            "email"
-          ],
-          "title": "EmailSchema"
-        },
-        "Establecimiento": {
-          "properties": {
-            "rbd": {
-              "type": "string",
-              "maxLength": 10,
-              "title": "Rbd",
-              "description": "RBD del establecimiento"
-            },
-            "nombre": {
-              "type": "string",
-              "maxLength": 300,
-              "title": "Nombre",
-              "description": "Nombre del establecimiento"
-            },
-            "dependencia": {
-              "type": "string",
-              "maxLength": 50,
-              "title": "Dependencia",
-              "description": "Dependencia del establecimiento"
-            },
-            "comuna_id": {
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Delete Comuna",
+        "operationId": "delete_comuna_api_v1_comunas__comuna_id__delete",
+        "parameters": [
+          {
+            "name": "comuna_id",
+            "in": "path",
+            "required": true,
+            "schema": {
               "type": "integer",
-              "title": "Comuna Id",
-              "description": "ID de la comuna del establecimiento"
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
+              "title": "Comuna Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
                 }
-              ],
-              "title": "Id",
-              "description": "ID del establecimiento"
+              }
             }
           },
-          "type": "object",
-          "required": [
-            "rbd",
-            "nombre",
-            "dependencia",
-            "comuna_id"
-          ],
-          "title": "Establecimiento"
-        },
-        "EstablecimientoBase": {
-          "properties": {
-            "rbd": {
-              "type": "string",
-              "maxLength": 10,
-              "title": "Rbd",
-              "description": "RBD del establecimiento"
-            },
-            "nombre": {
-              "type": "string",
-              "maxLength": 300,
-              "title": "Nombre",
-              "description": "Nombre del establecimiento"
-            },
-            "dependencia": {
-              "type": "string",
-              "maxLength": 50,
-              "title": "Dependencia",
-              "description": "Dependencia del establecimiento"
-            },
-            "comuna_id": {
-              "type": "integer",
-              "title": "Comuna Id",
-              "description": "ID de la comuna del establecimiento"
-            }
-          },
-          "type": "object",
-          "required": [
-            "rbd",
-            "nombre",
-            "dependencia",
-            "comuna_id"
-          ],
-          "title": "EstablecimientoBase"
-        },
-        "Estudiante": {
-          "properties": {
-            "rut": {
-              "type": "string",
-              "maxLength": 12,
-              "title": "Rut",
-              "description": "RUT del estudiante"
-            },
-            "nombre": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Nombre",
-              "description": "Nombre del estudiante"
-            },
-            "ap_paterno": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Ap Paterno",
-              "description": "Apellido paterno del estudiante"
-            },
-            "ap_materno": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Ap Materno",
-              "description": "Apellido materno del estudiante"
-            },
-            "email": {
-              "type": "string",
-              "maxLength": 100,
-              "title": "Email",
-              "description": "Correo electrónico del estudiante"
-            },
-            "cond_especial": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
-              ],
-              "title": "Cond Especial",
-              "description": "Condición especial del estudiante (opcional)"
-            },
-            "carrera_id": {
-              "type": "integer",
-              "title": "Carrera Id",
-              "description": "ID de la carrera del estudiante"
-            },
-            "comuna_id": {
-              "type": "integer",
-              "title": "Comuna Id",
-              "description": "ID de la comuna del estudiante"
-            },
-            "tutor_id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Tutor Id",
-              "description": "ID del tutor del estudiante (opcional)"
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Id",
-              "description": "ID del estudiante"
+              }
             }
-          },
-          "type": "object",
-          "required": [
-            "rut",
-            "nombre",
-            "ap_paterno",
-            "ap_materno",
-            "email",
-            "carrera_id",
-            "comuna_id"
-          ],
-          "title": "Estudiante"
-        },
-        "EstudianteBase": {
-          "properties": {
-            "rut": {
-              "type": "string",
-              "maxLength": 12,
-              "title": "Rut",
-              "description": "RUT del estudiante"
-            },
-            "nombre": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Nombre",
-              "description": "Nombre del estudiante"
-            },
-            "ap_paterno": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Ap Paterno",
-              "description": "Apellido paterno del estudiante"
-            },
-            "ap_materno": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Ap Materno",
-              "description": "Apellido materno del estudiante"
-            },
-            "email": {
-              "type": "string",
-              "maxLength": 100,
-              "title": "Email",
-              "description": "Correo electrónico del estudiante"
-            },
-            "cond_especial": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Cond Especial",
-              "description": "Condición especial del estudiante (opcional)"
-            },
-            "carrera_id": {
-              "type": "integer",
-              "title": "Carrera Id",
-              "description": "ID de la carrera del estudiante"
-            },
-            "comuna_id": {
-              "type": "integer",
-              "title": "Comuna Id",
-              "description": "ID de la comuna del estudiante"
-            },
-            "tutor_id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Tutor Id",
-              "description": "ID del tutor del estudiante (opcional)"
-            }
-          },
-          "type": "object",
-          "required": [
-            "rut",
-            "nombre",
-            "ap_paterno",
-            "ap_materno",
-            "email",
-            "carrera_id",
-            "comuna_id"
-          ],
-          "title": "EstudianteBase"
-        },
-        "Ficha": {
-          "properties": {
-            "estudiante_id": {
-              "type": "integer",
-              "title": "Estudiante Id",
-              "description": "ID del estudiante asociado a la ficha"
-            },
-            "establecimiento_id": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Establecimiento Id",
-              "description": "ID del establecimiento asociado a la ficha"
-            },
-            "cupo_id": {
-              "type": "integer",
-              "title": "Cupo Id",
-              "description": "ID del cupo asociado a la ficha"
-            },
-            "fecha_inicio": {
-              "type": "string",
-              "format": "date",
-              "title": "Fecha Inicio",
-              "description": "Fecha de inicio de la ficha"
-            },
-            "fecha_termino": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "date"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Fecha Termino",
-              "description": "Fecha de término de la ficha"
-            },
-            "fecha_envio": {
-              "type": "string",
-              "format": "date-time",
-              "title": "Fecha Envio",
-              "description": "Fecha de envío de la ficha al estudiante"
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Id",
-              "description": "ID de la ficha"
-            }
-          },
-          "type": "object",
-          "required": [
-            "estudiante_id",
-            "establecimiento_id",
-            "cupo_id",
-            "fecha_inicio",
-            "fecha_envio"
-          ],
-          "title": "Ficha"
-        },
-        "FichaBase": {
-          "properties": {
-            "estudiante_id": {
-              "type": "integer",
-              "title": "Estudiante Id",
-              "description": "ID del estudiante asociado a la ficha"
-            },
-            "establecimiento_id": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Establecimiento Id",
-              "description": "ID del establecimiento asociado a la ficha"
-            },
-            "cupo_id": {
-              "type": "integer",
-              "title": "Cupo Id",
-              "description": "ID del cupo asociado a la ficha"
-            },
-            "fecha_inicio": {
-              "type": "string",
-              "format": "date",
-              "title": "Fecha Inicio",
-              "description": "Fecha de inicio de la ficha"
-            },
-            "fecha_termino": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "date"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Fecha Termino",
-              "description": "Fecha de término de la ficha"
-            },
-            "fecha_envio": {
-              "type": "string",
-              "format": "date-time",
-              "title": "Fecha Envio",
-              "description": "Fecha de envío de la ficha al estudiante"
-            }
-          },
-          "type": "object",
-          "required": [
-            "estudiante_id",
-            "establecimiento_id",
-            "cupo_id",
-            "fecha_inicio",
-            "fecha_envio"
-          ],
-          "title": "FichaBase"
-        },
-        "HTTPValidationError": {
-          "properties": {
-            "detail": {
-              "items": {
-                "$ref": "#/components/schemas/ValidationError"
-              },
-              "type": "array",
-              "title": "Detail"
-            }
-          },
-          "type": "object",
-          "title": "HTTPValidationError"
-        },
-        "NivelPractica": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 100,
-              "title": "Nombre",
-              "description": "Nombre del nivel de práctica"
-            },
-            "carrera_id": {
-              "type": "integer",
-              "title": "Carrera Id",
-              "description": "ID de la carrera asociada al nivel de práctica"
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Id",
-              "description": "ID del nivel de práctica"
-            }
-          },
-          "type": "object",
-          "required": [
-            "nombre",
-            "carrera_id"
-          ],
-          "title": "NivelPractica"
-        },
-        "NivelPracticaBase": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 100,
-              "title": "Nombre",
-              "description": "Nombre del nivel de práctica"
-            },
-            "carrera_id": {
-              "type": "integer",
-              "title": "Carrera Id",
-              "description": "ID de la carrera asociada al nivel de práctica"
-            }
-          },
-          "type": "object",
-          "required": [
-            "nombre",
-            "carrera_id"
-          ],
-          "title": "NivelPracticaBase"
-        },
-        "StablishmentBody": {
-          "properties": {
-            "directivo": {
-              "$ref": "#/components/schemas/Directivo"
-            },
-            "semana_inicio_profesional": {
-              "type": "string",
-              "title": "Semana Inicio Profesional"
-            },
-            "semana_termino_profesional": {
-              "type": "string",
-              "title": "Semana Termino Profesional"
-            },
-            "numero_semanas_profesional": {
-              "type": "integer",
-              "title": "Numero Semanas Profesional"
-            },
-            "semana_inicio_pp": {
-              "type": "string",
-              "title": "Semana Inicio Pp"
-            },
-            "semana_termino_pp": {
-              "type": "string",
-              "title": "Semana Termino Pp"
-            },
-            "numero_semanas_pp": {
-              "type": "integer",
-              "title": "Numero Semanas Pp"
-            },
-            "fichas": {
-              "items": {
-                "$ref": "#/components/schemas/Ficha"
-              },
-              "type": "array",
-              "title": "Fichas"
-            }
-          },
-          "type": "object",
-          "required": [
-            "semana_inicio_profesional",
-            "semana_termino_profesional",
-            "numero_semanas_profesional",
-            "semana_inicio_pp",
-            "semana_termino_pp",
-            "numero_semanas_pp"
-          ],
-          "title": "StablishmentBody"
-        },
-        "Tutor": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Nombre",
-              "description": "Nombre del tutor"
-            },
-            "email": {
-              "type": "string",
-              "maxLength": 100,
-              "title": "Email",
-              "description": "Email del tutor"
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Id",
-              "description": "ID del tutor"
-            }
-          },
-          "type": "object",
-          "required": [
-            "nombre",
-            "email"
-          ],
-          "title": "Tutor"
-        },
-        "TutorBase": {
-          "properties": {
-            "nombre": {
-              "type": "string",
-              "maxLength": 150,
-              "title": "Nombre",
-              "description": "Nombre del tutor"
-            },
-            "email": {
-              "type": "string",
-              "maxLength": 100,
-              "title": "Email",
-              "description": "Email del tutor"
-            }
-          },
-          "type": "object",
-          "required": [
-            "nombre",
-            "email"
-          ],
-          "title": "TutorBase"
-        },
-        "ValidationError": {
-          "properties": {
-            "loc": {
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "string"
+          }
+        }
+      }
+    },
+    "/api/v1/carreras": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read All Carreras",
+        "operationId": "read_all_carreras_api_v1_carreras_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Carrera"
                   },
-                  {
-                    "type": "integer"
-                  }
-                ]
-              },
-              "type": "array",
-              "title": "Location"
-            },
-            "msg": {
-              "type": "string",
-              "title": "Message"
-            },
-            "type": {
-              "type": "string",
-              "title": "Error Type"
+                  "type": "array",
+                  "title": "Response Read All Carreras Api V1 Carreras Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Create Carrera",
+        "operationId": "create_carrera_api_v1_carreras_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarreraBase"
+              }
             }
           },
-          "type": "object",
-          "required": [
-            "loc",
-            "msg",
-            "type"
-          ],
-          "title": "ValidationError"
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Carrera"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/carreras/{carrera_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read Carrera",
+        "operationId": "read_carrera_api_v1_carreras__carrera_id__get",
+        "parameters": [
+          {
+            "name": "carrera_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Carrera Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Carrera"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Update Carrera",
+        "operationId": "update_carrera_api_v1_carreras__carrera_id__put",
+        "parameters": [
+          {
+            "name": "carrera_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Carrera Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarreraBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Carrera"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Delete Carrera",
+        "operationId": "delete_carrera_api_v1_carreras__carrera_id__delete",
+        "parameters": [
+          {
+            "name": "carrera_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Carrera Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tutores": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read All Tutores",
+        "operationId": "read_all_tutores_api_v1_tutores_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Tutor"
+                  },
+                  "type": "array",
+                  "title": "Response Read All Tutores Api V1 Tutores Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Create Tutor",
+        "operationId": "create_tutor_api_v1_tutores_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TutorBase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tutor"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tutores/{tutor_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read Tutor",
+        "operationId": "read_tutor_api_v1_tutores__tutor_id__get",
+        "parameters": [
+          {
+            "name": "tutor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tutor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tutor"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Update Tutor",
+        "operationId": "update_tutor_api_v1_tutores__tutor_id__put",
+        "parameters": [
+          {
+            "name": "tutor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tutor Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TutorBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tutor"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Delete Tutor",
+        "operationId": "delete_tutor_api_v1_tutores__tutor_id__delete",
+        "parameters": [
+          {
+            "name": "tutor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tutor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/directivos": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read All Directivos",
+        "operationId": "read_all_directivos_api_v1_directivos_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Directivo"
+                  },
+                  "type": "array",
+                  "title": "Response Read All Directivos Api V1 Directivos Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Create Directivo",
+        "operationId": "create_directivo_api_v1_directivos_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectivoBase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Directivo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/directivos/{directivo_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read Directivo",
+        "operationId": "read_directivo_api_v1_directivos__directivo_id__get",
+        "parameters": [
+          {
+            "name": "directivo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Directivo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Directivo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Update Directivo",
+        "operationId": "update_directivo_api_v1_directivos__directivo_id__put",
+        "parameters": [
+          {
+            "name": "directivo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Directivo Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectivoBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Directivo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Delete Directivo",
+        "operationId": "delete_directivo_api_v1_directivos__directivo_id__delete",
+        "parameters": [
+          {
+            "name": "directivo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Directivo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/establecimientos": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read All Establecimientos",
+        "operationId": "read_all_establecimientos_api_v1_establecimientos_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Establecimiento"
+                  },
+                  "type": "array",
+                  "title": "Response Read All Establecimientos Api V1 Establecimientos Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Create Establecimiento",
+        "operationId": "create_establecimiento_api_v1_establecimientos_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstablecimientoBase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Establecimiento"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/establecimientos/{establecimiento_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read Establecimiento",
+        "operationId": "read_establecimiento_api_v1_establecimientos__establecimiento_id__get",
+        "parameters": [
+          {
+            "name": "establecimiento_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Establecimiento Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Establecimiento"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Update Establecimiento",
+        "operationId": "update_establecimiento_api_v1_establecimientos__establecimiento_id__put",
+        "parameters": [
+          {
+            "name": "establecimiento_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Establecimiento Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstablecimientoBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Establecimiento"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Delete Establecimiento",
+        "operationId": "delete_establecimiento_api_v1_establecimientos__establecimiento_id__delete",
+        "parameters": [
+          {
+            "name": "establecimiento_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Establecimiento Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/nivelpractica": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read All Nivelpractica",
+        "operationId": "read_all_nivelpractica_api_v1_nivelpractica_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NivelPractica"
+                  },
+                  "type": "array",
+                  "title": "Response Read All Nivelpractica Api V1 Nivelpractica Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Create Nivelpractica",
+        "operationId": "create_nivelpractica_api_v1_nivelpractica_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NivelPracticaBase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NivelPractica"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/nivelpractica/{nivelpractica_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read Nivelpractica",
+        "operationId": "read_nivelpractica_api_v1_nivelpractica__nivelpractica_id__get",
+        "parameters": [
+          {
+            "name": "nivelpractica_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Nivelpractica Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NivelPractica"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Update Nivelpractica",
+        "operationId": "update_nivelpractica_api_v1_nivelpractica__nivelpractica_id__put",
+        "parameters": [
+          {
+            "name": "nivelpractica_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Nivelpractica Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NivelPracticaBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NivelPractica"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Delete Nivelpractica",
+        "operationId": "delete_nivelpractica_api_v1_nivelpractica__nivelpractica_id__delete",
+        "parameters": [
+          {
+            "name": "nivelpractica_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Nivelpractica Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/estudiantes": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read All Estudiantes",
+        "operationId": "read_all_estudiantes_api_v1_estudiantes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Estudiante"
+                  },
+                  "type": "array",
+                  "title": "Response Read All Estudiantes Api V1 Estudiantes Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Create Estudiante",
+        "operationId": "create_estudiante_api_v1_estudiantes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstudianteBase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estudiante"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/estudiantes/{estudiante_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read Estudiante",
+        "operationId": "read_estudiante_api_v1_estudiantes__estudiante_id__get",
+        "parameters": [
+          {
+            "name": "estudiante_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Estudiante Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estudiante"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Update Estudiante",
+        "operationId": "update_estudiante_api_v1_estudiantes__estudiante_id__put",
+        "parameters": [
+          {
+            "name": "estudiante_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Estudiante Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstudianteBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estudiante"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Delete Estudiante",
+        "operationId": "delete_estudiante_api_v1_estudiantes__estudiante_id__delete",
+        "parameters": [
+          {
+            "name": "estudiante_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Estudiante Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cupos": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read All Cupos",
+        "operationId": "read_all_cupos_api_v1_cupos_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Cupo"
+                  },
+                  "type": "array",
+                  "title": "Response Read All Cupos Api V1 Cupos Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Create Cupo",
+        "operationId": "create_cupo_api_v1_cupos_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CupoBase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cupo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cupos/{cupo_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read Cupo",
+        "operationId": "read_cupo_api_v1_cupos__cupo_id__get",
+        "parameters": [
+          {
+            "name": "cupo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cupo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cupo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Update Cupo",
+        "operationId": "update_cupo_api_v1_cupos__cupo_id__put",
+        "parameters": [
+          {
+            "name": "cupo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cupo Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CupoBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cupo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Delete Cupo",
+        "operationId": "delete_cupo_api_v1_cupos__cupo_id__delete",
+        "parameters": [
+          {
+            "name": "cupo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cupo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fichas": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read All Fichas",
+        "operationId": "read_all_fichas_api_v1_fichas_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Ficha"
+                  },
+                  "type": "array",
+                  "title": "Response Read All Fichas Api V1 Fichas Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Create Ficha",
+        "operationId": "create_ficha_api_v1_fichas_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FichaBase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ficha"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fichas/{ficha_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Read Ficha",
+        "operationId": "read_ficha_api_v1_fichas__ficha_id__get",
+        "parameters": [
+          {
+            "name": "ficha_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Ficha Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ficha"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Update Ficha",
+        "operationId": "update_ficha_api_v1_fichas__ficha_id__put",
+        "parameters": [
+          {
+            "name": "ficha_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Ficha Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FichaBase"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ficha"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Delete Ficha",
+        "operationId": "delete_ficha_api_v1_fichas__ficha_id__delete",
+        "parameters": [
+          {
+            "name": "ficha_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Ficha Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/email/send-email/student": {
+      "post": {
+        "tags": [
+          "email"
+        ],
+        "summary": "Send Email Student",
+        "operationId": "send_email_student_api_v1_email_send_email_student_post",
+        "parameters": [
+          {
+            "name": "ficha_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Ficha Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/email/send-email/stablishment": {
+      "post": {
+        "tags": [
+          "email"
+        ],
+        "summary": "Send Email Stablishment",
+        "operationId": "send_email_stablishment_api_v1_email_send_email_stablishment_post",
+        "parameters": [
+          {
+            "name": "establecimiento_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Establecimiento Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_send_email_stablishment_api_v1_email_send_email_stablishment_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/email/email-template/student": {
+      "get": {
+        "tags": [
+          "email"
+        ],
+        "summary": "Get Student Email Template Route",
+        "operationId": "get_student_email_template_route_api_v1_email_email_template_student_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "email"
+        ],
+        "summary": "Set Student Email Template Route",
+        "operationId": "set_student_email_template_route_api_v1_email_email_template_student_post",
+        "parameters": [
+          {
+            "name": "html",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Html"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/email/email-template/stablishment": {
+      "get": {
+        "tags": [
+          "email"
+        ],
+        "summary": "Get Stablishment Email Template Route",
+        "operationId": "get_stablishment_email_template_route_api_v1_email_email_template_stablishment_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "email"
+        ],
+        "summary": "Set Stablishment Email Template Route",
+        "operationId": "set_stablishment_email_template_route_api_v1_email_email_template_stablishment_post",
+        "parameters": [
+          {
+            "name": "html",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Html"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/carga_masiva/": {
+      "post": {
+        "tags": [
+          "carga_masiva"
+        ],
+        "summary": "Carga Masiva",
+        "description": "Endpoint to handle bulk data upload from an Excel file.\n\nArgs:\n    file (UploadFile): The uploaded Excel file.\n    session (SessionDep): Database session dependency.\n\nReturns:\n    dict: A message indicating the result of the operation.",
+        "operationId": "carga_masiva_api_v1_carga_masiva__post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_carga_masiva_api_v1_carga_masiva__post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/carga_masiva/vaciadoDB": {
+      "delete": {
+        "tags": [
+          "carga_masiva"
+        ],
+        "summary": "Vaciar Db",
+        "description": "Endpoint to handle database clearing.",
+        "operationId": "vaciar_db_api_v1_carga_masiva_vaciadoDB_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
         }
       }
     }
+  },
+  "components": {
+    "schemas": {
+      "Body_carga_masiva_api_v1_carga_masiva__post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_carga_masiva_api_v1_carga_masiva__post"
+      },
+      "Body_send_email_stablishment_api_v1_email_send_email_stablishment_post": {
+        "properties": {
+          "email": {
+            "$ref": "#/components/schemas/EmailSchema"
+          },
+          "body": {
+            "$ref": "#/components/schemas/StablishmentBody"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "body"
+        ],
+        "title": "Body_send_email_stablishment_api_v1_email_send_email_stablishment_post"
+      },
+      "Carrera": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Nombre",
+            "description": "Nombre de la carrera"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "ID de la carrera"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "Carrera"
+      },
+      "CarreraBase": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Nombre",
+            "description": "Nombre de la carrera"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "CarreraBase"
+      },
+      "Comuna": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Nombre",
+            "description": "Nombre de la comuna"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "Comuna"
+      },
+      "ComunaBase": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Nombre",
+            "description": "Nombre de la comuna"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "ComunaBase"
+      },
+      "Cupo": {
+        "properties": {
+          "establecimiento_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Establecimiento Id",
+            "description": "ID del establecimiento asociado al cupo"
+          },
+          "nivel_practica_id": {
+            "type": "integer",
+            "title": "Nivel Practica Id",
+            "description": "ID del nivel de práctica asociado al cupo"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "ID del cupo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "establecimiento_id",
+          "nivel_practica_id"
+        ],
+        "title": "Cupo"
+      },
+      "CupoBase": {
+        "properties": {
+          "establecimiento_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Establecimiento Id",
+            "description": "ID del establecimiento asociado al cupo"
+          },
+          "nivel_practica_id": {
+            "type": "integer",
+            "title": "Nivel Practica Id",
+            "description": "ID del nivel de práctica asociado al cupo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "establecimiento_id",
+          "nivel_practica_id"
+        ],
+        "title": "CupoBase"
+      },
+      "Directivo": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Nombre",
+            "description": "Nombre del directivo"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Email",
+            "description": "Email del directivo"
+          },
+          "cargo": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Cargo",
+            "description": "Cargo del directivo"
+          },
+          "establecimiento_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Establecimiento Id",
+            "description": "ID del establecimiento al que pertenece el directivo"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "ID del directivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "email",
+          "cargo",
+          "establecimiento_id"
+        ],
+        "title": "Directivo"
+      },
+      "DirectivoBase": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Nombre",
+            "description": "Nombre del directivo"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Email",
+            "description": "Email del directivo"
+          },
+          "cargo": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Cargo",
+            "description": "Cargo del directivo"
+          },
+          "establecimiento_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Establecimiento Id",
+            "description": "ID del establecimiento al que pertenece el directivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "email",
+          "cargo",
+          "establecimiento_id"
+        ],
+        "title": "DirectivoBase"
+      },
+      "EmailSchema": {
+        "properties": {
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "email": {
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "type": "array",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject",
+          "email"
+        ],
+        "title": "EmailSchema"
+      },
+      "Establecimiento": {
+        "properties": {
+          "rbd": {
+            "type": "string",
+            "maxLength": 10,
+            "title": "Rbd",
+            "description": "RBD del establecimiento"
+          },
+          "nombre": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Nombre",
+            "description": "Nombre del establecimiento"
+          },
+          "dependencia": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Dependencia",
+            "description": "Dependencia del establecimiento"
+          },
+          "comuna_id": {
+            "type": "integer",
+            "title": "Comuna Id",
+            "description": "ID de la comuna del establecimiento"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "ID del establecimiento"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rbd",
+          "nombre",
+          "dependencia",
+          "comuna_id"
+        ],
+        "title": "Establecimiento"
+      },
+      "EstablecimientoBase": {
+        "properties": {
+          "rbd": {
+            "type": "string",
+            "maxLength": 10,
+            "title": "Rbd",
+            "description": "RBD del establecimiento"
+          },
+          "nombre": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Nombre",
+            "description": "Nombre del establecimiento"
+          },
+          "dependencia": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Dependencia",
+            "description": "Dependencia del establecimiento"
+          },
+          "comuna_id": {
+            "type": "integer",
+            "title": "Comuna Id",
+            "description": "ID de la comuna del establecimiento"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rbd",
+          "nombre",
+          "dependencia",
+          "comuna_id"
+        ],
+        "title": "EstablecimientoBase"
+      },
+      "Estudiante": {
+        "properties": {
+          "rut": {
+            "type": "string",
+            "maxLength": 12,
+            "title": "Rut",
+            "description": "RUT del estudiante"
+          },
+          "nombre": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Nombre",
+            "description": "Nombre del estudiante"
+          },
+          "ap_paterno": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Ap Paterno",
+            "description": "Apellido paterno del estudiante"
+          },
+          "ap_materno": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Ap Materno",
+            "description": "Apellido materno del estudiante"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Email",
+            "description": "Correo electrónico del estudiante"
+          },
+          "cond_especial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cond Especial",
+            "description": "Condición especial del estudiante (opcional)"
+          },
+          "carrera_id": {
+            "type": "integer",
+            "title": "Carrera Id",
+            "description": "ID de la carrera del estudiante"
+          },
+          "comuna_id": {
+            "type": "integer",
+            "title": "Comuna Id",
+            "description": "ID de la comuna del estudiante"
+          },
+          "tutor_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tutor Id",
+            "description": "ID del tutor del estudiante (opcional)"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "ID del estudiante"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rut",
+          "nombre",
+          "ap_paterno",
+          "ap_materno",
+          "email",
+          "carrera_id",
+          "comuna_id"
+        ],
+        "title": "Estudiante"
+      },
+      "EstudianteBase": {
+        "properties": {
+          "rut": {
+            "type": "string",
+            "maxLength": 12,
+            "title": "Rut",
+            "description": "RUT del estudiante"
+          },
+          "nombre": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Nombre",
+            "description": "Nombre del estudiante"
+          },
+          "ap_paterno": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Ap Paterno",
+            "description": "Apellido paterno del estudiante"
+          },
+          "ap_materno": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Ap Materno",
+            "description": "Apellido materno del estudiante"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Email",
+            "description": "Correo electrónico del estudiante"
+          },
+          "cond_especial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cond Especial",
+            "description": "Condición especial del estudiante (opcional)"
+          },
+          "carrera_id": {
+            "type": "integer",
+            "title": "Carrera Id",
+            "description": "ID de la carrera del estudiante"
+          },
+          "comuna_id": {
+            "type": "integer",
+            "title": "Comuna Id",
+            "description": "ID de la comuna del estudiante"
+          },
+          "tutor_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tutor Id",
+            "description": "ID del tutor del estudiante (opcional)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rut",
+          "nombre",
+          "ap_paterno",
+          "ap_materno",
+          "email",
+          "carrera_id",
+          "comuna_id"
+        ],
+        "title": "EstudianteBase"
+      },
+      "Ficha": {
+        "properties": {
+          "estudiante_id": {
+            "type": "integer",
+            "title": "Estudiante Id",
+            "description": "ID del estudiante asociado a la ficha"
+          },
+          "establecimiento_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Establecimiento Id",
+            "description": "ID del establecimiento asociado a la ficha"
+          },
+          "cupo_id": {
+            "type": "integer",
+            "title": "Cupo Id",
+            "description": "ID del cupo asociado a la ficha"
+          },
+          "fecha_inicio": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Inicio",
+            "description": "Fecha de inicio de la ficha"
+          },
+          "fecha_termino": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Termino",
+            "description": "Fecha de término de la ficha"
+          },
+          "fecha_envio": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Envio",
+            "description": "Fecha de envío de la ficha al estudiante"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "ID de la ficha"
+          }
+        },
+        "type": "object",
+        "required": [
+          "estudiante_id",
+          "establecimiento_id",
+          "cupo_id",
+          "fecha_inicio",
+          "fecha_envio"
+        ],
+        "title": "Ficha"
+      },
+      "FichaBase": {
+        "properties": {
+          "estudiante_id": {
+            "type": "integer",
+            "title": "Estudiante Id",
+            "description": "ID del estudiante asociado a la ficha"
+          },
+          "establecimiento_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Establecimiento Id",
+            "description": "ID del establecimiento asociado a la ficha"
+          },
+          "cupo_id": {
+            "type": "integer",
+            "title": "Cupo Id",
+            "description": "ID del cupo asociado a la ficha"
+          },
+          "fecha_inicio": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Inicio",
+            "description": "Fecha de inicio de la ficha"
+          },
+          "fecha_termino": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Termino",
+            "description": "Fecha de término de la ficha"
+          },
+          "fecha_envio": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Envio",
+            "description": "Fecha de envío de la ficha al estudiante"
+          }
+        },
+        "type": "object",
+        "required": [
+          "estudiante_id",
+          "establecimiento_id",
+          "cupo_id",
+          "fecha_inicio",
+          "fecha_envio"
+        ],
+        "title": "FichaBase"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "NivelPractica": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Nombre",
+            "description": "Nombre del nivel de práctica"
+          },
+          "carrera_id": {
+            "type": "integer",
+            "title": "Carrera Id",
+            "description": "ID de la carrera asociada al nivel de práctica"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "ID del nivel de práctica"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "carrera_id"
+        ],
+        "title": "NivelPractica"
+      },
+      "NivelPracticaBase": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Nombre",
+            "description": "Nombre del nivel de práctica"
+          },
+          "carrera_id": {
+            "type": "integer",
+            "title": "Carrera Id",
+            "description": "ID de la carrera asociada al nivel de práctica"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "carrera_id"
+        ],
+        "title": "NivelPracticaBase"
+      },
+      "StablishmentBody": {
+        "properties": {
+          "directivo": {
+            "$ref": "#/components/schemas/Directivo"
+          },
+          "semana_inicio_profesional": {
+            "type": "string",
+            "title": "Semana Inicio Profesional"
+          },
+          "semana_termino_profesional": {
+            "type": "string",
+            "title": "Semana Termino Profesional"
+          },
+          "numero_semanas_profesional": {
+            "type": "integer",
+            "title": "Numero Semanas Profesional"
+          },
+          "semana_inicio_pp": {
+            "type": "string",
+            "title": "Semana Inicio Pp"
+          },
+          "semana_termino_pp": {
+            "type": "string",
+            "title": "Semana Termino Pp"
+          },
+          "numero_semanas_pp": {
+            "type": "integer",
+            "title": "Numero Semanas Pp"
+          },
+          "fichas": {
+            "items": {
+              "$ref": "#/components/schemas/Ficha"
+            },
+            "type": "array",
+            "title": "Fichas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "semana_inicio_profesional",
+          "semana_termino_profesional",
+          "numero_semanas_profesional",
+          "semana_inicio_pp",
+          "semana_termino_pp",
+          "numero_semanas_pp"
+        ],
+        "title": "StablishmentBody"
+      },
+      "Tutor": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Nombre",
+            "description": "Nombre del tutor"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Email",
+            "description": "Email del tutor"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "ID del tutor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "email"
+        ],
+        "title": "Tutor"
+      },
+      "TutorBase": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Nombre",
+            "description": "Nombre del tutor"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Email",
+            "description": "Email del tutor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "email"
+        ],
+        "title": "TutorBase"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
   }
+}
