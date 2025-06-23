@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Users, School, ClipboardPlus, FileText } from "lucide-react";
+import { Activity, Users, School, ClipboardPlus, FileText, Upload } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -74,8 +74,8 @@ export default function DashboardPage() {
         </Card>
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline">Configuración y Personalización</CardTitle>
-                <CardDescription>Gestiona las plantillas de correo y otros ajustes del sistema.</CardDescription>
+                <CardTitle className="font-headline">Configuración y Herramientas</CardTitle>
+                <CardDescription>Gestiona plantillas, realiza cargas masivas y otros ajustes del sistema.</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
                 <Link href="/plantillas" className="block p-4 border rounded-lg hover:bg-muted/50 transition-colors">
@@ -84,6 +84,15 @@ export default function DashboardPage() {
                         <div>
                             <h3 className="font-semibold">Editor de Plantillas de Correo</h3>
                             <p className="text-sm text-muted-foreground mt-1">Modifica los correos que se envían a establecimientos y estudiantes.</p>
+                        </div>
+                    </div>
+                </Link>
+                 <Link href="/carga-masiva" className="block p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                        <Upload className="h-6 w-6 text-primary" />
+                        <div>
+                            <h3 className="font-semibold">Carga Masiva de Datos</h3>
+                            <p className="text-sm text-muted-foreground mt-1">Sube archivos Excel para añadir estudiantes, colegios y más.</p>
                         </div>
                     </div>
                 </Link>
