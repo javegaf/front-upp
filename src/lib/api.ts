@@ -55,10 +55,11 @@ export const deleteTutor = (id: number): Promise<void> => fetchAPI(`/api/v1/tuto
 // Directivo API
 export const getDirectivos = (): Promise<Directivo[]> => fetchAPI('/api/v1/directivos');
 export const createDirectivo = (data: Omit<Directivo, 'id'>): Promise<Directivo> => {
-    const { establecimiento_id, ...bodyData } = data;
-    return fetchAPI(`/api/v1/directivos?establecimiento_id=${establecimiento_id}`, {
+    // To resolve the ambiguity in the API, we send establecimiento_id in both the query param and the body.
+    // The API should be fixed to only require it in one place (preferably the body).
+    return fetchAPI(`/api/v1/directivos?establecimiento_id=${data.establecimiento_id}`, {
         method: 'POST',
-        body: JSON.stringify(bodyData),
+        body: JSON.stringify(data),
     });
 };
 export const updateDirectivo = (id: number, data: Omit<Directivo, 'id'>): Promise<Directivo> => fetchAPI(`/api/v1/directivos/${id}`, { method: 'PUT', body: JSON.stringify(data) });
