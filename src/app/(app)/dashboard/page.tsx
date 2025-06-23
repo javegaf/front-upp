@@ -9,7 +9,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold font-headline">Dashboard</h1>
       <p className="text-muted-foreground">
-        Bienvenido a {process.env.NEXT_PUBLIC_APP_NAME || "Prácticas Conectadas"}. Aquí puedes obtener un resumen general.
+        Bienvenido a {process.env.NEXT_PUBLIC_APP_NAME || "Gestión de prácticas"}. Aquí puedes obtener un resumen general.
       </p>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

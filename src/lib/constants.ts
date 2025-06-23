@@ -41,5 +41,5 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-export const APP_NAME = "Prácticas Conectadas";
+export const APP_NAME = "Gestión de prácticas";
 export const APP_LOGO_ICON = BookOpenCheck;
