@@ -92,9 +92,12 @@ export default function PlantillasPage() {
                             <CardTitle>Plantilla para Establecimientos</CardTitle>
                             <CardDescription>
                                 Este es el correo que se enviará al directivo del colegio. Puedes usar las siguientes variables:
-                                <code className="block bg-muted p-2 rounded-md my-2 text-sm">
-                                    &#123;&#123;nombre_directivo&#125;&#125;, &#123;&#123;cargo_directivo&#125;&#125;, &#123;&#123;nombre_establecimiento&#125;&#125;, &#123;&#123;link_nomina&#125;&#125;
+                                <code className="block bg-muted p-2 rounded-md my-2 text-sm leading-relaxed">
+                                    &#123;&#123;directivo.nombre&#125;&#125;, &#123;&#123;directivo.cargo&#125;&#125;, &#123;&#123;establecimiento.nombre&#125;&#125;, <br />
+                                    &#123;&#123;semana_inicio_profesional&#125;&#125;, &#123;&#123;semana_termino_profesional&#125;&#125;, &#123;&#123;numero_semanas_profesional&#125;&#125;,<br />
+                                    &#123;&#123;semana_inicio_pp&#125;&#125;, &#123;&#123;semana_termino_pp&#125;&#125;, &#123;&#123;numero_semanas_pp&#125;&#125;
                                 </code>
+                                <strong>Nota:</strong> Se aconseja no modificar la estructura de la tabla de estudiantes, ya que se genera automáticamente con un bucle sobre las variables <code className="text-xs">&#123;% for ficha in fichas %&#125;</code>.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -119,8 +122,10 @@ export default function PlantillasPage() {
                             <CardTitle>Plantilla para Estudiantes</CardTitle>
                             <CardDescription>
                                 Este es el correo que se enviará a cada estudiante asignado. Puedes usar las siguientes variables:
-                                <code className="block bg-muted p-2 rounded-md my-2 text-sm">
-                                    &#123;&#123;nombre_estudiante&#125;&#125;, &#123;&#123;nombre_establecimiento&#125;&#125;, &#123;&#123;direccion_establecimiento&#125;&#125;, &#123;&#123;nombre_directivo&#125;&#125;, &#123;&#123;cargo_directivo&#125;&#125;
+                                <code className="block bg-muted p-2 rounded-md my-2 text-sm leading-relaxed">
+                                    &#123;&#123;estudiante.nombre&#125;&#125;, &#123;&#123;estudiante.ap_paterno&#125;&#125;, &#123;&#123;estudiante.ap_materno&#125;&#125;, <br />
+                                    &#123;&#123;nombre_establecimiento&#125;&#125;, &#123;&#123;nivel_practica&#125;&#125;, &#123;&#123;semana_inicio&#125;&#125;, &#123;&#123;semana_termino&#125;&#125;,<br />
+                                    &#123;&#123;directivo.nombre&#125;&#125;, &#123;&#123;directivo.cargo&#125;&#125;, &#123;&#123;directivo.email&#125;&#125;
                                 </code>
                             </CardDescription>
                         </CardHeader>
