@@ -1,3 +1,4 @@
+
 // Base entities
 export type Comuna = {
   id: string;
@@ -127,6 +128,11 @@ export const mockNivelesPractica: NivelPractica[] = [
     { id: 'np03', nombre: 'Práctica Profesional', carrera_id: 'car01' },
     { id: 'np04', nombre: 'Práctica Profesional', carrera_id: 'car02' },
     { id: 'np05', nombre: 'Práctica Profesional', carrera_id: 'car04' },
+    { id: 'np06', nombre: 'Práctica de Observación', carrera_id: 'car05' },
+    { id: 'np07', nombre: 'Práctica Profesional', carrera_id: 'car05' },
+    { id: 'np08', nombre: 'Práctica Psicopedagógica', carrera_id: 'car03' },
+    { id: 'np09', nombre: 'Práctica en NEE Transitorias', carrera_id: 'car06' },
+    { id: 'np10', nombre: 'Práctica en NEE Permanentes', carrera_id: 'car06' },
 ];
 
 export const mockCupos: Cupo[] = [
@@ -134,4 +140,6 @@ export const mockCupos: Cupo[] = [
     { id: 'cup02', establecimiento_id: 'estbl01', nivel_practica_id: 'np03' },
     { id: 'cup03', establecimiento_id: 'estbl02', nivel_practica_id: 'np04' },
     { id: 'cup04', establecimiento_id: 'estbl02', nivel_practica_id: 'np05' },
+    { id: 'cup05', establecimiento_id: 'estbl03', nivel_practica_id: 'np07' },
+    { id: 'cup06', establecimiento_id: 'estbl04', nivel_practica_id: 'np03' },
 ];

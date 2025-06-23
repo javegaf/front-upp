@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Establecimiento, Comuna } from "@/lib/definitions";
-import { mockEstablecimientos, mockComunas } from "@/lib/definitions";
+import type { Establecimiento, Comuna, Cupo, NivelPractica, Carrera } from "@/lib/definitions";
+import { mockEstablecimientos, mockComunas, mockCupos, mockNivelesPractica, mockCarreras } from "@/lib/definitions";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search, FilePenLine, Trash2 } from "lucide-react";
+import { PlusCircle, Search, FilePenLine, Trash2, Settings2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import * as React from "react";
@@ -53,7 +54,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { CupoManager } from "@/components/colegios/cupo-manager";
 
 
 // Mock API functions
@@ -64,16 +66,35 @@ const getEstablecimientosFromAPI = async (): Promise<Establecimiento[]> => {
 
 const addEstablecimientoToAPI = async (data: Omit<Establecimiento, "id">): Promise<Establecimiento> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return { ...data, id: String(Date.now()) };
+  const newEstablecimiento = { ...data, id: String(Date.now()) };
+  mockEstablecimientos.push(newEstablecimiento);
+  return newEstablecimiento;
 };
 
 const updateEstablecimientoInAPI = async (establecimiento: Establecimiento): Promise<Establecimiento> => {
   await new Promise(resolve => setTimeout(resolve, 500));
+  const index = mockEstablecimientos.findIndex(e => e.id === establecimiento.id);
+  if (index !== -1) mockEstablecimientos[index] = establecimiento;
   return establecimiento;
 };
 
 const deleteEstablecimientoFromAPI = async (establecimientoId: string): Promise<void> => {
   await new Promise(resolve => setTimeout(resolve, 500));
+  const index = mockEstablecimientos.findIndex(e => e.id === establecimientoId);
+  if (index !== -1) mockEstablecimientos.splice(index, 1);
+};
+
+const addCupoToAPI = async (data: Omit<Cupo, "id">): Promise<Cupo> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const newCupo = { ...data, id: String(Date.now()) };
+  mockCupos.push(newCupo);
+  return newCupo;
+};
+
+const deleteCupoFromAPI = async (cupoId: string): Promise<void> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const index = mockCupos.findIndex(c => c.id === cupoId);
+  if (index !== -1) mockCupos.splice(index, 1);
 };
 
 // Form Schema
@@ -198,15 +219,18 @@ function ColegioForm({ isOpen, onOpenChange, onSubmit, initialData, comunas }: C
 interface ColegioTableProps {
   establecimientos: Establecimiento[];
   comunas: Comuna[];
+  cupos: Cupo[];
   onEdit: (establecimiento: Establecimiento) => void;
   onDelete: (establecimientoId: string) => Promise<void>;
+  onManageCupos: (establecimiento: Establecimiento) => void;
 }
 
-function ColegioTable({ establecimientos, comunas, onEdit, onDelete }: ColegioTableProps) {
+function ColegioTable({ establecimientos, comunas, cupos, onEdit, onDelete, onManageCupos }: ColegioTableProps) {
   const { toast } = useToast();
 
   const getComunaName = (comunaId: string) => comunas.find(c => c.id === comunaId)?.nombre || "N/A";
-  
+  const getCuposCount = (establecimientoId: string) => cupos.filter(c => c.establecimiento_id === establecimientoId).length;
+
   const handleDeleteConfirmation = async (establecimientoId: string) => {
     try {
       await onDelete(establecimientoId);
@@ -232,13 +256,14 @@ function ColegioTable({ establecimientos, comunas, onEdit, onDelete }: ColegioTa
             <TableHead>Nombre</TableHead>
             <TableHead>Dependencia</TableHead>
             <TableHead>Comuna</TableHead>
+            <TableHead>Cupos</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {establecimientos.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center h-24">
+              <TableCell colSpan={6} className="text-center h-24">
                 No hay colegios registrados.
               </TableCell>
             </TableRow>
@@ -249,7 +274,12 @@ function ColegioTable({ establecimientos, comunas, onEdit, onDelete }: ColegioTa
                 <TableCell>{colegio.nombre}</TableCell>
                 <TableCell>{colegio.dependencia}</TableCell>
                 <TableCell>{getComunaName(colegio.comuna_id)}</TableCell>
+                <TableCell>{getCuposCount(colegio.id)}</TableCell>
                 <TableCell className="text-right space-x-2">
+                  <Button variant="outline" size="icon" onClick={() => onManageCupos(colegio)}>
+                    <Settings2 className="h-4 w-4" />
+                    <span className="sr-only">Gestionar Cupos</span>
+                  </Button>
                   <Button variant="outline" size="icon" onClick={() => onEdit(colegio)}>
                     <FilePenLine className="h-4 w-4" />
                     <span className="sr-only">Editar</span>
@@ -293,18 +323,29 @@ export default function ColegiosPage() {
   const [establecimientos, setEstablecimientos] = useState<Establecimiento[]>([]);
   const [filteredEstablecimientos, setFilteredEstablecimientos] = useState<Establecimiento[]>([]);
   const [comunas, setComunas] = useState<Comuna[]>([]);
+  const [cupos, setCupos] = useState<Cupo[]>([]);
+  const [nivelesPractica, setNivelesPractica] = useState<NivelPractica[]>([]);
+  const [carreras, setCarreras] = useState<Carrera[]>([]);
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingColegio, setEditingColegio] = useState<Establecimiento | null>(null);
+
+  const [isCupoManagerOpen, setIsCupoManagerOpen] = useState(false);
+  const [managingCuposFor, setManagingCuposFor] = useState<Establecimiento | null>(null);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
-      const data = await getEstablecimientosFromAPI();
-      setEstablecimientos(data);
-      setFilteredEstablecimientos(data);
+      // Simulate fetching all related data
+      setEstablecimientos(mockEstablecimientos);
+      setFilteredEstablecimientos(mockEstablecimientos);
       setComunas(mockComunas);
+      setCupos(mockCupos);
+      setNivelesPractica(mockNivelesPractica);
+      setCarreras(mockCarreras);
       setIsLoading(false);
     };
     fetchInitialData();
@@ -344,12 +385,28 @@ export default function ColegiosPage() {
     }
   };
 
+  const handleManageCupos = (establecimiento: Establecimiento) => {
+    setManagingCuposFor(establecimiento);
+    setIsCupoManagerOpen(true);
+  };
+
+  const handleAddCupo = async (data: { nivel_practica_id: string }) => {
+    if (!managingCuposFor) return;
+    const newCupo = await addCupoToAPI({ ...data, establecimiento_id: managingCuposFor.id });
+    setCupos(prev => [...prev, newCupo]);
+  };
+
+  const handleDeleteCupo = async (cupoId: string) => {
+    await deleteCupoFromAPI(cupoId);
+    setCupos(prev => prev.filter(c => c.id !== cupoId));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline">Gestión de Colegios</h1>
-          <p className="text-muted-foreground">Administra la información de los colegios y centros de práctica.</p>
+          <p className="text-muted-foreground">Administra los colegios, centros de práctica y sus cupos disponibles.</p>
         </div>
         <Button onClick={handleAddColegio} className="w-full sm:w-auto">
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -360,7 +417,7 @@ export default function ColegiosPage() {
       <Card>
         <CardHeader>
           <CardTitle>Listado de Colegios</CardTitle>
-          <CardDescription>Busca, visualiza y gestiona los colegios registrados en el sistema.</CardDescription>
+          <CardDescription>Busca, visualiza y gestiona los colegios y sus cupos.</CardDescription>
           <div className="relative mt-2">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -379,8 +436,10 @@ export default function ColegiosPage() {
             <ColegioTable
               establecimientos={filteredEstablecimientos}
               comunas={comunas}
+              cupos={cupos}
               onEdit={handleEditColegio}
               onDelete={handleDeleteColegio}
+              onManageCupos={handleManageCupos}
             />
           )}
         </CardContent>
@@ -393,6 +452,19 @@ export default function ColegiosPage() {
         initialData={editingColegio}
         comunas={comunas}
       />
+
+      {managingCuposFor && (
+        <CupoManager
+          isOpen={isCupoManagerOpen}
+          onOpenChange={setIsCupoManagerOpen}
+          establecimiento={managingCuposFor}
+          cupos={cupos.filter(c => c.establecimiento_id === managingCuposFor.id)}
+          nivelesPractica={nivelesPractica}
+          carreras={carreras}
+          onAddCupo={handleAddCupo}
+          onDeleteCupo={handleDeleteCupo}
+        />
+      )}
     </div>
   );
 }
