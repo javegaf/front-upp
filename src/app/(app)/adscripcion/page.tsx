@@ -1,9 +1,9 @@
 
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
-import type { Estudiante, Establecimiento, Carrera, Directivo } from "@/lib/definitions";
-import { mockEstudiantes, mockEstablecimientos, mockCarreras, mockDirectivos } from "@/lib/definitions";
+import { useState, useEffect, useMemo } from "react";
+import type { Estudiante, Establecimiento, Carrera, Directivo, Comuna } from "@/lib/definitions";
+import { mockEstudiantes, mockEstablecimientos, mockCarreras, mockDirectivos, mockComunas } from "@/lib/definitions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -15,8 +15,6 @@ import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Bu
 import Image from "next/image";
 import { EditableHtmlDisplay } from "@/components/shared/editable-html-display";
 
-
-// Mock data - en una aplicación real, esto vendría de una API
 const mockAlumnosDisponibles: Estudiante[] = mockEstudiantes;
 
 const ADSCRIPCION_STEPS = {
@@ -25,56 +23,14 @@ const ADSCRIPCION_STEPS = {
   STEP3: "notificacion-estudiantes",
 };
 
-const generateEmailPreview = (establecimiento: Establecimiento | null, directivo: Directivo | null): string => {
-  if (!establecimiento || !directivo) return "<p class='text-muted-foreground p-4 text-center'>Por favor, seleccione un establecimiento para generar y editar la plantilla del correo.</p>";
+const TEMPLATE_ESTABLISHMENT_KEY = "email_template_establishment";
 
-  const jefeUTP = directivo.nombre;
-  const nombreEstablecimiento = establecimiento.nombre;
-
-  return `
-<p>Estimado/a ${jefeUTP},</p>
-<p>Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de ${directivo.cargo} del ${nombreEstablecimiento} el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad, de acuerdo con el siguiente calendario de prácticas UCSC primer semestre 2025:</p>
-<table style="width:100%; border-collapse: collapse; margin-top: 1em; margin-bottom: 1em; border: 1px solid #ddd;">
-  <thead>
-    <tr>
-      <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">NIVEL DE PRÁCTICA</th>
-      <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">FECHA INICIO</th>
-      <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">FECHA TÉRMINO</th>
-      <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Nº SEMANAS</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="border: 1px solid #ddd; padding: 8px;">P. PROFESIONAL</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">Semana 10 de marzo</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">Semana 16 de junio</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">15</td>
-    </tr>
-    <tr>
-      <td style="border: 1px solid #ddd; padding: 8px;">PPV - PPIV - PPIII – PPII - PPI</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">Semana 17 de marzo</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">Semana 16 de junio</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">14</td>
-    </tr>
-  </tbody>
-</table>
-<p>La nómina de estudiantes adscritos a su establecimiento se informa en el siguiente enlace, el que debe copiar y pegar en el navegador web. En dicha nómina se detalla nombre del estudiante, RUT, correo electrónico, carrera y nivel de práctica pedagógica que les corresponde cursar durante el primer semestre 2025.<br>
-<a href="https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true" target="_blank" rel="noopener noreferrer">https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link&ouid=111502115013884055736&rtpof=true&sd=true</a></p>
-<p>Al iniciar su pasantía, cada estudiante deberá hacer entrega de su carpeta de práctica con documentación institucional y personal; la cual considera:</p>
-<ul>
-  <li>Certificado de Antecedentes</li>
-  <li>Certificado de Inhabilidades para trabajar con menores de edad</li>
-  <li>Certificado de Inhabilidades por maltrato relevante</li>
-  <li>Horario universitario</li>
-  <li>Otra documentación</li>
-</ul>
-<p>Eventualmente, esta nómina puede variar en consideración a los cupos autorizados por su establecimiento debido a que el proceso de inscripción de asignaturas UCSC aún está abierto.</p>
-<p>Finalmente, como UPP agradecemos el espacio formativo otorgado por su comunidad educativa.</p>
-<p>Se despide atentamente,<br>
-Equipo Unidad de Prácticas Pedagógicas UCSC</p>
+const DEFAULT_ESTABLISHMENT_TEMPLATE = `
+<p>Estimado/a {{nombre_directivo}},</p>
+<p>Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de {{cargo_directivo}} del {{nombre_establecimiento}}, el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad.</p>
+<p>La nómina de estudiantes adscritos a su establecimiento se informa en el siguiente enlace: <a href="{{link_nomina}}" target="_blank">{{link_nomina}}</a></p>
+<p>Se despide atentamente,<br>Equipo Unidad de Prácticas Pedagógicas UCSC</p>
 `;
-};
-
 
 export default function AdscripcionPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,26 +39,52 @@ export default function AdscripcionPage() {
 
   const [availableEstablecimientos, setAvailableEstablecimientos] = useState<Establecimiento[]>([]);
   const [selectedEstablecimientoId, setSelectedEstablecimientoId] = useState<string | null>(null);
-
-  const initialEmailPlaceholder = useMemo(() => generateEmailPreview(null, null), []);
-  const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailPlaceholder);
-
+  
+  const [establishmentTemplate, setEstablishmentTemplate] = useState<string>('');
+  const [renderedEmail, setRenderedEmail] = useState<string>('');
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
 
   useEffect(() => {
+    // Load data that would come from an API
     setAvailableEstablecimientos(mockEstablecimientos);
+    
+    // Load email template from localStorage, or use a default
+    const savedTemplate = localStorage.getItem(TEMPLATE_ESTABLISHMENT_KEY) || DEFAULT_ESTABLISHMENT_TEMPLATE;
+    setEstablishmentTemplate(savedTemplate);
   }, []);
 
   const getCarreraName = (carreraId: string) => mockCarreras.find(c => c.id === carreraId)?.nombre || "N/A";
+  const getComunaName = (comunaId: string) => mockComunas.find(c => c.id === comunaId)?.nombre || "N/A";
 
-  useEffect(() => {
-    const establecimiento = availableEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
-    const directivo = establecimiento ? mockDirectivos.find(d => d.establecimiento_id === establecimiento.id) || null : null;
-    const newTemplate = generateEmailPreview(establecimiento, directivo);
-    setCurrentTemplateHtml(newTemplate);
+  const selectedEstablecimiento = useMemo(() => {
+    return availableEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
   }, [selectedEstablecimientoId, availableEstablecimientos]);
+
+  const selectedDirectivo = useMemo(() => {
+    if (!selectedEstablecimiento) return null;
+    return mockDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
+  }, [selectedEstablecimiento]);
+
+  // Effect to render the email preview when data changes
+  useEffect(() => {
+    if (!selectedEstablecimiento || !selectedDirectivo) {
+        setRenderedEmail("<p class='text-muted-foreground p-4 text-center'>Por favor, seleccione un establecimiento para generar la previsualización del correo.</p>");
+        return;
+    }
+
+    let emailBody = establishmentTemplate;
+    const nominaLink = "https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link";
+
+    emailBody = emailBody.replace(/{{nombre_directivo}}/g, selectedDirectivo.nombre);
+    emailBody = emailBody.replace(/{{cargo_directivo}}/g, selectedDirectivo.cargo);
+    emailBody = emailBody.replace(/{{nombre_establecimiento}}/g, selectedEstablecimiento.nombre);
+    emailBody = emailBody.replace(/{{link_nomina}}/g, nominaLink);
+
+    setRenderedEmail(emailBody);
+
+  }, [selectedEstablecimiento, selectedDirectivo, establishmentTemplate]);
 
 
   const filteredAvailableStudents = useMemo(() => {
@@ -130,7 +112,6 @@ export default function AdscripcionPage() {
   const isStep1Valid = selectedStudents.length > 0;
   const isStep2Valid = selectedEstablecimientoId !== null;
 
-
   const goToNextStep = (nextStep: string) => {
     setUnlockedSteps((prev) => [...new Set([...prev, nextStep])]);
     setCurrentStep(nextStep);
@@ -141,15 +122,6 @@ export default function AdscripcionPage() {
       setCurrentStep(newStep);
     }
   };
-
-  const selectedEstablecimiento = useMemo(() => {
-    return availableEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
-  }, [selectedEstablecimientoId, availableEstablecimientos]);
-
-  const selectedDirectivo = useMemo(() => {
-    if (!selectedEstablecimiento) return null;
-    return mockDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
-  }, [selectedEstablecimiento]);
 
   return (
     <div className="space-y-6">
@@ -305,7 +277,7 @@ export default function AdscripcionPage() {
                 <CardHeader>
                   <CardTitle>Paso 2: Notificación al Establecimiento</CardTitle>
                   <CardDescription>
-                    Selecciona el establecimiento para previsualizar el correo de notificación.
+                    Selecciona el establecimiento para previsualizar el correo de notificación. La plantilla se puede editar en la sección "Plantillas".
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -329,18 +301,19 @@ export default function AdscripcionPage() {
                   </div>
 
                   {selectedEstablecimiento && selectedDirectivo && (
-                    <div className="space-y-1 text-sm">
+                    <div className="space-y-1 text-sm p-4 bg-muted/50 rounded-lg">
                       <p><span className="font-semibold">Establecimiento:</span> {selectedEstablecimiento.nombre}</p>
-                      <p><span className="font-semibold">Contacto:</span> {selectedDirectivo.nombre} ({selectedDirectivo.email})</p>
-                      <p><span className="font-semibold">Estudiantes seleccionados:</span> {selectedStudents.length}</p>
+                      <p><span className="font-semibold">Comuna:</span> {getComunaName(selectedEstablecimiento.comuna_id)}</p>
+                      <p><span className="font-semibold">Destinatario:</span> {selectedDirectivo.nombre} ({selectedDirectivo.email})</p>
+                      <p><span className="font-semibold">Estudiantes a notificar:</span> {selectedStudents.length}</p>
                     </div>
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="email-preview">Previsualización del Correo</Label>
+                    <Label>Previsualización del Correo</Label>
                     <EditableHtmlDisplay
                       key={selectedEstablecimientoId || 'no-establecimiento-selected'}
-                      initialHtml={currentTemplateHtml}
+                      initialHtml={renderedEmail}
                       editable={false}
                       className="w-full min-h-[300px] max-h-[60vh] overflow-y-auto"
                       aria-label="Previsualización del contenido del correo"

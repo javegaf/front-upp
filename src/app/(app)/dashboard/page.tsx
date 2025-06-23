@@ -1,6 +1,8 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Users, School, ClipboardPlus } from "lucide-react";
+import { Activity, Users, School, ClipboardPlus, FileText } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function DashboardPage() {
   return (
@@ -53,26 +55,41 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline">Bienvenido al Sistema de Gestión de Prácticas</CardTitle>
-          <CardDescription>Utiliza el menú lateral para navegar por las diferentes secciones y administrar la información de alumnos, colegios y asignaciones de prácticas pedagógicas.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Image 
-            src="https://placehold.co/800x300.png"
-            alt="University campus or students"
-            width={800}
-            height={300}
-            className="rounded-md object-cover w-full"
-            data-ai-hint="university students"
-          />
-          <p className="mt-4 text-sm">
-            Este sistema está diseñado para facilitar y optimizar el proceso de adscripción a las prácticas pedagógicas. 
-            Si tienes alguna duda o necesitas asistencia, por favor contacta al administrador del sistema.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline">Bienvenido al Sistema de Gestión</CardTitle>
+            <CardDescription>Utiliza el menú lateral para navegar por las diferentes secciones y administrar la información de alumnos, colegios y asignaciones de prácticas pedagógicas.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Image 
+              src="https://placehold.co/800x300.png"
+              alt="University campus or students"
+              width={800}
+              height={300}
+              className="rounded-md object-cover w-full"
+              data-ai-hint="university students"
+            />
+          </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline">Configuración y Personalización</CardTitle>
+                <CardDescription>Gestiona las plantillas de correo y otros ajustes del sistema.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+                <Link href="/plantillas" className="block p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                        <FileText className="h-6 w-6 text-primary" />
+                        <div>
+                            <h3 className="font-semibold">Editor de Plantillas de Correo</h3>
+                            <p className="text-sm text-muted-foreground mt-1">Modifica los correos que se envían a establecimientos y estudiantes.</p>
+                        </div>
+                    </div>
+                </Link>
+            </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
