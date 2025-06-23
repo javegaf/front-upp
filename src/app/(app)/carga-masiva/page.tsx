@@ -3,10 +3,21 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UploadCloud, FileSpreadsheet } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, AlertTriangle, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function CargaMasivaPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -56,6 +67,16 @@ export default function CargaMasivaPage() {
     const input = document.getElementById('excel-upload') as HTMLInputElement;
     if (input) input.value = "";
   };
+
+  const handleClearDatabase = () => {
+    // In a real app, this would be a server action that clears the database.
+    // For now, we just show a toast.
+    toast({
+      title: "Base de Datos Vaciada (Simulación)",
+      description: "Todos los datos han sido eliminados del sistema.",
+    });
+  };
+
 
   return (
     <div className="space-y-6">
@@ -112,6 +133,55 @@ export default function CargaMasivaPage() {
           </div>
         </CardContent>
       </Card>
+      
+      <Card className="border-destructive">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle />
+            Zona Peligrosa
+          </CardTitle>
+          <CardDescription>
+            Las siguientes acciones son irreversibles. Por favor, procede con precaución.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 rounded-md bg-destructive/5 gap-4">
+            <div>
+              <h4 className="font-semibold">Vaciar Base de Datos</h4>
+              <p className="text-sm text-muted-foreground">
+                Esta acción eliminará permanentemente todos los datos, incluyendo alumnos, colegios y asignaciones.
+              </p>
+            </div>
+             <AlertDialog>
+              <AlertDialogTrigger asChild>
+                 <Button variant="destructive" className="w-full sm:w-auto">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Vaciar Base de Datos
+                 </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. Se eliminarán permanentemente todos los datos de la base de datos.
+                    Toda la información de alumnos, colegios, asignaciones y configuraciones se perderá para siempre.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleClearDatabase}
+                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  >
+                    Sí, vaciar todo
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }
