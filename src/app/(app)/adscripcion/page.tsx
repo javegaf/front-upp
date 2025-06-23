@@ -100,9 +100,7 @@ export default function AdscripcionPage() {
 
   const renderJinjaLikeTemplate = (template: string, data: Record<string, any>): string => {
     if (!template) return "";
-    // Regex to find all {{ variable_name }} occurrences
     return template.replace(/\{\{\s*([\w_]+)\s*\}\}/g, (match, key) => {
-        // If the key exists in data, replace it. Otherwise, keep the placeholder.
         return key in data ? data[key] : match;
     });
   };
@@ -260,7 +258,7 @@ export default function AdscripcionPage() {
       },
       body: {
         directivo: selectedDirectivo,
-        establecimiento: selectedEstablecimiento,
+        establecimiento: null, // API will populate this based on a query param
         fichas: createdFichas,
         // Hardcoded values based on default template. Could be dynamic in a future iteration.
         semana_inicio_profesional: "Semana 10 de marzo",
@@ -273,7 +271,7 @@ export default function AdscripcionPage() {
     };
     
     try {
-      await api.sendEmailToEstablecimiento(emailPayload);
+      await api.sendEmailToEstablecimiento(selectedEstablecimiento.id, emailPayload);
       toast({
         title: "Notificación Enviada",
         description: `El correo ha sido enviado a ${selectedDirectivo.email}.`,
