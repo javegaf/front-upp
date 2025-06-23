@@ -4,6 +4,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { Estudiante, Establecimiento, Carrera, Directivo, Comuna, Cupo, NivelPractica, Ficha } from "@/lib/definitions";
 import * as api from "@/lib/api";
+import { format, startOfWeek, addWeeks, parseISO, differenceInWeeks } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -46,8 +47,27 @@ export default function AdscripcionPage() {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
+  const [professionalDates, setProfessionalDates] = useState({ inicio: "", termino: "" });
+  const [pedagogicalDates, setPedagogicalDates] = useState({ inicio: "", termino: "" });
+
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
+
+  const weekOptions = useMemo(() => {
+    const options = [];
+    let currentWeekStart = startOfWeek(addWeeks(new Date(), 1), { weekStartsOn: 1 }); // Monday
+
+    for (let i = 0; i < 39; i++) {
+        const week_start_formatted = format(currentWeekStart, "dd 'de' MMMM, yyyy");
+        const week_value = format(currentWeekStart, "yyyy-MM-dd");
+        options.push({
+            label: `Semana del ${week_start_formatted}`,
+            value: week_value,
+        });
+        currentWeekStart = addWeeks(currentWeekStart, 1);
+    }
+    return options;
+  }, []);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -104,6 +124,17 @@ export default function AdscripcionPage() {
         return key in data ? data[key] : match;
     });
   };
+  
+  const calculateWeeks = (start: string, end: string) => {
+    if (!start || !end) return 0;
+    try {
+        const startDate = parseISO(start);
+        const endDate = parseISO(end);
+        return differenceInWeeks(endDate, startDate);
+    } catch(e) {
+        return 0;
+    }
+  }
 
   useEffect(() => {
     if (!selectedEstablecimiento || !selectedDirectivo) {
@@ -147,7 +178,7 @@ export default function AdscripcionPage() {
     setSelectedStudents((prevSelected) => prevSelected.filter((s) => s.id !== studentToRemove.id));
   };
 
-  const isStep1Valid = selectedStudents.length > 0 && selectedEstablecimientoId !== null;
+  const isStep1Valid = selectedStudents.length > 0 && selectedEstablecimientoId !== null && professionalDates.inicio && professionalDates.termino && pedagogicalDates.inicio && pedagogicalDates.termino;
   const isStep2Valid = selectedEstablecimientoId !== null;
 
   const handleCreateFichas = async (): Promise<Ficha[] | null> => {
@@ -170,24 +201,37 @@ export default function AdscripcionPage() {
         console.warn(`No se encontró nivel de práctica para la carrera del estudiante ${student.nombre}`);
         continue;
       }
-      const nivelPracticaId = nivelesForCarrera[0].id;
-
+      
+      const nivelPractica = nivelesForCarrera[0];
       const cupo = allCupos.find(c =>
         c.establecimiento_id === selectedEstablecimientoId &&
-        c.nivel_practica_id === nivelPracticaId
+        c.nivel_practica_id === nivelPractica.id
       );
 
       if (!cupo) {
         console.warn(`No se encontró cupo para el estudiante ${student.nombre} en el establecimiento seleccionado.`);
         continue;
       }
+      
+      const isProfessional = nivelPractica.nombre.toLowerCase().includes('profesional');
+      const dates = isProfessional ? professionalDates : pedagogicalDates;
+
+      if (!dates.inicio || !dates.termino) {
+        console.warn(`Fechas no seleccionadas para el tipo de práctica del estudiante ${student.nombre}.`);
+        toast({
+          title: "Fechas no seleccionadas",
+          description: "Por favor, selecciona las fechas de inicio y término para ambos tipos de práctica.",
+          variant: "destructive"
+        });
+        return null;
+      }
 
       const fichaPayload = {
         estudiante_id: student.id,
         establecimiento_id: selectedEstablecimientoId,
         cupo_id: cupo.id,
-        fecha_inicio: new Date().toISOString().split('T')[0],
-        fecha_termino: null,
+        fecha_inicio: dates.inicio,
+        fecha_termino: dates.termino,
         fecha_envio: new Date().toISOString(),
       };
 
@@ -258,15 +302,14 @@ export default function AdscripcionPage() {
       },
       body: {
         directivo: selectedDirectivo,
-        establecimiento: null, // API will populate this based on a query param
+        establecimiento: null, 
         fichas: createdFichas,
-        // Hardcoded values based on default template. Could be dynamic in a future iteration.
-        semana_inicio_profesional: "Semana 10 de marzo",
-        semana_termino_profesional: "Semana 16 de junio",
-        numero_semanas_profesional: 15,
-        semana_inicio_pp: "Semana 17 de marzo",
-        semana_termino_pp: "Semana 16 de junio",
-        numero_semanas_pp: 14,
+        semana_inicio_profesional: professionalDates.inicio ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM") : "N/A",
+        semana_termino_profesional: professionalDates.termino ? format(parseISO(professionalDates.termino), "dd 'de' MMMM") : "N/A",
+        numero_semanas_profesional: calculateWeeks(professionalDates.inicio, professionalDates.termino),
+        semana_inicio_pp: pedagogicalDates.inicio ? format(parseISO(pedagogicalDates.inicio), "dd 'de' MMMM") : "N/A",
+        semana_termino_pp: pedagogicalDates.termino ? format(parseISO(pedagogicalDates.termino), "dd 'de' MMMM") : "N/A",
+        numero_semanas_pp: calculateWeeks(pedagogicalDates.inicio, pedagogicalDates.termino),
       }
     };
     
@@ -294,7 +337,7 @@ export default function AdscripcionPage() {
       const newFichas = await handleCreateFichas();
       setIsCreatingFichas(false);
       if (!newFichas || newFichas.length === 0) {
-        return; // Stop if ficha creation failed or produced no fichas
+        return; 
       }
     }
     setUnlockedSteps((prev) => [...new Set([...prev, nextStep])]);
@@ -348,9 +391,9 @@ export default function AdscripcionPage() {
               <fieldset disabled={unlockedSteps.includes(ADSCRIPCION_STEPS.STEP2)}>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Paso 1: Selección de Establecimiento y Estudiantes</CardTitle>
+                    <CardTitle>Paso 1: Selección de Establecimiento, Fechas y Estudiantes</CardTitle>
                     <CardDescription>
-                      Primero selecciona el establecimiento y luego busca y agrega los estudiantes para la adscripción.
+                      Completa la información para la adscripción. Todos los campos son requeridos para continuar.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -371,6 +414,60 @@ export default function AdscripcionPage() {
                             ))}
                         </SelectContent>
                         </Select>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Card className="shadow-none border">
+                            <CardHeader>
+                                <CardTitle className="text-base">Fechas Práctica Profesional</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>Semana de Inicio</Label>
+                                    <Select value={professionalDates.inicio} onValueChange={(value) => setProfessionalDates(p => ({...p, inicio: value}))}>
+                                        <SelectTrigger><SelectValue placeholder="Seleccionar semana..." /></SelectTrigger>
+                                        <SelectContent>
+                                            {weekOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label>Semana de Término</Label>
+                                    <Select value={professionalDates.termino} onValueChange={(value) => setProfessionalDates(p => ({...p, termino: value}))}>
+                                        <SelectTrigger><SelectValue placeholder="Seleccionar semana..." /></SelectTrigger>
+                                        <SelectContent>
+                                            {weekOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </CardContent>
+                        </Card>
+                         <Card className="shadow-none border">
+                            <CardHeader>
+                                <CardTitle className="text-base">Fechas Prácticas Pedagógicas</CardTitle>
+                                <CardDescription className="text-xs">Para todos los niveles que no son "Profesional"</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>Semana de Inicio</Label>
+                                     <Select value={pedagogicalDates.inicio} onValueChange={(value) => setPedagogicalDates(p => ({...p, inicio: value}))}>
+                                        <SelectTrigger><SelectValue placeholder="Seleccionar semana..." /></SelectTrigger>
+                                        <SelectContent>
+                                            {weekOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label>Semana de Término</Label>
+                                     <Select value={pedagogicalDates.termino} onValueChange={(value) => setPedagogicalDates(p => ({...p, termino: value}))}>
+                                        <SelectTrigger><SelectValue placeholder="Seleccionar semana..." /></SelectTrigger>
+                                        <SelectContent>
+                                            {weekOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     <fieldset disabled={!selectedEstablecimientoId} className="space-y-6 disabled:opacity-50">
