@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Users, School, ClipboardCheck, FileText, Upload, BookOpenCheck, Contact, UserCheck, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, Users, School, ClipboardCheck, FileText, Upload, BookOpenCheck, UserCheck, GraduationCap } from 'lucide-react';
 
 export type NavItem = {
   label: string;
@@ -23,11 +23,6 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Colegios',
     href: '/colegios',
     icon: School,
-  },
-  {
-    label: 'Directivos',
-    href: '/directivos',
-    icon: Contact,
   },
   {
     label: 'Tutores',
