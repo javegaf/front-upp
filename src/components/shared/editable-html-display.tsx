@@ -3,7 +3,7 @@
 
 import type { HTMLAttributes } from 'react';
 import { useEffect, useRef } from 'react';
-import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, Table as TableIcon } from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, Table as TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from "@/lib/utils";
 
@@ -65,8 +65,6 @@ export function EditableHtmlDisplay({
   const handleItalicClick = () => execCommand('italic');
   const handleUnderlineClick = () => execCommand('underline');
   const handleStrikethroughClick = () => execCommand('strikeThrough');
-  const handleUnorderedListClick = () => execCommand('insertUnorderedList');
-  const handleOrderedListClick = () => execCommand('insertOrderedList');
 
   const handleInsertTableClick = () => {
     const tableHtml = `
@@ -108,12 +106,6 @@ export function EditableHtmlDisplay({
           </Button>
           <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleStrikethroughClick} title="Strikethrough" className="h-8 w-8 p-0">
             <Strikethrough className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleUnorderedListClick} title="Bulleted List" className="h-8 w-8 p-0">
-            <List className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleOrderedListClick} title="Numbered List" className="h-8 w-8 p-0">
-            <ListOrdered className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={handleInsertTableClick} title="Insert Table" className="h-8 w-8 p-0">
             <TableIcon className="h-4 w-4" />
