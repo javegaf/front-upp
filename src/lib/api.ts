@@ -1,6 +1,6 @@
 
 import type { 
-    Carrera, Comuna, Cupo, Directivo, Establecimiento, Estudiante, Ficha, NivelPractica, Tutor 
+    Carrera, Comuna, Cupo, Directivo, Establecimiento, Estudiante, Ficha, NivelPractica, Tutor, SendEmailToEstablecimientoPayload 
 } from './definitions';
 
 // Ensure you have NEXT_PUBLIC_API_URL in your .env.local file
@@ -90,6 +90,14 @@ export const deleteCupo = (id: number): Promise<void> => fetchAPI(`/api/v1/cupos
 // Ficha API
 export const getFichas = (): Promise<Ficha[]> => fetchAPI('/api/v1/fichas');
 export const createFicha = (data: Omit<Ficha, 'id'>): Promise<Ficha> => fetchAPI('/api/v1/fichas', { method: 'POST', body: JSON.stringify(data) });
+
+// Email API
+export const sendEmailToEstablecimiento = (establecimientoId: string, payload: SendEmailToEstablecimientoPayload): Promise<any> => {
+    return fetchAPI(`/api/v1/email/send-email/stablishment?establecimiento_id=${establecimientoId}`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+};
 
 // Carga Masiva API
 export const uploadFile = (file: File): Promise<any> => {

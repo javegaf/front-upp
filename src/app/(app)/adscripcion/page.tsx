@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Building } from "lucide-react";
+import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Mail } from "lucide-react";
 import Image from "next/image";
 import { EditableHtmlDisplay } from "@/components/shared/editable-html-display";
 import { useToast } from "@/hooks/use-toast";
@@ -51,6 +51,8 @@ export default function AdscripcionPage() {
   const [renderedEmail, setRenderedEmail] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingFichas, setIsCreatingFichas] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
@@ -224,6 +226,54 @@ export default function AdscripcionPage() {
         variant: "destructive",
       });
       return false;
+    }
+  };
+
+  const handleSendNotification = async () => {
+    if (!selectedEstablecimiento || !selectedDirectivo) {
+      toast({
+        title: "Información incompleta",
+        description: "No se ha seleccionado un establecimiento o no se encontró un directivo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingEmail(true);
+
+    const emailPayload = {
+      email: {
+        subject: `Notificación de adscripción de prácticas - ${selectedEstablecimiento.nombre}`,
+        email: [selectedDirectivo.email],
+      },
+      body: {
+        directivo: selectedDirectivo,
+        fichas: createdFichas,
+        // Hardcoded values based on default template. Could be dynamic in a future iteration.
+        semana_inicio_profesional: "Semana 10 de marzo",
+        semana_termino_profesional: "Semana 16 de junio",
+        numero_semanas_profesional: 15,
+        semana_inicio_pp: "Semana 17 de marzo",
+        semana_termino_pp: "Semana 16 de junio",
+        numero_semanas_pp: 14,
+      }
+    };
+    
+    try {
+      await api.sendEmailToEstablecimiento(selectedEstablecimiento.id, emailPayload);
+      toast({
+        title: "Notificación Enviada",
+        description: `El correo ha sido enviado a ${selectedDirectivo.email}.`,
+      });
+      setEmailSent(true);
+    } catch (error) {
+      toast({
+        title: "Error al enviar notificación",
+        description: "No se pudo enviar el correo. Por favor, inténtelo de nuevo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -452,9 +502,13 @@ export default function AdscripcionPage() {
                   </div>
 
                   <div className="flex justify-between items-center mt-4">
-                    <Button variant="outline" disabled={!selectedEstablecimientoId}>
-                       <Building className="mr-2 h-4 w-4" />
-                       Enviar Notificación (Próximamente)
+                    <Button 
+                      variant="outline"
+                      onClick={handleSendNotification}
+                      disabled={!selectedEstablecimientoId || isSendingEmail || emailSent}
+                    >
+                       <Mail className="mr-2 h-4 w-4" />
+                       {isSendingEmail ? "Enviando..." : (emailSent ? "Notificación Enviada" : "Enviar Notificación")}
                     </Button>
                     <Button
                       onClick={() => goToNextStep(ADSCRIPCION_STEPS.STEP3)}

@@ -69,6 +69,28 @@ export type Ficha = {
   fecha_envio?: string | null; // DateTime string
 };
 
+// API Payload Types
+export type EmailSchema = {
+  subject: string;
+  email: string[];
+};
+
+export type StablishmentBody = {
+  directivo?: Directivo | null;
+  semana_inicio_profesional: string;
+  semana_termino_profesional: string;
+  numero_semanas_profesional: number;
+  semana_inicio_pp: string;
+  semana_termino_pp: string;
+  numero_semanas_pp: number;
+  fichas?: Ficha[];
+};
+
+export type SendEmailToEstablecimientoPayload = {
+    email: EmailSchema;
+    body: StablishmentBody;
+};
+
 
 // --- MOCK DATA (used for fallbacks or initial state before API load) ---
 
