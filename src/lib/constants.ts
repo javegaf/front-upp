@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Users, School, ClipboardCheck, FileText, Upload, BookOpenCheck, UserCheck, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, Users, School, ClipboardCheck, FileText, Upload, BookOpenCheck, UserCheck, GraduationCap, MapPin } from 'lucide-react';
 
 export type NavItem = {
   label: string;
@@ -33,6 +33,11 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Carreras',
     href: '/carreras',
     icon: GraduationCap,
+  },
+   {
+    label: 'Comunas',
+    href: '/comunas',
+    icon: MapPin,
   },
   {
     label: 'Adscripción',

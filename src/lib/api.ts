@@ -56,6 +56,9 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}) {
 
 // Comuna API
 export const getComunas = (): Promise<Comuna[]> => fetchAPI('/api/v1/comunas');
+export const createComuna = (data: Omit<Comuna, 'id'>): Promise<Comuna> => fetchAPI('/api/v1/comunas', { method: 'POST', body: JSON.stringify(data) });
+export const updateComuna = (id: number, data: Omit<Comuna, 'id'>): Promise<Comuna> => fetchAPI(`/api/v1/comunas/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export const deleteComuna = (id: number): Promise<void> => fetchAPI(`/api/v1/comunas/${id}`, { method: 'DELETE' });
 
 // Carrera API
 export const getCarreras = (): Promise<Carrera[]> => fetchAPI('/api/v1/carreras');
