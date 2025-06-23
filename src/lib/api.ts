@@ -1,6 +1,6 @@
 
 import type { 
-    Carrera, Comuna, Cupo, Directivo, Establecimiento, Estudiante, Ficha, NivelPractica, Tutor, SendEmailToEstablecimientoPayload 
+    Carrera, Comuna, Cupo, Directivo, Establecimiento, Estudiante, Ficha, NivelPractica, Tutor, SendEmailToEstablecimientoPayload, EmailSchema 
 } from './definitions';
 
 // Ensure you have NEXT_PUBLIC_API_URL in your .env.local file
@@ -105,6 +105,7 @@ export const deleteCupo = (id: number): Promise<void> => fetchAPI(`/api/v1/cupos
 // Ficha API
 export const getFichas = (): Promise<Ficha[]> => fetchAPI('/api/v1/fichas');
 export const createFicha = (data: Omit<Ficha, 'id'>): Promise<Ficha> => fetchAPI('/api/v1/fichas', { method: 'POST', body: JSON.stringify(data) });
+export const updateFicha = (id: number, data: Omit<Ficha, 'id'>): Promise<Ficha> => fetchAPI(`/api/v1/fichas/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 
 // Email API
 export const sendEmailToEstablecimiento = (establecimientoId: string, payload: SendEmailToEstablecimientoPayload): Promise<any> => {
@@ -113,6 +114,14 @@ export const sendEmailToEstablecimiento = (establecimientoId: string, payload: S
         body: JSON.stringify(payload),
     });
 };
+
+export const sendEmailToStudent = (fichaId: number, payload: EmailSchema): Promise<any> => {
+    return fetchAPI(`/api/v1/email/send-email/student?ficha_id=${fichaId}`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+};
+
 
 // Email Template API
 export const getStudentEmailTemplate = (): Promise<string> => fetchAPI('/api/v1/email/email-template/student');

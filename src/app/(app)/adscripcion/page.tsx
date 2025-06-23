@@ -2,18 +2,17 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import type { Estudiante, Establecimiento, Carrera, Directivo, Comuna, Cupo, NivelPractica, Ficha } from "@/lib/definitions";
+import type { Estudiante, Establecimiento, Carrera, Directivo, Comuna, Cupo, NivelPractica, Ficha, EmailSchema } from "@/lib/definitions";
 import * as api from "@/lib/api";
 import { format, startOfWeek, addWeeks, parseISO, differenceInWeeks } from "date-fns";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Mail } from "lucide-react";
-import Image from "next/image";
+import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Mail, Send } from "lucide-react";
 import { EditableHtmlDisplay } from "@/components/shared/editable-html-display";
 import { useToast } from "@/hooks/use-toast";
 
@@ -53,11 +52,23 @@ export default function AdscripcionPage() {
   const [selectedEstablecimientoId, setSelectedEstablecimientoId] = useState<string | null>(null);
   
   const [establishmentTemplate, setEstablishmentTemplate] = useState<string>('');
+  const [studentTemplate, setStudentTemplate] = useState<string>('');
   const [renderedEmail, setRenderedEmail] = useState<string>('');
+
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingFichas, setIsCreatingFichas] = useState(false);
+  
+  // Step 2 State
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+
+  // Step 3 State
+  const [studentsGroupedByLevel, setStudentsGroupedByLevel] = useState<Record<string, { nivel: NivelPractica; students: Estudiante[] }>>({});
+  const [scheduledSendTimes, setScheduledSendTimes] = useState<Record<string, string>>({}); // { [nivelId]: 'YYYY-MM-DDTHH:mm' }
+  const [previewStudent, setPreviewStudent] = useState<Estudiante | null>(null);
+  const [renderedStudentEmail, setRenderedStudentEmail] = useState<string>('');
+  const [isUpdatingAndSending, setIsUpdatingAndSending] = useState(false);
+  const [studentEmailsSent, setStudentEmailsSent] = useState(false);
 
   const [professionalDates, setProfessionalDates] = useState({ inicio: "", termino: "" });
   const [pedagogicalDates, setPedagogicalDates] = useState({ inicio: "", termino: "" });
@@ -85,7 +96,7 @@ export default function AdscripcionPage() {
     const fetchInitialData = async () => {
       setIsLoading(true);
       try {
-        const [studentsData, establecimientosData, carrerasData, directivosData, comunasData, cuposData, nivelesData, estTemplateData] = await Promise.all([
+        const [studentsData, establecimientosData, carrerasData, directivosData, comunasData, cuposData, nivelesData, estTemplateData, stuTemplateData] = await Promise.all([
           api.getEstudiantes(),
           api.getEstablecimientos(),
           api.getCarreras(),
@@ -94,6 +105,7 @@ export default function AdscripcionPage() {
           api.getCupos(),
           api.getNivelesPractica(),
           api.getEstablishmentEmailTemplate(),
+          api.getStudentEmailTemplate(),
         ]);
         setAllStudents(studentsData);
         setAvailableStudents(studentsData);
@@ -104,6 +116,7 @@ export default function AdscripcionPage() {
         setAllCupos(cuposData);
         setAllNivelesPractica(nivelesData);
         setEstablishmentTemplate(estTemplateData || '');
+        setStudentTemplate(stuTemplateData || '');
 
       } catch (error) {
         toast({
@@ -117,6 +130,56 @@ export default function AdscripcionPage() {
     };
     fetchInitialData();
   }, [toast]);
+  
+  useEffect(() => {
+    if (currentStep === ADSCRIPCION_STEPS.STEP3 && createdFichas.length > 0) {
+        const grouped: Record<string, { nivel: NivelPractica; students: Estudiante[] }> = {};
+
+        for (const ficha of createdFichas) {
+            const student = allStudents.find(s => s.id === ficha.estudiante_id);
+            if (!student) continue;
+
+            const cupo = allCupos.find(c => c.id === ficha.cupo_id);
+            if (!cupo) continue;
+
+            const nivel = allNivelesPractica.find(n => n.id === cupo.nivel_practica_id);
+            if (!nivel) continue;
+
+            if (!grouped[nivel.id]) {
+                grouped[nivel.id] = { nivel, students: [] };
+            }
+            grouped[nivel.id].students.push(student);
+        }
+        setStudentsGroupedByLevel(grouped);
+    }
+  }, [currentStep, createdFichas, allStudents, allCupos, allNivelesPractica]);
+
+  useEffect(() => {
+    if (!previewStudent || !studentTemplate || !selectedEstablecimiento || !selectedDirectivo) {
+        setRenderedStudentEmail("<p class='text-muted-foreground p-4 text-center'>Seleccione un estudiante para previsualizar el correo.</p>");
+        return;
+    }
+
+    const ficha = createdFichas.find(f => f.estudiante_id === previewStudent.id);
+    if (!ficha) return;
+
+    const cupo = allCupos.find(c => c.id === ficha.cupo_id);
+    const nivel = allNivelesPractica.find(n => n.id === cupo?.nivel_practica_id);
+
+    const templateData = {
+        estudiante: previewStudent,
+        nombre_establecimiento: selectedEstablecimiento.nombre,
+        nivel_practica: nivel?.nombre || 'N/A',
+        semana_inicio: ficha.fecha_inicio ? format(parseISO(ficha.fecha_inicio), "dd 'de' MMMM, yyyy") : "N/A",
+        semana_termino: ficha.fecha_termino ? format(parseISO(ficha.fecha_termino), "dd 'de' MMMM, yyyy") : 'N/A',
+        directivo: selectedDirectivo,
+    };
+    
+    const rendered = renderTemplate(studentTemplate, templateData);
+    setRenderedStudentEmail(rendered);
+
+  }, [previewStudent, studentTemplate, createdFichas, allCupos, allNivelesPractica, selectedEstablecimiento, selectedDirectivo]);
+
 
   const getCarreraName = (carreraId: number) => allCarreras.find(c => c.id === carreraId)?.nombre || "N/A";
   const getComunaName = (comunaId: number) => allComunas.find(c => c.id === comunaId)?.nombre || "N/A";
@@ -136,7 +199,6 @@ export default function AdscripcionPage() {
     const processContent = (content: string, contextData: Record<string, any>): string => {
         let loopResolvedContent = content;
         
-        // Process loops: {% for item in collection %}...{% endfor %}
         const loopRegex = /\{%\s*for\s+(\w+)\s+in\s+([\w\.]+)\s*%\}([\s\S]*?)\{%\s*endfor\s*%\}/g;
         loopResolvedContent = loopResolvedContent.replace(loopRegex, (match, itemName, collectionPath, innerContent) => {
             const collection = get(contextData, collectionPath.trim());
@@ -146,27 +208,25 @@ export default function AdscripcionPage() {
                     return processContent(innerContent, newContext);
                 }).join('');
             }
-            return ''; // If not an array, remove the block
+            return '';
         });
 
-        // Process simple variables: {{ path.to.value }}
         const varRegex = /\{\{\s*([\w\._]+)\s*\}\}/g;
         return loopResolvedContent.replace(varRegex, (match, path) => {
             const value = get(contextData, path.trim());
 
             if (value === undefined || value === null) {
-                return ''; // Replace with empty string if not found
+                return '';
             }
             
-            // Auto-format dates
-            if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+            if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z)?)?$/.test(value)) {
                 try {
                     return format(parseISO(value), "dd 'de' MMMM, yyyy");
                 } catch (e) { /* fallback */ }
             }
 
             if (typeof value === 'object') {
-              return ''; // Avoid rendering [Object object]
+              return '';
             }
 
             return String(value);
@@ -174,7 +234,7 @@ export default function AdscripcionPage() {
     };
 
     return processContent(template, data);
-};
+  };
   
   const calculateWeeks = (start: string, end: string) => {
     if (!start || !end) return 0;
@@ -193,12 +253,11 @@ export default function AdscripcionPage() {
         return;
     }
 
-    // Augment fichas with full student details for the template
     const fichasForTemplate = createdFichas.map(ficha => {
         const student = allStudents.find(s => s.id === ficha.estudiante_id);
         return {
             ...ficha,
-            estudiante: student || {}, // Provide empty student object as fallback
+            estudiante: student || {},
         };
     });
 
@@ -242,7 +301,8 @@ export default function AdscripcionPage() {
   };
 
   const isStep1Valid = selectedStudents.length > 0 && selectedEstablecimientoId !== null && professionalDates.inicio && professionalDates.termino && pedagogicalDates.inicio && pedagogicalDates.termino;
-  const isStep2Valid = selectedEstablecimientoId !== null;
+  const isStep2Valid = selectedEstablecimientoId !== null && createdFichas.length > 0;
+  const isStep3Valid = createdFichas.length > 0 && Object.keys(studentsGroupedByLevel).every(nivelId => scheduledSendTimes[nivelId]);
 
   const handleCreateFichas = async (): Promise<Ficha[] | null> => {
     if (!selectedEstablecimientoId || selectedStudents.length === 0) {
@@ -393,6 +453,61 @@ export default function AdscripcionPage() {
       setIsSendingEmail(false);
     }
   };
+  
+  const handleUpdateAndSendStudentEmails = async () => {
+    const allDatesSet = Object.keys(studentsGroupedByLevel).every(nivelId => scheduledSendTimes[nivelId]);
+    if (!allDatesSet) {
+        toast({ title: "Fechas Incompletas", description: "Por favor, define una fecha y hora de envío para cada grupo de práctica.", variant: "destructive" });
+        return;
+    }
+
+    setIsUpdatingAndSending(true);
+
+    try {
+        const updatePromises = createdFichas.map(ficha => {
+            const cupo = allCupos.find(c => c.id === ficha.cupo_id);
+            const nivelId = cupo!.nivel_practica_id;
+            const fecha_envio = new Date(scheduledSendTimes[nivelId]).toISOString();
+            
+            const fichaPayload: Omit<Ficha, 'id'> = {
+                estudiante_id: ficha.estudiante_id,
+                establecimiento_id: ficha.establecimiento_id,
+                cupo_id: ficha.cupo_id,
+                fecha_inicio: ficha.fecha_inicio,
+                fecha_termino: ficha.fecha_termino,
+                fecha_envio: fecha_envio,
+            };
+
+            return api.updateFicha(ficha.id, fichaPayload);
+        });
+
+        await Promise.all(updatePromises);
+        toast({ title: "Fichas Actualizadas", description: "Las fechas de envío han sido guardadas." });
+
+        const sendPromises = createdFichas.map(async (ficha) => {
+            const student = allStudents.find(s => s.id === ficha.estudiante_id);
+            if (!student) return Promise.resolve();
+
+            const emailPayload: EmailSchema = {
+                subject: `Detalles de tu Práctica - ${selectedEstablecimiento?.nombre || 'UCSC'}`,
+                email: [student.email],
+            };
+            return api.sendEmailToStudent(ficha.id, emailPayload);
+        });
+        
+        await Promise.all(sendPromises);
+        
+        toast({ title: "Correos Enviados", description: "Los correos a los estudiantes han sido procesados y/o programados." });
+        setStudentEmailsSent(true);
+
+    } catch (error) {
+        console.error("Error updating/sending student emails:", error);
+        toast({ title: "Error en el Envío", description: "No se pudieron actualizar las fichas o enviar los correos.", variant: "destructive" });
+    } finally {
+        setIsUpdatingAndSending(false);
+    }
+  };
+
 
   const goToNextStep = async (nextStep: string) => {
     if (currentStep === ADSCRIPCION_STEPS.STEP1) {
@@ -657,7 +772,7 @@ export default function AdscripcionPage() {
                       <p><span className="font-semibold">Establecimiento:</span> {selectedEstablecimiento.nombre}</p>
                       <p><span className="font-semibold">Comuna:</span> {getComunaName(selectedEstablecimiento.comuna_id)}</p>
                       <p><span className="font-semibold">Destinatario:</span> {selectedDirectivo.nombre} ({selectedDirectivo.email})</p>
-                      <p><span className="font-semibold">Estudiantes a notificar:</span> {selectedStudents.length}</p>
+                      <p><span className="font-semibold">Estudiantes a notificar:</span> {createdFichas.length}</p>
                     </div>
                   )}
 
@@ -676,7 +791,7 @@ export default function AdscripcionPage() {
                     <Button 
                       variant="outline"
                       onClick={handleSendNotification}
-                      disabled={!selectedEstablecimientoId || isSendingEmail || emailSent}
+                      disabled={!isStep2Valid || isSendingEmail || emailSent}
                     >
                        <Mail className="mr-2 h-4 w-4" />
                        {isSendingEmail ? "Enviando..." : (emailSent ? "Notificación Enviada" : "Enviar Notificación")}
@@ -693,32 +808,75 @@ export default function AdscripcionPage() {
             </TabsContent>
 
             <TabsContent value={ADSCRIPCION_STEPS.STEP3}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Paso 3: Notificación a Estudiantes</CardTitle>
-                  <CardDescription>
-                    Informa a los estudiantes sobre los detalles de su asignación de práctica.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col items-center justify-center text-center min-h-[250px] space-y-4">
-                    <Image
-                      src="https://placehold.co/500x250.png"
-                      alt="Notificación a estudiantes"
-                      width={500}
-                      height={250}
-                      className="rounded-md object-contain opacity-70"
-                      data-ai-hint="student communication"
-                    />
-                    <p className="text-muted-foreground">
-                      Gestiona el envío de comunicaciones a los estudiantes con la información relevante a su práctica.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      (Funcionalidad en desarrollo)
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Paso 3: Notificación a Estudiantes</CardTitle>
+                        <CardDescription>
+                            Programa la fecha de envío, previsualiza el correo para cada estudiante y envía las notificaciones.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="space-y-6">
+                            <h3 className="text-lg font-semibold">Programación de Envío por Nivel</h3>
+                            {Object.keys(studentsGroupedByLevel).length > 0 ? (
+                                <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
+                                    {Object.entries(studentsGroupedByLevel).map(([nivelId, { nivel, students }]) => (
+                                        <Card key={nivelId} className="bg-muted/50">
+                                            <CardHeader className="pb-4">
+                                                <CardTitle className="text-base">{nivel.nombre}</CardTitle>
+                                                <CardDescription>{students.length} estudiante(s) en este nivel.</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <Label htmlFor={`datetime-${nivelId}`}>Fecha y Hora de Envío</Label>
+                                                    <Input
+                                                        id={`datetime-${nivelId}`}
+                                                        type="datetime-local"
+                                                        value={scheduledSendTimes[nivelId] || ''}
+                                                        onChange={(e) => setScheduledSendTimes(prev => ({ ...prev, [nivelId]: e.target.value }))}
+                                                    />
+                                                </div>
+                                                <div className="text-sm">
+                                                    <p className="font-medium mb-1">Estudiantes:</p>
+                                                    <ul className="list-disc list-inside text-muted-foreground">
+                                                      {students.map(student => (
+                                                        <li key={student.id}>
+                                                          <button onClick={() => setPreviewStudent(student)} className="text-left underline-offset-2 hover:underline disabled:no-underline disabled:cursor-default" disabled={previewStudent?.id === student.id}>
+                                                            {student.nombre} {student.ap_paterno}
+                                                          </button>
+                                                        </li>
+                                                      ))}
+                                                    </ul>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-muted-foreground">No hay estudiantes para notificar.</p>
+                            )}
+                        </div>
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">Previsualización del Correo del Estudiante</h3>
+                            {previewStudent && <p className="text-sm text-muted-foreground">Mostrando previsualización para: <span className="font-medium text-foreground">{previewStudent.nombre} {previewStudent.ap_paterno}</span></p>}
+                            <EditableHtmlDisplay
+                                initialHtml={renderedStudentEmail}
+                                editable={false}
+                                className="w-full min-h-[400px] max-h-[60vh] overflow-y-auto"
+                                aria-label="Previsualización del correo del estudiante"
+                            />
+                        </div>
+                    </CardContent>
+                    <CardFooter className="flex justify-end">
+                       <Button
+                         onClick={handleUpdateAndSendStudentEmails}
+                         disabled={!isStep3Valid || isUpdatingAndSending || studentEmailsSent}
+                       >
+                         <Send className="mr-2 h-4 w-4" />
+                         {isUpdatingAndSending ? 'Procesando...' : (studentEmailsSent ? 'Correos Enviados' : 'Actualizar y Enviar Correos')}
+                       </Button>
+                    </CardFooter>
+                </Card>
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -726,3 +884,4 @@ export default function AdscripcionPage() {
     </div>
   );
 }
+
