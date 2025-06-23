@@ -2782,10 +2782,24 @@
       "StablishmentBody": {
         "properties": {
           "directivo": {
-            "$ref": "#/components/schemas/Directivo"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Directivo"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "establecimiento": {
-            "$ref": "#/components/schemas/Establecimiento"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Establecimiento"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "semana_inicio_profesional": {
             "type": "string",
@@ -2821,6 +2835,8 @@
         },
         "type": "object",
         "required": [
+          "directivo",
+          "establecimiento",
           "semana_inicio_profesional",
           "semana_termino_profesional",
           "numero_semanas_profesional",

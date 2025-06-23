@@ -302,7 +302,7 @@ export default function AdscripcionPage() {
       },
       body: {
         directivo: selectedDirectivo,
-        establecimiento: selectedEstablecimiento, 
+        establecimiento: null, 
         fichas: createdFichas,
         semana_inicio_profesional: professionalDates.inicio ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM") : "N/A",
         semana_termino_profesional: professionalDates.termino ? format(parseISO(professionalDates.termino), "dd 'de' MMMM") : "N/A",
