@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Estudiante, Carrera, Comuna, Tutor } from "@/lib/definitions";
+import type { Estudiante, Carrera, Comuna, Tutor, Ficha, Establecimiento, NivelPractica, Cupo } from "@/lib/definitions";
 import * as api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { StudentForm, type StudentFormValues } from "@/components/alumnos/student-form";
@@ -27,25 +27,47 @@ export default function AlumnosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Data for form selects
+  // Data for forms and details view
   const [carreras, setCarreras] = useState<Carrera[]>([]);
   const [comunas, setComunas] = useState<Comuna[]>([]);
   const [tutores, setTutores] = useState<Tutor[]>([]);
+  const [fichas, setFichas] = useState<Ficha[]>([]);
+  const [establecimientos, setEstablecimientos] = useState<Establecimiento[]>([]);
+  const [nivelesPractica, setNivelesPractica] = useState<NivelPractica[]>([]);
+  const [cupos, setCupos] = useState<Cupo[]>([]);
+
 
   const fetchAllData = async () => {
     setIsLoading(true);
     try {
-      const [estudiantesData, carrerasData, comunasData, tutoresData] = await Promise.all([
+      const [
+        estudiantesData, 
+        carrerasData, 
+        comunasData, 
+        tutoresData,
+        fichasData,
+        establecimientosData,
+        nivelesData,
+        cuposData
+      ] = await Promise.all([
         api.getEstudiantes(),
         api.getCarreras(),
         api.getComunas(),
         api.getTutores(),
+        api.getFichas(),
+        api.getEstablecimientos(),
+        api.getNivelesPractica(),
+        api.getCupos()
       ]);
       setEstudiantes(estudiantesData);
       setFilteredEstudiantes(estudiantesData);
       setCarreras(carrerasData);
       setComunas(comunasData);
       setTutores(tutoresData);
+      setFichas(fichasData);
+      setEstablecimientos(establecimientosData);
+      setNivelesPractica(nivelesData);
+      setCupos(cuposData);
     } catch (error) {
       toast({
         title: "Error al cargar datos",
@@ -198,6 +220,10 @@ export default function AlumnosPage() {
         carreras={carreras}
         comunas={comunas}
         tutores={tutores}
+        fichas={fichas}
+        establecimientos={establecimientos}
+        cupos={cupos}
+        nivelesPractica={nivelesPractica}
       />
     </div>
   );
