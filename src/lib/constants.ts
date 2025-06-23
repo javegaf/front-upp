@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Users, School, ClipboardPlus, ListChecks, BookOpenCheck, ClipboardCheck, FileText, Upload } from 'lucide-react';
+import { LayoutDashboard, Users, School, ClipboardCheck, FileText, Upload, BookOpenCheck } from 'lucide-react';
 
 export type NavItem = {
   label: string;
@@ -28,16 +28,6 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Adscripción',
     href: '/adscripcion',
     icon: ClipboardCheck,
-  },
-  {
-    label: 'Asignaciones',
-    href: '/asignaciones',
-    icon: ClipboardPlus,
-  },
-  {
-    label: 'Seguimiento',
-    href: '/seguimiento',
-    icon: ListChecks,
   },
   {
     label: 'Carga Masiva',

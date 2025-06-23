@@ -1,36 +1,25 @@
 "use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
+import { Construction } from "lucide-react";
 
 export default function SeguimientoPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold font-headline">Seguimiento de Prácticas</h1>
-        <p className="text-muted-foreground">Monitorea el estado y progreso de las prácticas pedagógicas.</p>
+        <h1 className="text-3xl font-bold font-headline">Página Eliminada</h1>
+        <p className="text-muted-foreground">Esta sección ha sido eliminada.</p>
       </div>
-
       <Card>
         <CardHeader>
-          <CardTitle>Estado de las Prácticas</CardTitle>
+          <CardTitle>Contenido no disponible</CardTitle>
           <CardDescription>
-            Visualiza el progreso de cada práctica asignada. Actualmente en desarrollo.
+            La funcionalidad de seguimiento ha sido removida de la aplicación.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center text-center min-h-[300px]">
-          <Image 
-            src="https://placehold.co/600x300.png"
-            alt="Coming soon illustration for tracking"
-            width={600}
-            height={300}
-            className="rounded-md object-contain opacity-50"
-            data-ai-hint="progress chart"
-          />
+           <Construction className="h-16 w-16 text-muted-foreground opacity-50" />
           <p className="mt-4 text-lg font-semibold text-muted-foreground">
-            Funcionalidad de Seguimiento de Prácticas Próximamente
-          </p>
-          <p className="text-sm text-muted-foreground">
-            En breve podrás hacer un seguimiento detallado del estado de las prácticas.
+            Sección en reconstrucción o eliminada.
           </p>
         </CardContent>
       </Card>
