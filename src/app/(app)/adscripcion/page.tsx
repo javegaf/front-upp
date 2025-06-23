@@ -92,6 +92,18 @@ export default function AdscripcionPage() {
     return options;
   }, []);
 
+  const getCarreraName = (carreraId: number) => allCarreras.find(c => c.id === carreraId)?.nombre || "N/A";
+  const getComunaName = (comunaId: number) => allComunas.find(c => c.id === comunaId)?.nombre || "N/A";
+
+  const selectedEstablecimiento = useMemo(() => {
+    return allEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
+  }, [selectedEstablecimientoId, allEstablecimientos]);
+
+  const selectedDirectivo = useMemo(() => {
+    if (!selectedEstablecimiento) return null;
+    return allDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
+  }, [selectedEstablecimiento, allDirectivos]);
+
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
@@ -179,19 +191,6 @@ export default function AdscripcionPage() {
     setRenderedStudentEmail(rendered);
 
   }, [previewStudent, studentTemplate, createdFichas, allCupos, allNivelesPractica, selectedEstablecimiento, selectedDirectivo]);
-
-
-  const getCarreraName = (carreraId: number) => allCarreras.find(c => c.id === carreraId)?.nombre || "N/A";
-  const getComunaName = (comunaId: number) => allComunas.find(c => c.id === comunaId)?.nombre || "N/A";
-
-  const selectedEstablecimiento = useMemo(() => {
-    return allEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
-  }, [selectedEstablecimientoId, allEstablecimientos]);
-
-  const selectedDirectivo = useMemo(() => {
-    if (!selectedEstablecimiento) return null;
-    return allDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
-  }, [selectedEstablecimiento, allDirectivos]);
 
   const renderTemplate = (template: string, data: Record<string, any>): string => {
     if (!template) return "";
@@ -884,4 +883,3 @@ export default function AdscripcionPage() {
     </div>
   );
 }
-
