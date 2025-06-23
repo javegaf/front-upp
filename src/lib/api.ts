@@ -54,7 +54,13 @@ export const deleteTutor = (id: number): Promise<void> => fetchAPI(`/api/v1/tuto
 
 // Directivo API
 export const getDirectivos = (): Promise<Directivo[]> => fetchAPI('/api/v1/directivos');
-export const createDirectivo = (data: Omit<Directivo, 'id'>): Promise<Directivo> => fetchAPI('/api/v1/directivos', { method: 'POST', body: JSON.stringify(data) });
+export const createDirectivo = (data: Omit<Directivo, 'id'>): Promise<Directivo> => {
+    const { establecimiento_id, ...bodyData } = data;
+    return fetchAPI(`/api/v1/directivos?establecimiento_id=${establecimiento_id}`, {
+        method: 'POST',
+        body: JSON.stringify(bodyData),
+    });
+};
 export const updateDirectivo = (id: number, data: Omit<Directivo, 'id'>): Promise<Directivo> => fetchAPI(`/api/v1/directivos/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const deleteDirectivo = (id: number): Promise<void> => fetchAPI(`/api/v1/directivos/${id}`, { method: 'DELETE' });
 
@@ -95,4 +101,3 @@ export const uploadFile = (file: File): Promise<any> => {
 };
 
 export const clearDatabase = (): Promise<any> => fetchAPI('/api/v1/carga_masiva/vaciadoDB', { method: 'DELETE' });
-
