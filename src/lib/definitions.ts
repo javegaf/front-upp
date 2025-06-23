@@ -76,6 +76,8 @@ export const mockComunas: Comuna[] = [
   { id: 'com02', nombre: 'Talcahuano' },
   { id: 'com03', nombre: 'Chiguayante' },
   { id: 'com04', nombre: 'San Pedro de la Paz' },
+  { id: 'com05', nombre: 'Coronel' },
+  { id: 'com06', nombre: 'Hualpén' },
 ];
 
 export const mockCarreras: Carrera[] = [
@@ -84,11 +86,15 @@ export const mockCarreras: Carrera[] = [
   { id: 'car03', nombre: 'Psicopedagogía' },
   { id: 'car04', nombre: 'Educación Básica' },
   { id: 'car05', nombre: 'Pedagogía en Inglés' },
+  { id: 'car06', nombre: 'Pedagogía en Educación Diferencial' },
+  { id: 'car07', nombre: 'Pedagogía en Educación Física' },
 ];
 
 export const mockTutores: Tutor[] = [
     { id: 'tut01', nombre: 'Dra. Isabel Soto', email: 'isoto@universidad.cl' },
     { id: 'tut02', nombre: 'Dr. Mario Campos', email: 'mcampos@universidad.cl' },
+    { id: 'tut03', nombre: 'Mg. Carolina Reyes', email: 'creyes@universidad.cl' },
+    { id: 'tut04', nombre: 'Dr. Fernando Zúñiga', email: 'fzuniga@universidad.cl' },
 ];
 
 export const mockEstudiantes: Estudiante[] = [
@@ -112,6 +118,7 @@ export const mockDirectivos: Directivo[] = [
     { id: 'dir03', establecimiento_id: 'estbl03', nombre: 'Carlos Valenzuela', email: 'cvalenzuela@salesianosconcepcion.cl', cargo: 'Jefe UTP' },
     { id: 'dir04', establecimiento_id: 'estbl04', nombre: 'Daniela Figueroa', email: 'dfigueroa@cic.cl', cargo: 'Coordinadora Académica' },
     { id: 'dir05', establecimiento_id: 'estbl01', nombre: 'Mariela Paz', email: 'mpaz@dpcorvalan.cl', cargo: 'Orientadora' },
+    { id: 'dir06', establecimiento_id: 'estbl02', nombre: 'Roberto Fuentes', email: 'rfuentes@lemg.cl', cargo: 'Inspector General' },
 ];
 
 export const mockNivelesPractica: NivelPractica[] = [
