@@ -8,75 +8,64 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Save } from "lucide-react";
-
-const TEMPLATE_ESTABLISHMENT_KEY = "email_template_establishment";
-const TEMPLATE_STUDENT_KEY = "email_template_student";
-
-const DEFAULT_ESTABLISHMENT_TEMPLATE = `
-<p>Estimado/a {{nombre_directivo}},</p>
-<p>Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de {{cargo_directivo}} del {{nombre_establecimiento}}, el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad, de acuerdo con el siguiente calendario de prácticas UCSC primer semestre 2025:</p>
-<table style="width:100%; border-collapse: collapse; margin-top: 1em; margin-bottom: 1em; border: 1px solid #ddd;">
-  <thead>
-    <tr>
-      <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">NIVEL DE PRÁCTICA</th>
-      <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">FECHA INICIO</th>
-      <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">FECHA TÉRMINO</th>
-      <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Nº SEMANAS</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="border: 1px solid #ddd; padding: 8px;">P. PROFESIONAL</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">Semana 10 de marzo</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">Semana 16 de junio</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">15</td>
-    </tr>
-     <tr>
-      <td style="border: 1px solid #ddd; padding: 8px;">PPV - PPIV - PPIII – PPII - PPI</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">Semana 17 de marzo</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">Semana 16 de junio</td>
-      <td style="border: 1px solid #ddd; padding: 8px;">14</td>
-    </tr>
-  </tbody>
-</table>
-<p>La nómina de estudiantes adscritos a su establecimiento se informa en el siguiente enlace: <a href="{{link_nomina}}" target="_blank">{{link_nomina}}</a></p>
-<p>Al iniciar su pasantía, cada estudiante deberá hacer entrega de su carpeta de práctica con documentación institucional y personal.</p>
-<p>Eventualmente, esta nómina puede variar en consideración a los cupos autorizados por su establecimiento.</p>
-<p>Finalmente, como UPP agradecemos el espacio formativo otorgado por su comunidad educativa.</p>
-<p>Se despide atentamente,<br>Equipo Unidad de Prácticas Pedagógicas UCSC</p>
-`;
-
-const DEFAULT_STUDENT_TEMPLATE = `
-<p>Estimado/a {{nombre_estudiante}},</p>
-<p>Junto con saludar, te informamos que has sido asignado/a para realizar tu práctica en el siguiente establecimiento:</p>
-<p><strong>Establecimiento:</strong> {{nombre_establecimiento}}</p>
-<p><strong>Dirección:</strong> {{direccion_establecimiento}}</p>
-<p><strong>Contacto Principal:</strong> {{nombre_directivo}} ({{cargo_directivo}})</p>
-<p>Por favor, preséntate en el establecimiento en la fecha y hora acordadas.</p>
-<p>¡Mucho éxito en tu práctica!</p>
-<p>Atentamente,<br>Equipo Unidad de Prácticas Pedagógicas UCSC</p>
-`;
+import * as api from "@/lib/api";
 
 export default function PlantillasPage() {
     const [establishmentTemplate, setEstablishmentTemplate] = useState<string>('');
     const [studentTemplate, setStudentTemplate] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState<'' | 'establishment' | 'student'>('');
     const { toast } = useToast();
 
     useEffect(() => {
-        const estTpl = localStorage.getItem(TEMPLATE_ESTABLISHMENT_KEY) || DEFAULT_ESTABLISHMENT_TEMPLATE;
-        const stuTpl = localStorage.getItem(TEMPLATE_STUDENT_KEY) || DEFAULT_STUDENT_TEMPLATE;
-        setEstablishmentTemplate(estTpl);
-        setStudentTemplate(stuTpl);
-        setIsLoading(false);
-    }, []);
+        const fetchTemplates = async () => {
+            setIsLoading(true);
+            try {
+                const [estTpl, stuTpl] = await Promise.all([
+                    api.getEstablishmentEmailTemplate(),
+                    api.getStudentEmailTemplate()
+                ]);
+                setEstablishmentTemplate(estTpl || '');
+                setStudentTemplate(stuTpl || '');
+            } catch (error) {
+                toast({
+                    title: "Error al cargar plantillas",
+                    description: "No se pudieron obtener las plantillas desde el servidor.",
+                    variant: "destructive"
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    const handleSave = (key: string, content: string, templateName: string) => {
-        localStorage.setItem(key, content);
-        toast({
-            title: "Plantilla Guardada",
-            description: `La plantilla para "${templateName}" ha sido guardada en tu navegador.`,
-        });
+        fetchTemplates();
+    }, [toast]);
+
+    const handleSave = async (key: 'establishment' | 'student') => {
+        setIsSaving(key);
+        try {
+            if (key === 'establishment') {
+                await api.setEstablishmentEmailTemplate(establishmentTemplate);
+                toast({
+                    title: "Plantilla Guardada",
+                    description: `La plantilla para "Establecimientos" ha sido guardada en el servidor.`,
+                });
+            } else {
+                await api.setStudentEmailTemplate(studentTemplate);
+                toast({
+                    title: "Plantilla Guardada",
+                    description: `La plantilla para "Estudiantes" ha sido guardada en el servidor.`,
+                });
+            }
+        } catch (error) {
+            toast({
+                title: "Error al guardar",
+                description: "No se pudo guardar la plantilla en el servidor.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSaving('');
+        }
     };
 
     if (isLoading) {
@@ -88,7 +77,7 @@ export default function PlantillasPage() {
             <div>
                 <h1 className="text-3xl font-bold font-headline">Editor de Plantillas de Correo</h1>
                 <p className="text-muted-foreground">
-                    Modifica y guarda las plantillas para las notificaciones automáticas. Los cambios se guardan localmente en tu navegador.
+                    Modifica y guarda las plantillas para las notificaciones automáticas. Los cambios se guardan en el servidor.
                 </p>
             </div>
 
@@ -117,9 +106,9 @@ export default function PlantillasPage() {
                             />
                         </CardContent>
                         <CardFooter>
-                            <Button onClick={() => handleSave(TEMPLATE_ESTABLISHMENT_KEY, establishmentTemplate, 'Establecimientos')}>
+                            <Button onClick={() => handleSave('establishment')} disabled={isSaving === 'establishment'}>
                                 <Save className="mr-2 h-4 w-4" />
-                                Guardar Plantilla
+                                {isSaving === 'establishment' ? 'Guardando...' : 'Guardar Plantilla'}
                             </Button>
                         </CardFooter>
                     </Card>
@@ -144,9 +133,9 @@ export default function PlantillasPage() {
                             />
                         </CardContent>
                          <CardFooter>
-                            <Button onClick={() => handleSave(TEMPLATE_STUDENT_KEY, studentTemplate, 'Estudiantes')}>
+                            <Button onClick={() => handleSave('student')} disabled={isSaving === 'student'}>
                                 <Save className="mr-2 h-4 w-4" />
-                                Guardar Plantilla
+                                {isSaving === 'student' ? 'Guardando...' : 'Guardar Plantilla'}
                             </Button>
                         </CardFooter>
                     </Card>

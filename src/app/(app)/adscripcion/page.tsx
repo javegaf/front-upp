@@ -22,14 +22,6 @@ const ADSCRIPCION_STEPS = {
   STEP3: "notificacion-estudiantes",
 };
 
-const TEMPLATE_ESTABLISHMENT_KEY = "email_template_establishment";
-const DEFAULT_ESTABLISHMENT_TEMPLATE = `
-<p>Estimado/a {{nombre_directivo}},</p>
-<p>Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de {{cargo_directivo}} del {{nombre_establecimiento}}, el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad.</p>
-<p>La nómina de estudiantes adscritos a su establecimiento se informa en el siguiente enlace: <a href="{{link_nomina}}" target="_blank">{{link_nomina}}</a></p>
-<p>Se despide atentamente,<br>Equipo Unidad de Prácticas Pedagógicas UCSC</p>
-`;
-
 export default function AdscripcionPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
@@ -61,7 +53,7 @@ export default function AdscripcionPage() {
     const fetchInitialData = async () => {
       setIsLoading(true);
       try {
-        const [studentsData, establecimientosData, carrerasData, directivosData, comunasData, cuposData, nivelesData] = await Promise.all([
+        const [studentsData, establecimientosData, carrerasData, directivosData, comunasData, cuposData, nivelesData, estTemplateData] = await Promise.all([
           api.getEstudiantes(),
           api.getEstablecimientos(),
           api.getCarreras(),
@@ -69,6 +61,7 @@ export default function AdscripcionPage() {
           api.getComunas(),
           api.getCupos(),
           api.getNivelesPractica(),
+          api.getEstablishmentEmailTemplate(),
         ]);
         setAllStudents(studentsData);
         setAvailableStudents(studentsData);
@@ -78,9 +71,8 @@ export default function AdscripcionPage() {
         setAllComunas(comunasData);
         setAllCupos(cuposData);
         setAllNivelesPractica(nivelesData);
+        setEstablishmentTemplate(estTemplateData || '');
 
-        const savedTemplate = localStorage.getItem(TEMPLATE_ESTABLISHMENT_KEY) || DEFAULT_ESTABLISHMENT_TEMPLATE;
-        setEstablishmentTemplate(savedTemplate);
       } catch (error) {
         toast({
             title: "Error al cargar datos",

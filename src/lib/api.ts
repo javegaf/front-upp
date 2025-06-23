@@ -17,6 +17,12 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}) {
 
     const config = { ...options, ...defaultOptions };
 
+    // For FormData, the browser sets the Content-Type, so we remove it.
+    // For POST/PUT requests without a body, we should also remove it.
+    if ((config.headers as any)['Content-Type'] === undefined || !config.body) {
+        delete (config.headers as any)['Content-Type'];
+    }
+
     try {
         const response = await fetch(url, config);
 
@@ -30,7 +36,19 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}) {
             return null; // No content
         }
 
-        return response.json();
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('text/html')) {
+            return response.text();
+        }
+
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        }
+
+        // Fallback for other types or missing content-type header
+        return response.text();
+
     } catch (error) {
         console.error("Error de conexión con la API:", error);
         throw error;
@@ -55,9 +73,7 @@ export const deleteTutor = (id: number): Promise<void> => fetchAPI(`/api/v1/tuto
 // Directivo API
 export const getDirectivos = (): Promise<Directivo[]> => fetchAPI('/api/v1/directivos');
 export const createDirectivo = (data: Omit<Directivo, 'id'>): Promise<Directivo> => {
-    // To resolve the ambiguity in the API, we send establecimiento_id in both the query param and the body.
-    // The API should be fixed to only require it in one place (preferably the body).
-    return fetchAPI(`/api/v1/directivos?establecimiento_id=${data.establecimiento_id}`, {
+    return fetchAPI(`/api/v1/directivos`, {
         method: 'POST',
         body: JSON.stringify(data),
     });
@@ -99,6 +115,19 @@ export const sendEmailToEstablecimiento = (establecimientoId: string, payload: S
     });
 };
 
+// Email Template API
+export const getStudentEmailTemplate = (): Promise<string> => fetchAPI('/api/v1/email/email-template/student');
+export const setStudentEmailTemplate = (html: string): Promise<any> => {
+    const encodedHtml = encodeURIComponent(html);
+    return fetchAPI(`/api/v1/email/email-template/student?html=${encodedHtml}`, { method: 'POST' });
+};
+
+export const getEstablishmentEmailTemplate = (): Promise<string> => fetchAPI('/api/v1/email/email-template/stablishment');
+export const setEstablishmentEmailTemplate = (html: string): Promise<any> => {
+    const encodedHtml = encodeURIComponent(html);
+    return fetchAPI(`/api/v1/email/email-template/stablishment?html=${encodedHtml}`, { method: 'POST' });
+};
+
 // Carga Masiva API
 export const uploadFile = (file: File): Promise<any> => {
     const formData = new FormData();
@@ -107,7 +136,6 @@ export const uploadFile = (file: File): Promise<any> => {
         method: 'POST',
         body: formData,
         headers: {
-            // Let the browser set the Content-Type header for multipart/form-data
             'Content-Type': undefined as any, 
         },
     });
