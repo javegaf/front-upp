@@ -23,6 +23,18 @@ const ADSCRIPCION_STEPS = {
   STEP3: "notificacion-estudiantes",
 };
 
+// Helper to safely access nested properties of an object.
+const get = (obj: any, path: string, defaultValue: any = undefined) => {
+    const travel = (regexp: RegExp) =>
+        String.prototype.split
+            .call(path, regexp)
+            .filter(Boolean)
+            .reduce((res, key) => (res !== null && res !== undefined ? res[key] : res), obj);
+    const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/);
+    return result === undefined || result === obj ? defaultValue : result;
+};
+
+
 export default function AdscripcionPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
@@ -118,12 +130,51 @@ export default function AdscripcionPage() {
     return allDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
   }, [selectedEstablecimiento, allDirectivos]);
 
-  const renderJinjaLikeTemplate = (template: string, data: Record<string, any>): string => {
+  const renderTemplate = (template: string, data: Record<string, any>): string => {
     if (!template) return "";
-    return template.replace(/\{\{\s*([\w_]+)\s*\}\}/g, (match, key) => {
-        return key in data ? data[key] : match;
-    });
-  };
+
+    const processContent = (content: string, contextData: Record<string, any>): string => {
+        let loopResolvedContent = content;
+        
+        // Process loops: {% for item in collection %}...{% endfor %}
+        const loopRegex = /\{%\s*for\s+(\w+)\s+in\s+([\w\.]+)\s*%\}([\s\S]*?)\{%\s*endfor\s*%\}/g;
+        loopResolvedContent = loopResolvedContent.replace(loopRegex, (match, itemName, collectionPath, innerContent) => {
+            const collection = get(contextData, collectionPath.trim());
+            if (Array.isArray(collection)) {
+                return collection.map(item => {
+                    const newContext = { ...contextData, [itemName]: item };
+                    return processContent(innerContent, newContext);
+                }).join('');
+            }
+            return ''; // If not an array, remove the block
+        });
+
+        // Process simple variables: {{ path.to.value }}
+        const varRegex = /\{\{\s*([\w\._]+)\s*\}\}/g;
+        return loopResolvedContent.replace(varRegex, (match, path) => {
+            const value = get(contextData, path.trim());
+
+            if (value === undefined || value === null) {
+                return ''; // Replace with empty string if not found
+            }
+            
+            // Auto-format dates
+            if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+                try {
+                    return format(parseISO(value), "dd 'de' MMMM, yyyy");
+                } catch (e) { /* fallback */ }
+            }
+
+            if (typeof value === 'object') {
+              return ''; // Avoid rendering [Object object]
+            }
+
+            return String(value);
+        });
+    };
+
+    return processContent(template, data);
+};
   
   const calculateWeeks = (start: string, end: string) => {
     if (!start || !end) return 0;
@@ -142,19 +193,31 @@ export default function AdscripcionPage() {
         return;
     }
 
-    const nominaLink = "https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link";
+    // Augment fichas with full student details for the template
+    const fichasForTemplate = createdFichas.map(ficha => {
+        const student = allStudents.find(s => s.id === ficha.estudiante_id);
+        return {
+            ...ficha,
+            estudiante: student || {}, // Provide empty student object as fallback
+        };
+    });
 
     const templateData = {
-        nombre_directivo: selectedDirectivo.nombre,
-        cargo_directivo: selectedDirectivo.cargo,
-        nombre_establecimiento: selectedEstablecimiento.nombre,
-        link_nomina: `<a href="${nominaLink}" target="_blank" rel="noopener noreferrer">Ver Nómina de Estudiantes</a>`,
+        directivo: selectedDirectivo,
+        establecimiento: selectedEstablecimiento,
+        semana_inicio_profesional: professionalDates.inicio ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM") : "N/A",
+        semana_termino_profesional: professionalDates.termino ? format(parseISO(professionalDates.termino), "dd 'de' MMMM") : "N/A",
+        numero_semanas_profesional: calculateWeeks(professionalDates.inicio, professionalDates.termino),
+        semana_inicio_pp: pedagogicalDates.inicio ? format(parseISO(pedagogicalDates.inicio), "dd 'de' MMMM") : "N/A",
+        semana_termino_pp: pedagogicalDates.termino ? format(parseISO(pedagogicalDates.termino), "dd 'de' MMMM") : "N/A",
+        numero_semanas_pp: calculateWeeks(pedagogicalDates.inicio, pedagogicalDates.termino),
+        fichas: fichasForTemplate,
     };
 
-    const rendered = renderJinjaLikeTemplate(establishmentTemplate, templateData);
+    const rendered = renderTemplate(establishmentTemplate, templateData);
     setRenderedEmail(rendered);
 
-  }, [selectedEstablecimiento, selectedDirectivo, establishmentTemplate]);
+  }, [selectedEstablecimiento, selectedDirectivo, establishmentTemplate, professionalDates, pedagogicalDates, createdFichas, allStudents]);
 
   const filteredAvailableStudents = useMemo(() => {
     if (!searchTerm) {
