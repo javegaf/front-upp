@@ -50,6 +50,7 @@ export default function AdscripcionPage() {
   const [createdFichas, setCreatedFichas] = useState<Ficha[]>([]);
 
   const [selectedEstablecimientoId, setSelectedEstablecimientoId] = useState<string | null>(null);
+  const [studentCupoAssignments, setStudentCupoAssignments] = useState<Record<number, number | null>>({});
   
   const [establishmentTemplate, setEstablishmentTemplate] = useState<string>('');
   const [studentTemplate, setStudentTemplate] = useState<string>('');
@@ -76,6 +77,15 @@ export default function AdscripcionPage() {
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
 
+  const selectedEstablecimiento = useMemo(() => {
+    return allEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
+  }, [selectedEstablecimientoId, allEstablecimientos]);
+
+  const selectedDirectivo = useMemo(() => {
+    if (!selectedEstablecimiento) return null;
+    return allDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
+  }, [selectedEstablecimiento, allDirectivos]);
+
   const weekOptions = useMemo(() => {
     const options = [];
     let currentWeekStart = startOfWeek(addWeeks(new Date(), 1), { weekStartsOn: 1 }); // Monday
@@ -94,15 +104,7 @@ export default function AdscripcionPage() {
 
   const getCarreraName = (carreraId: number) => allCarreras.find(c => c.id === carreraId)?.nombre || "N/A";
   const getComunaName = (comunaId: number) => allComunas.find(c => c.id === comunaId)?.nombre || "N/A";
-
-  const selectedEstablecimiento = useMemo(() => {
-    return allEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
-  }, [selectedEstablecimientoId, allEstablecimientos]);
-
-  const selectedDirectivo = useMemo(() => {
-    if (!selectedEstablecimiento) return null;
-    return allDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
-  }, [selectedEstablecimiento, allDirectivos]);
+  const getNivelName = (nivelId: number) => allNivelesPractica.find(n => n.id === nivelId)?.nombre || "N/A";
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -292,22 +294,44 @@ export default function AdscripcionPage() {
   const handleAddStudent = (studentToAdd: Estudiante) => {
     setSelectedStudents((prevSelected) => [...prevSelected, studentToAdd]);
     setAvailableStudents((prevAvailable) => prevAvailable.filter((s) => s.id !== studentToAdd.id));
+    setStudentCupoAssignments(prev => ({...prev, [studentToAdd.id]: null}));
   };
 
   const handleRemoveStudent = (studentToRemove: Estudiante) => {
     setAvailableStudents((prevAvailable) => [...prevAvailable, studentToRemove]);
     setSelectedStudents((prevSelected) => prevSelected.filter((s) => s.id !== studentToRemove.id));
+    setStudentCupoAssignments(prev => {
+        const newAssignments = {...prev};
+        delete newAssignments[studentToRemove.id];
+        return newAssignments;
+    })
   };
 
-  const isStep1Valid = selectedStudents.length > 0 && selectedEstablecimientoId !== null && professionalDates.inicio && professionalDates.termino && pedagogicalDates.inicio && pedagogicalDates.termino;
+  const getAvailableCuposForStudent = (student: Estudiante) => {
+    if (!selectedEstablecimientoId) return [];
+    
+    const nivelesForCarrera = allNivelesPractica.filter(n => n.carrera_id === student.carrera_id);
+    const nivelIds = nivelesForCarrera.map(n => n.id);
+
+    return allCupos.filter(cupo => 
+        cupo.establecimiento_id === selectedEstablecimientoId && 
+        nivelIds.includes(cupo.nivel_practica_id)
+    );
+  };
+
+  const handleCupoAssignmentChange = (studentId: number, cupoId: string) => {
+    setStudentCupoAssignments(prev => ({...prev, [studentId]: Number(cupoId)}))
+  }
+
+  const isStep1Valid = selectedStudents.length > 0 && selectedEstablecimientoId !== null && professionalDates.inicio && professionalDates.termino && pedagogicalDates.inicio && pedagogicalDates.termino && selectedStudents.every(s => studentCupoAssignments[s.id]);
   const isStep2Valid = selectedEstablecimientoId !== null && createdFichas.length > 0;
   const isStep3Valid = createdFichas.length > 0 && Object.keys(studentsGroupedByLevel).every(nivelId => scheduledSendTimes[nivelId]);
 
   const handleCreateFichas = async (): Promise<Ficha[] | null> => {
-    if (!selectedEstablecimientoId || selectedStudents.length === 0) {
+    if (!isStep1Valid) {
       toast({
         title: "Información incompleta",
-        description: "Debes seleccionar un establecimiento y al menos un estudiante.",
+        description: "Asegúrate de haber seleccionado un establecimiento, las fechas y de haber asignado un cupo a cada estudiante.",
         variant: "destructive",
       });
       return null;
@@ -316,41 +340,21 @@ export default function AdscripcionPage() {
     const fichaCreationPromises: Promise<Ficha>[] = [];
 
     for (const student of selectedStudents) {
-      const studentCarreraId = student.carrera_id;
-      const nivelesForCarrera = allNivelesPractica.filter(n => n.carrera_id === studentCarreraId);
+      const cupoId = studentCupoAssignments[student.id];
+      if (!cupoId) continue; // Should be prevented by isStep1Valid, but as a safeguard.
 
-      if (nivelesForCarrera.length === 0) {
-        console.warn(`No se encontró nivel de práctica para la carrera del estudiante ${student.nombre}`);
-        continue;
-      }
-      
-      const nivelPractica = nivelesForCarrera[0];
-      const cupo = allCupos.find(c =>
-        c.establecimiento_id === selectedEstablecimientoId &&
-        c.nivel_practica_id === nivelPractica.id
-      );
+      const cupo = allCupos.find(c => c.id === cupoId);
+      if (!cupo) continue;
 
-      if (!cupo) {
-        console.warn(`No se encontró cupo para el estudiante ${student.nombre} en el establecimiento seleccionado.`);
-        continue;
-      }
-      
+      const nivelPractica = allNivelesPractica.find(n => n.id === cupo.nivel_practica_id);
+      if (!nivelPractica) continue;
+
       const isProfessional = nivelPractica.nombre.toLowerCase().includes('profesional');
       const dates = isProfessional ? professionalDates : pedagogicalDates;
 
-      if (!dates.inicio || !dates.termino) {
-        console.warn(`Fechas no seleccionadas para el tipo de práctica del estudiante ${student.nombre}.`);
-        toast({
-          title: "Fechas no seleccionadas",
-          description: "Por favor, selecciona las fechas de inicio y término para ambos tipos de práctica.",
-          variant: "destructive"
-        });
-        return null;
-      }
-
       const fichaPayload = {
         estudiante_id: student.id,
-        establecimiento_id: selectedEstablecimientoId,
+        establecimiento_id: selectedEstablecimientoId!,
         cupo_id: cupo.id,
         fecha_inicio: dates.inicio,
         fecha_termino: dates.termino,
@@ -358,24 +362,6 @@ export default function AdscripcionPage() {
       };
 
       fichaCreationPromises.push(api.createFicha(fichaPayload));
-    }
-
-    if (fichaCreationPromises.length < selectedStudents.length) {
-         toast({
-            title: "Algunos estudiantes no tienen cupo",
-            description: `No se encontraron cupos o niveles de práctica válidos para ${selectedStudents.length - fichaCreationPromises.length} estudiante(s). Solo se crearán las fichas para los que tienen cupo.`,
-            variant: "destructive",
-            duration: 8000,
-        });
-    }
-    
-    if (fichaCreationPromises.length === 0) {
-       toast({
-            title: "No se pudieron crear fichas",
-            description: "No se encontraron cupos o niveles de práctica válidos para los estudiantes seleccionados.",
-            variant: "destructive",
-        });
-        return null;
     }
 
     try {
@@ -417,14 +403,14 @@ export default function AdscripcionPage() {
 
     setIsSendingEmail(true);
 
-    const emailPayload = {
+    const emailPayload: SendEmailToEstablecimientoPayload = {
       email: {
         subject: `Notificación de adscripción de prácticas - ${selectedEstablecimiento.nombre}`,
         email: [selectedDirectivo.email],
       },
       body: {
         directivo: selectedDirectivo,
-        establecimiento: null, 
+        establecimiento: null,
         fichas: createdFichas,
         semana_inicio_profesional: professionalDates.inicio ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM") : "N/A",
         semana_termino_profesional: professionalDates.termino ? format(parseISO(professionalDates.termino), "dd 'de' MMMM") : "N/A",
@@ -707,26 +693,52 @@ export default function AdscripcionPage() {
                                 <TableRow>
                                     <TableHead>Nombre Completo</TableHead>
                                     <TableHead>Carrera</TableHead>
+                                    <TableHead>Cupo Asignado</TableHead>
                                     <TableHead className="text-right">Acción</TableHead>
                                 </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                {selectedStudents.map((student) => (
-                                    <TableRow key={student.id}>
-                                    <TableCell>{`${student.nombre} ${student.ap_paterno} ${student.ap_materno}`}</TableCell>
-                                    <TableCell>{getCarreraName(student.carrera_id)}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button
-                                        size="sm"
-                                        variant="destructive"
-                                        onClick={() => handleRemoveStudent(student)}
-                                        >
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        Quitar
-                                        </Button>
-                                    </TableCell>
-                                    </TableRow>
-                                ))}
+                                {selectedStudents.map((student) => {
+                                    const availableCupos = getAvailableCuposForStudent(student);
+                                    return (
+                                        <TableRow key={student.id}>
+                                            <TableCell>{`${student.nombre} ${student.ap_paterno} ${student.ap_materno}`}</TableCell>
+                                            <TableCell>{getCarreraName(student.carrera_id)}</TableCell>
+                                            <TableCell>
+                                                <Select
+                                                  value={studentCupoAssignments[student.id]?.toString() || ""}
+                                                  onValueChange={(value) => handleCupoAssignmentChange(student.id, value)}
+                                                  disabled={availableCupos.length === 0}
+                                                >
+                                                    <SelectTrigger className="w-[200px]">
+                                                        <SelectValue placeholder="Seleccionar cupo..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {availableCupos.length > 0 ? (
+                                                            availableCupos.map(cupo => (
+                                                                <SelectItem key={cupo.id} value={cupo.id.toString()}>
+                                                                    {getNivelName(cupo.nivel_practica_id)}
+                                                                </SelectItem>
+                                                            ))
+                                                        ) : (
+                                                            <SelectItem value="-" disabled>No hay cupos disponibles</SelectItem>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button
+                                                size="sm"
+                                                variant="destructive"
+                                                onClick={() => handleRemoveStudent(student)}
+                                                >
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Quitar
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                                 </TableBody>
                             </Table>
                             </Card>
