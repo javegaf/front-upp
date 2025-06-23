@@ -9,12 +9,9 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
 import { NAV_ITEMS, APP_NAME, APP_LOGO_ICON } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -52,12 +49,6 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="p-2">
-        <Button variant="ghost" className="w-full justify-start group-data-[collapsible=icon]:justify-center">
-          <LogOut className="mr-3 h-5 w-5 group-data-[collapsible=icon]:mr-0" />
-          <span className="group-data-[collapsible=icon]:hidden">Cerrar Sesión</span>
-        </Button>
-      </SidebarFooter>
     </Sidebar>
   );
 }
