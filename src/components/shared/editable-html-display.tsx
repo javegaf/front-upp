@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 interface EditableHtmlDisplayProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onInput' | 'dangerouslySetInnerHTML' | 'contentEditable' | 'suppressContentEditableWarning'> {
   initialHtml: string;
-  onHtmlChange: (newHtml: string) => void;
+  onHtmlChange?: (newHtml: string) => void;
   editable?: boolean;
   className?: string;
 }
@@ -33,7 +33,7 @@ export function EditableHtmlDisplay({
         editorRef.current.innerHTML = initialHtml;
         // If we just reset the editor's content from initialHtml (e.g. new template),
         // we should also inform the parent that the "edited" state is now this initialHtml.
-        onHtmlChange(initialHtml);
+        onHtmlChange?.(initialHtml);
       }
     }
   // onHtmlChange is a stable function (setState from parent), so it's okay in the dep array.
@@ -44,7 +44,7 @@ export function EditableHtmlDisplay({
   // This ensures that direct manipulations by the user are captured.
   const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
     if (editable && editorRef.current) {
-      onHtmlChange(editorRef.current.innerHTML);
+      onHtmlChange?.(editorRef.current.innerHTML);
     }
   };
 
@@ -56,7 +56,7 @@ export function EditableHtmlDisplay({
       // This is crucial for commands that might not reliably fire 'input' events
       // or for ensuring immediate state sync with React.
       if (editorRef.current) {
-        onHtmlChange(editorRef.current.innerHTML);
+        onHtmlChange?.(editorRef.current.innerHTML);
       }
     }
   };
@@ -126,7 +126,7 @@ export function EditableHtmlDisplay({
         suppressContentEditableWarning={true}
         className={cn(
           "min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-table:my-2",
-           editable ? "bg-background" : "bg-muted/30 cursor-not-allowed opacity-70",
+           editable ? "bg-background" : "bg-muted/30",
            className
         )}
         onInput={handleInput} // This handles direct typing, pasting etc.

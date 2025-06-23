@@ -86,7 +86,6 @@ export default function AdscripcionPage() {
 
   const initialEmailPlaceholder = useMemo(() => generateEmailPreview(null, null), []);
   const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailPlaceholder);
-  const [editedHtml, setEditedHtml] = useState<string>(initialEmailPlaceholder);
 
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
@@ -103,7 +102,6 @@ export default function AdscripcionPage() {
     const directivo = establecimiento ? mockDirectivos.find(d => d.establecimiento_id === establecimiento.id) || null : null;
     const newTemplate = generateEmailPreview(establecimiento, directivo);
     setCurrentTemplateHtml(newTemplate);
-    setEditedHtml(newTemplate);
   }, [selectedEstablecimientoId, availableEstablecimientos]);
 
 
@@ -130,7 +128,7 @@ export default function AdscripcionPage() {
   };
 
   const isStep1Valid = selectedStudents.length > 0;
-  const isStep2Valid = selectedEstablecimientoId !== null && editedHtml.length > 0 && editedHtml !== initialEmailPlaceholder && editedHtml !== generateEmailPreview(null, null);
+  const isStep2Valid = selectedEstablecimientoId !== null;
 
 
   const goToNextStep = (nextStep: string) => {
@@ -305,7 +303,7 @@ export default function AdscripcionPage() {
                 <CardHeader>
                   <CardTitle>Paso 2: Notificación al Establecimiento</CardTitle>
                   <CardDescription>
-                    Selecciona el establecimiento y edita el correo de notificación. El contenido se actualiza a medida que escribes.
+                    Selecciona el establecimiento para previsualizar el correo de notificación.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -337,16 +335,13 @@ export default function AdscripcionPage() {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="email-editor-contenteditable">Editor de Correo</Label>
+                    <Label htmlFor="email-preview">Previsualización del Correo</Label>
                     <EditableHtmlDisplay
-                      key={selectedEstablecimientoId || 'no-establecimiento-selected'} // Force re-mount on establecimiento change
+                      key={selectedEstablecimientoId || 'no-establecimiento-selected'}
                       initialHtml={currentTemplateHtml}
-                      onHtmlChange={setEditedHtml}
-                      editable={!!selectedEstablecimientoId}
-                      className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto 
-                        ${!selectedEstablecimientoId ? 'cursor-not-allowed opacity-70' : ''}
-                      `}
-                      aria-label="Contenido del correo editable"
+                      editable={false}
+                      className="w-full min-h-[300px] max-h-[60vh] overflow-y-auto"
+                      aria-label="Previsualización del contenido del correo"
                     />
                   </div>
 
