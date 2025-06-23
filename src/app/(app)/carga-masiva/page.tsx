@@ -18,16 +18,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import * as api from "@/lib/api";
 
 export default function CargaMasivaPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      // Basic validation for Excel files
       if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || file.type === "application/vnd.ms-excel" || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
         setSelectedFile(file);
       } else {
@@ -37,7 +38,7 @@ export default function CargaMasivaPage() {
           variant: "destructive",
         });
         setSelectedFile(null);
-        event.target.value = ""; // Clear the input
+        event.target.value = "";
       }
     } else {
         setSelectedFile(null);
@@ -55,26 +56,43 @@ export default function CargaMasivaPage() {
     }
     setIsUploading(true);
 
-    // Simulate upload process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    setIsUploading(false);
-    toast({
-      title: "Carga Exitosa (Simulación)",
-      description: `El archivo "${selectedFile.name}" ha sido subido. El procesamiento de archivos reales está en desarrollo.`,
-    });
-    setSelectedFile(null);
-    const input = document.getElementById('excel-upload') as HTMLInputElement;
-    if (input) input.value = "";
+    try {
+      await api.uploadFile(selectedFile);
+      toast({
+        title: "Carga Exitosa",
+        description: `El archivo "${selectedFile.name}" ha sido procesado correctamente.`,
+      });
+      setSelectedFile(null);
+      const input = document.getElementById('excel-upload') as HTMLInputElement;
+      if (input) input.value = "";
+    } catch (error) {
+      toast({
+        title: "Error en la carga",
+        description: "No se pudo procesar el archivo. Revisa el formato y vuelve a intentarlo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleClearDatabase = () => {
-    // In a real app, this would be a server action that clears the database.
-    // For now, we just show a toast.
-    toast({
-      title: "Base de Datos Vaciada (Simulación)",
-      description: "Todos los datos han sido eliminados del sistema.",
-    });
+  const handleClearDatabase = async () => {
+    setIsClearing(true);
+    try {
+      await api.clearDatabase();
+      toast({
+        title: "Base de Datos Vaciada",
+        description: "Todos los datos han sido eliminados del sistema.",
+      });
+    } catch (error) {
+       toast({
+        title: "Error al vaciar la base de datos",
+        description: "No se pudo completar la operación.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsClearing(false);
+    }
   };
 
 
@@ -154,9 +172,9 @@ export default function CargaMasivaPage() {
             </div>
              <AlertDialog>
               <AlertDialogTrigger asChild>
-                 <Button variant="destructive" className="w-full sm:w-auto">
+                 <Button variant="destructive" className="w-full sm:w-auto" disabled={isClearing}>
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Vaciar Base de Datos
+                  {isClearing ? "Vaciando..." : "Vaciar Base de Datos"}
                  </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -172,8 +190,9 @@ export default function CargaMasivaPage() {
                   <AlertDialogAction
                     onClick={handleClearDatabase}
                     className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    disabled={isClearing}
                   >
-                    Sí, vaciar todo
+                    {isClearing ? "Vaciando..." : "Sí, vaciar todo"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

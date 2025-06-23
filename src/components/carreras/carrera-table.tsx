@@ -23,37 +23,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast";
 
 interface CarreraTableProps {
   carreras: Carrera[];
   nivelesPractica: NivelPractica[];
   onEdit: (carrera: Carrera) => void;
-  onDelete: (carreraId: string) => Promise<void>;
+  onDelete: (carreraId: number) => Promise<void>;
   onManageNiveles: (carrera: Carrera) => void;
 }
 
 export function CarreraTable({ carreras, nivelesPractica, onEdit, onDelete, onManageNiveles }: CarreraTableProps) {
-  const { toast } = useToast();
   
-  const getNivelesCount = (carreraId: string) => {
+  const getNivelesCount = (carreraId: number) => {
     return nivelesPractica.filter(n => n.carrera_id === carreraId).length;
-  };
-  
-  const handleDeleteConfirmation = async (carreraId: string) => {
-    try {
-      await onDelete(carreraId);
-      toast({
-        title: "Carrera Eliminada",
-        description: "La carrera ha sido eliminada exitosamente.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al eliminar la carrera.",
-        variant: "destructive",
-      });
-    }
   };
 
   return (
@@ -99,12 +81,12 @@ export function CarreraTable({ carreras, nivelesPractica, onEdit, onDelete, onMa
                         <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                         <AlertDialogDescription>
                           Esta acción no se puede deshacer. Esto eliminará permanentemente la carrera
-                          <span className="font-semibold"> {carrera.nombre}</span>.
+                          <span className="font-semibold"> {carrera.nombre}</span> y todos sus niveles de práctica asociados.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteConfirmation(carrera.id)}>
+                        <AlertDialogAction onClick={() => onDelete(carrera.id)}>
                           Eliminar
                         </AlertDialogAction>
                       </AlertDialogFooter>

@@ -23,33 +23,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast";
 
 interface TutorTableProps {
   tutores: Tutor[];
   onEdit: (tutor: Tutor) => void;
-  onDelete: (tutorId: string) => Promise<void>;
+  onDelete: (tutorId: number) => Promise<void>;
 }
 
 export function TutorTable({ tutores, onEdit, onDelete }: TutorTableProps) {
-  const { toast } = useToast();
   
-  const handleDeleteConfirmation = async (tutorId: string) => {
-    try {
-      await onDelete(tutorId);
-      toast({
-        title: "Tutor Eliminado",
-        description: "El tutor ha sido eliminado exitosamente.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al eliminar el tutor.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="rounded-md border shadow-sm bg-card">
       <Table>
@@ -94,7 +76,7 @@ export function TutorTable({ tutores, onEdit, onDelete }: TutorTableProps) {
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteConfirmation(tutor.id)}>
+                        <AlertDialogAction onClick={() => onDelete(tutor.id)}>
                           Eliminar
                         </AlertDialogAction>
                       </AlertDialogFooter>

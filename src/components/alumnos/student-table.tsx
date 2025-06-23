@@ -23,36 +23,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast";
 
 interface StudentTableProps {
   estudiantes: Estudiante[];
   carreras: Carrera[];
   onEdit: (estudiante: Estudiante) => void;
-  onDelete: (estudianteId: string) => Promise<void>;
+  onDelete: (estudianteId: number) => Promise<void>;
 }
 
 export function StudentTable({ estudiantes, carreras, onEdit, onDelete }: StudentTableProps) {
-  const { toast } = useToast();
 
-  const getCarreraName = (carreraId: string) => {
+  const getCarreraName = (carreraId: number) => {
     return carreras.find(c => c.id === carreraId)?.nombre || "Desconocida";
-  };
-
-  const handleDeleteConfirmation = async (estudianteId: string) => {
-    try {
-      await onDelete(estudianteId);
-      toast({
-        title: "Estudiante Eliminado",
-        description: "El estudiante ha sido eliminado exitosamente.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al eliminar el estudiante.",
-        variant: "destructive",
-      });
-    }
   };
 
   return (
@@ -71,7 +53,7 @@ export function StudentTable({ estudiantes, carreras, onEdit, onDelete }: Studen
           {estudiantes.length === 0 && (
             <TableRow>
               <TableCell colSpan={5} className="text-center h-24">
-                No hay estudiantes registrados.
+                No hay estudiantes registrados o que coincidan con la búsqueda.
               </TableCell>
             </TableRow>
           )}
@@ -103,7 +85,7 @@ export function StudentTable({ estudiantes, carreras, onEdit, onDelete }: Studen
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDeleteConfirmation(estudiante.id)}>
+                      <AlertDialogAction onClick={() => onDelete(estudiante.id)}>
                         Eliminar
                       </AlertDialogAction>
                     </AlertDialogFooter>

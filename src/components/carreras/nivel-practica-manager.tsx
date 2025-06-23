@@ -59,7 +59,7 @@ interface NivelPracticaManagerProps {
   carrera: Carrera;
   niveles: NivelPractica[];
   onAddNivel: (data: NivelPracticaFormValues) => Promise<void>;
-  onDeleteNivel: (nivelId: string) => Promise<void>;
+  onDeleteNivel: (nivelId: number) => Promise<void>;
 }
 
 export function NivelPracticaManager({
@@ -70,43 +70,14 @@ export function NivelPracticaManager({
   onAddNivel,
   onDeleteNivel,
 }: NivelPracticaManagerProps) {
-  const { toast } = useToast();
   const form = useForm<NivelPracticaFormValues>({
     resolver: zodResolver(nivelPracticaSchema),
     defaultValues: { nombre: "" },
   });
 
   const handleFormSubmit = async (data: NivelPracticaFormValues) => {
-    try {
-      await onAddNivel(data);
-      toast({
-        title: "Nivel de Práctica Agregado",
-        description: `Se ha añadido "${data.nombre}" a la carrera.`,
-      });
-      form.reset();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al agregar el nivel.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteConfirmation = async (nivelId: string) => {
-    try {
-      await onDeleteNivel(nivelId);
-      toast({
-        title: "Nivel de Práctica Eliminado",
-        description: `El nivel de práctica ha sido eliminado.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al eliminar el nivel.",
-        variant: "destructive",
-      });
-    }
+    await onAddNivel(data);
+    form.reset();
   };
 
   return (
@@ -177,10 +148,8 @@ export function NivelPracticaManager({
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction
-                                        onClick={() => handleDeleteConfirmation(nivel.id)}
-                                        >
-                                        Eliminar
+                                        <AlertDialogAction onClick={() => onDeleteNivel(nivel.id)}>
+                                          Eliminar
                                         </AlertDialogAction>
                                     </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -205,4 +174,3 @@ export function NivelPracticaManager({
     </Dialog>
   );
 }
-

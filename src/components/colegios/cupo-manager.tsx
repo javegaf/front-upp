@@ -67,7 +67,7 @@ interface CupoManagerProps {
   nivelesPractica: NivelPractica[];
   carreras: Carrera[];
   onAddCupo: (data: CupoFormValues) => Promise<void>;
-  onDeleteCupo: (cupoId: string) => Promise<void>;
+  onDeleteCupo: (cupoId: number) => Promise<void>;
 }
 
 export function CupoManager({
@@ -80,13 +80,12 @@ export function CupoManager({
   onAddCupo,
   onDeleteCupo,
 }: CupoManagerProps) {
-  const { toast } = useToast();
   const form = useForm<CupoFormValues>({
     resolver: zodResolver(cupoSchema),
     defaultValues: { nivel_practica_id: "" },
   });
   
-  const getCarreraName = (carreraId: string) => carreras.find(c => c.id === carreraId)?.nombre || 'Carrera Desconocida';
+  const getCarreraName = (carreraId: number) => carreras.find(c => c.id === carreraId)?.nombre || 'Carrera Desconocida';
 
   const nivelPracticaOptions = React.useMemo(() => {
     return nivelesPractica.map(nivel => ({
@@ -95,43 +94,15 @@ export function CupoManager({
     }));
   }, [nivelesPractica, carreras]);
 
-  const getNivelInfo = (nivelId: string) => {
+  const getNivelInfo = (nivelId: number) => {
     const nivel = nivelPracticaOptions.find(n => n.id === nivelId);
     if (!nivel) return { nombre: "Nivel Desconocido", carreraNombre: "" };
     return { nombre: nivel.nombre, carreraNombre: nivel.carreraNombre };
   }
 
   const handleFormSubmit = async (data: CupoFormValues) => {
-    try {
-      await onAddCupo(data);
-      toast({
-        title: "Cupo Agregado",
-        description: "Se ha añadido el cupo al establecimiento.",
-      });
-      form.reset();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al agregar el cupo.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteConfirmation = async (cupoId: string) => {
-    try {
-      await onDeleteCupo(cupoId);
-      toast({
-        title: "Cupo Eliminado",
-        description: "El cupo ha sido eliminado.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al eliminar el cupo.",
-        variant: "destructive",
-      });
-    }
+    await onAddCupo(data);
+    form.reset();
   };
 
   return (
@@ -162,7 +133,7 @@ export function CupoManager({
                       </FormControl>
                       <SelectContent>
                         {nivelPracticaOptions.map((nivel) => (
-                          <SelectItem key={nivel.id} value={nivel.id}>
+                          <SelectItem key={nivel.id} value={String(nivel.id)}>
                             {nivel.nombre} ({nivel.carreraNombre})
                           </SelectItem>
                         ))}
@@ -217,10 +188,8 @@ export function CupoManager({
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction
-                                    onClick={() => handleDeleteConfirmation(cupo.id)}
-                                    >
-                                    Eliminar
+                                    <AlertDialogAction onClick={() => onDeleteCupo(cupo.id)}>
+                                      Eliminar
                                     </AlertDialogAction>
                                 </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -246,4 +215,3 @@ export function CupoManager({
     </Dialog>
   );
 }
-

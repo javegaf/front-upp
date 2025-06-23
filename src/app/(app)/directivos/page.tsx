@@ -3,39 +3,17 @@
 
 import { useState, useEffect } from "react";
 import type { Directivo, Establecimiento } from "@/lib/definitions";
-import { mockDirectivos, mockEstablecimientos } from "@/lib/definitions";
+import * as api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DirectivoForm } from "@/components/directivos/directivo-form";
+import { DirectivoForm, type DirectivoFormValues } from "@/components/directivos/directivo-form";
 import { DirectivoTable } from "@/components/directivos/directivo-table";
-
-// Mock API functions
-const getDirectivosFromAPI = async (): Promise<Directivo[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockDirectivos;
-};
-const getEstablecimientosFromAPI = async (): Promise<Establecimiento[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockEstablecimientos;
-};
-
-const addDirectivoToAPI = async (data: Omit<Directivo, "id">): Promise<Directivo> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return { ...data, id: String(Date.now()) };
-};
-
-const updateDirectivoInAPI = async (directivo: Directivo): Promise<Directivo> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return directivo;
-};
-
-const deleteDirectivoFromAPI = async (directivoId: string): Promise<void> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-};
+import { useToast } from "@/hooks/use-toast";
 
 export default function DirectivosPage() {
+  const { toast } = useToast();
   const [directivos, setDirectivos] = useState<Directivo[]>([]);
   const [filteredDirectivos, setFilteredDirectivos] = useState<Directivo[]>([]);
   const [establecimientos, setEstablecimientos] = useState<Establecimiento[]>([]);
@@ -44,19 +22,29 @@ export default function DirectivosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsLoading(true);
+  const fetchAllData = async () => {
+    setIsLoading(true);
+    try {
       const [directivosData, establecimientosData] = await Promise.all([
-        getDirectivosFromAPI(),
-        getEstablecimientosFromAPI()
+        api.getDirectivos(),
+        api.getEstablecimientos()
       ]);
       setDirectivos(directivosData);
       setFilteredDirectivos(directivosData);
       setEstablecimientos(establecimientosData);
+    } catch (error) {
+      toast({
+        title: "Error al cargar datos",
+        description: "No se pudieron obtener los directivos y establecimientos.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    };
-    fetchInitialData();
+    }
+  };
+
+  useEffect(() => {
+    fetchAllData();
   }, []);
 
   useEffect(() => {
@@ -79,18 +67,29 @@ export default function DirectivosPage() {
     setIsFormOpen(true);
   };
 
-  const handleDelete = async (directivoId: string) => {
-    await deleteDirectivoFromAPI(directivoId);
-    setDirectivos(prev => prev.filter((d) => d.id !== directivoId));
+  const handleDelete = async (directivoId: number) => {
+    try {
+      await api.deleteDirectivo(directivoId);
+      toast({ title: "Directivo Eliminado" });
+      await fetchAllData();
+    } catch (error) {
+      toast({ title: "Error", description: "No se pudo eliminar el directivo.", variant: "destructive" });
+    }
   };
 
-  const handleSubmit = async (data: Omit<Directivo, "id">) => {
-    if (editingDirectivo) {
-      const updated = await updateDirectivoInAPI({ ...data, id: editingDirectivo.id });
-      setDirectivos(prev => prev.map((d) => (d.id === updated.id ? updated : d)));
-    } else {
-      const newDirectivo = await addDirectivoToAPI(data);
-      setDirectivos(prev => [...prev, newDirectivo]);
+  const handleSubmit = async (data: DirectivoFormValues) => {
+    try {
+      if (editingDirectivo) {
+        await api.updateDirectivo(editingDirectivo.id, data);
+        toast({ title: "Directivo Actualizado" });
+      } else {
+        await api.createDirectivo(data);
+        toast({ title: "Directivo Creado" });
+      }
+      setIsFormOpen(false);
+      await fetchAllData();
+    } catch(error) {
+      toast({ title: "Error", description: "No se pudo guardar el directivo.", variant: "destructive" });
     }
   };
 

@@ -23,36 +23,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast";
 
 interface DirectivoTableProps {
   directivos: Directivo[];
   establecimientos: Establecimiento[];
   onEdit: (directivo: Directivo) => void;
-  onDelete: (directivoId: string) => Promise<void>;
+  onDelete: (directivoId: number) => Promise<void>;
 }
 
 export function DirectivoTable({ directivos, establecimientos, onEdit, onDelete }: DirectivoTableProps) {
-  const { toast } = useToast();
 
   const getEstablecimientoName = (establecimientoId: string) => {
     return establecimientos.find(e => e.id === establecimientoId)?.nombre || "N/A";
-  };
-  
-  const handleDeleteConfirmation = async (directivoId: string) => {
-    try {
-      await onDelete(directivoId);
-      toast({
-        title: "Directivo Eliminado",
-        description: "El directivo ha sido eliminado exitosamente.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al eliminar el directivo.",
-        variant: "destructive",
-      });
-    }
   };
 
   return (
@@ -103,7 +85,7 @@ export function DirectivoTable({ directivos, establecimientos, onEdit, onDelete 
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteConfirmation(directivo.id)}>
+                        <AlertDialogAction onClick={() => onDelete(directivo.id)}>
                           Eliminar
                         </AlertDialogAction>
                       </AlertDialogFooter>

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import type { Carrera, NivelPractica } from "@/lib/definitions";
-import { mockCarreras, mockNivelesPractica } from "@/lib/definitions";
+import * as api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -11,52 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { CarreraForm } from "@/components/carreras/carrera-form";
 import { CarreraTable } from "@/components/carreras/carrera-table";
 import { NivelPracticaManager } from "@/components/carreras/nivel-practica-manager";
-
-// Mock API functions
-const getCarrerasFromAPI = async (): Promise<Carrera[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockCarreras;
-};
-const getNivelesPracticaFromAPI = async (): Promise<NivelPractica[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockNivelesPractica;
-};
-
-const addCarreraToAPI = async (data: Omit<Carrera, "id">): Promise<Carrera> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newCarrera = { ...data, id: String(Date.now()) };
-  mockCarreras.push(newCarrera);
-  return newCarrera;
-};
-
-const updateCarreraInAPI = async (carrera: Carrera): Promise<Carrera> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockCarreras.findIndex(c => c.id === carrera.id);
-  if (index !== -1) mockCarreras[index] = carrera;
-  return carrera;
-};
-
-const deleteCarreraFromAPI = async (carreraId: string): Promise<void> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockCarreras.findIndex(c => c.id === carreraId);
-  if (index !== -1) mockCarreras.splice(index, 1);
-};
-
-const addNivelPracticaToAPI = async (data: Omit<NivelPractica, "id">): Promise<NivelPractica> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newNivel = { ...data, id: String(Date.now()) };
-  mockNivelesPractica.push(newNivel);
-  return newNivel;
-};
-
-const deleteNivelPracticaFromAPI = async (nivelId: string): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const index = mockNivelesPractica.findIndex(n => n.id === nivelId);
-    if (index !== -1) mockNivelesPractica.splice(index, 1);
-};
-
+import { useToast } from "@/hooks/use-toast";
 
 export default function CarrerasPage() {
+  const { toast } = useToast();
   const [carreras, setCarreras] = useState<Carrera[]>([]);
   const [filteredCarreras, setFilteredCarreras] = useState<Carrera[]>([]);
   const [nivelesPractica, setNivelesPractica] = useState<NivelPractica[]>([]);
@@ -70,19 +28,29 @@ export default function CarrerasPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsLoading(true);
+  const fetchAllData = async () => {
+    setIsLoading(true);
+    try {
       const [carrerasData, nivelesData] = await Promise.all([
-        getCarrerasFromAPI(),
-        getNivelesPracticaFromAPI(),
+        api.getCarreras(),
+        api.getNivelesPractica(),
       ]);
       setCarreras(carrerasData);
       setFilteredCarreras(carrerasData);
       setNivelesPractica(nivelesData);
+    } catch (error) {
+      toast({
+        title: "Error al cargar datos",
+        description: "No se pudieron obtener carreras y niveles de práctica.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    };
-    fetchInitialData();
+    }
+  };
+
+  useEffect(() => {
+    fetchAllData();
   }, []);
 
   useEffect(() => {
@@ -102,18 +70,29 @@ export default function CarrerasPage() {
     setIsFormOpen(true);
   };
 
-  const handleDelete = async (carreraId: string) => {
-    await deleteCarreraFromAPI(carreraId);
-    setCarreras(prev => prev.filter((c) => c.id !== carreraId));
+  const handleDelete = async (carreraId: number) => {
+    try {
+        await api.deleteCarrera(carreraId);
+        toast({ title: "Carrera Eliminada", description: "La carrera ha sido eliminada." });
+        await fetchAllData();
+    } catch (error) {
+        toast({ title: "Error", description: "No se pudo eliminar la carrera.", variant: "destructive" });
+    }
   };
 
-  const handleSubmit = async (data: Omit<Carrera, "id">) => {
-    if (editingCarrera) {
-      const updated = await updateCarreraInAPI({ ...data, id: editingCarrera.id });
-      setCarreras(prev => prev.map((c) => (c.id === updated.id ? updated : c)));
-    } else {
-      const newCarrera = await addCarreraToAPI(data);
-      setCarreras(prev => [...prev, newCarrera]);
+  const handleSubmit = async (data: { nombre: string }) => {
+    try {
+        if (editingCarrera) {
+            await api.updateCarrera(editingCarrera.id, data);
+            toast({ title: "Carrera Actualizada", description: `La carrera "${data.nombre}" ha sido actualizada.` });
+        } else {
+            await api.createCarrera(data);
+            toast({ title: "Carrera Creada", description: `La carrera "${data.nombre}" ha sido registrada.` });
+        }
+        setIsFormOpen(false);
+        await fetchAllData();
+    } catch (error) {
+        toast({ title: "Error", description: "No se pudo guardar la carrera.", variant: "destructive" });
     }
   };
 
@@ -124,13 +103,23 @@ export default function CarrerasPage() {
   
   const handleAddNivel = async (data: { nombre: string }) => {
     if (!managingNivelesFor) return;
-    const newNivel = await addNivelPracticaToAPI({ ...data, carrera_id: managingNivelesFor.id });
-    setNivelesPractica(prev => [...prev, newNivel]);
+    try {
+        await api.createNivelPractica({ ...data, carrera_id: managingNivelesFor.id });
+        toast({ title: "Nivel de Práctica Agregado", description: `Se ha añadido "${data.nombre}".` });
+        await fetchAllData();
+    } catch (error) {
+        toast({ title: "Error", description: "No se pudo agregar el nivel.", variant: "destructive" });
+    }
   };
 
-  const handleDeleteNivel = async (nivelId: string) => {
-    await deleteNivelPracticaFromAPI(nivelId);
-    setNivelesPractica(prev => prev.filter(n => n.id !== nivelId));
+  const handleDeleteNivel = async (nivelId: number) => {
+    try {
+        await api.deleteNivelPractica(nivelId);
+        toast({ title: "Nivel de Práctica Eliminado" });
+        await fetchAllData();
+    } catch (error) {
+        toast({ title: "Error", description: "No se pudo eliminar el nivel.", variant: "destructive" });
+    }
   };
 
 

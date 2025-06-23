@@ -3,39 +3,17 @@
 
 import { useState, useEffect } from "react";
 import type { Estudiante, Carrera, Comuna, Tutor } from "@/lib/definitions";
-import { mockEstudiantes, mockCarreras, mockComunas, mockTutores } from "@/lib/definitions";
+import * as api from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { StudentForm } from "@/components/alumnos/student-form";
+import { StudentForm, type StudentFormValues } from "@/components/alumnos/student-form";
 import { StudentTable } from "@/components/alumnos/student-table";
 import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
-// Mock data and functions - replace with actual API calls and server actions
-const getEstudiantesFromAPI = async (): Promise<Estudiante[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  // In a real app, this would fetch from your backend
-  return mockEstudiantes;
-};
-
-const addEstudianteToAPI = async (data: Omit<Estudiante, "id">): Promise<Estudiante> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return { ...data, id: String(Date.now()) }; // Simple ID generation for mock
-};
-
-const updateEstudianteInAPI = async (estudiante: Estudiante): Promise<Estudiante> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return estudiante;
-};
-
-const deleteEstudianteFromAPI = async (estudianteId: string): Promise<void> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  // No return value needed for delete
-};
-
+import { useToast } from "@/hooks/use-toast";
 
 export default function AlumnosPage() {
+  const { toast } = useToast();
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [filteredEstudiantes, setFilteredEstudiantes] = useState<Estudiante[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -43,24 +21,38 @@ export default function AlumnosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // For passing to form selects
+  // Data for form selects
   const [carreras, setCarreras] = useState<Carrera[]>([]);
   const [comunas, setComunas] = useState<Comuna[]>([]);
   const [tutores, setTutores] = useState<Tutor[]>([]);
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsLoading(true);
-      const data = await getEstudiantesFromAPI();
-      setEstudiantes(data);
-      setFilteredEstudiantes(data);
-      // In a real app, these would also be API calls
-      setCarreras(mockCarreras);
-      setComunas(mockComunas);
-      setTutores(mockTutores);
+  const fetchAllData = async () => {
+    setIsLoading(true);
+    try {
+      const [estudiantesData, carrerasData, comunasData, tutoresData] = await Promise.all([
+        api.getEstudiantes(),
+        api.getCarreras(),
+        api.getComunas(),
+        api.getTutores(),
+      ]);
+      setEstudiantes(estudiantesData);
+      setFilteredEstudiantes(estudiantesData);
+      setCarreras(carrerasData);
+      setComunas(comunasData);
+      setTutores(tutoresData);
+    } catch (error) {
+      toast({
+        title: "Error al cargar datos",
+        description: "No se pudieron obtener los datos del servidor. Inténtalo de nuevo más tarde.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    };
-    fetchInitialData();
+    }
+  };
+
+  useEffect(() => {
+    fetchAllData();
   }, []);
   
   useEffect(() => {
@@ -83,25 +75,56 @@ export default function AlumnosPage() {
     setIsFormOpen(true);
   };
 
-  const handleDeleteEstudiante = async (estudianteId: string) => {
-    // This would be a server action in a real app
-    await deleteEstudianteFromAPI(estudianteId);
-    const updatedEstudiantes = estudiantes.filter((a) => a.id !== estudianteId);
-    setEstudiantes(updatedEstudiantes);
+  const handleDeleteEstudiante = async (estudianteId: number) => {
+    try {
+      await api.deleteEstudiante(estudianteId);
+      await fetchAllData(); // Re-fetch to update the list
+      toast({
+        title: "Estudiante Eliminado",
+        description: "El estudiante ha sido eliminado exitosamente.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error al eliminar",
+        description: "No se pudo eliminar el estudiante.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleSubmitForm = async (data: Omit<Estudiante, "id">) => {
-    if (editingEstudiante) {
-      // This would be a server action
-      const updatedEstudiante = await updateEstudianteInAPI({ ...data, id: editingEstudiante.id });
-      setEstudiantes(estudiantes.map((a) => (a.id === updatedEstudiante.id ? updatedEstudiante : a)));
-    } else {
-      // This would be a server action
-      const newEstudiante = await addEstudianteToAPI(data);
-      setEstudiantes([...estudiantes, newEstudiante]);
+  const handleSubmitForm = async (data: StudentFormValues) => {
+    const payload = {
+        ...data,
+        carrera_id: Number(data.carrera_id),
+        comuna_id: Number(data.comuna_id),
+        tutor_id: Number(data.tutor_id),
+        cond_especial: data.cond_especial || null,
+    };
+    
+    try {
+        if (editingEstudiante) {
+            await api.updateEstudiante(editingEstudiante.id, payload);
+            toast({
+                title: "Estudiante Actualizado",
+                description: `El estudiante "${data.nombre}" ha sido actualizado.`,
+            });
+        } else {
+            await api.createEstudiante(payload);
+            toast({
+                title: "Estudiante Creado",
+                description: `El estudiante "${data.nombre}" ha sido registrado.`,
+            });
+        }
+        setIsFormOpen(false);
+        setEditingEstudiante(null);
+        await fetchAllData(); // Re-fetch to update the list
+    } catch (error) {
+        toast({
+            title: `Error al ${editingEstudiante ? 'actualizar' : 'crear'}`,
+            description: `No se pudo guardar el estudiante.`,
+            variant: "destructive",
+        });
     }
-    setIsFormOpen(false);
-    setEditingEstudiante(null);
   };
 
   return (

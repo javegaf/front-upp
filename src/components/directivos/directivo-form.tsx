@@ -40,7 +40,7 @@ const directivoSchema = z.object({
   establecimiento_id: z.string().min(1, "Establecimiento es requerido"),
 });
 
-type DirectivoFormValues = z.infer<typeof directivoSchema>;
+export type DirectivoFormValues = z.infer<typeof directivoSchema>;
 
 interface DirectivoFormProps {
   isOpen: boolean;
@@ -51,7 +51,6 @@ interface DirectivoFormProps {
 }
 
 export function DirectivoForm({ isOpen, onOpenChange, onSubmit, initialData, establecimientos }: DirectivoFormProps) {
-  const { toast } = useToast();
   
   const defaultValues = { nombre: "", email: "", cargo: "", establecimiento_id: "" };
 
@@ -67,20 +66,8 @@ export function DirectivoForm({ isOpen, onOpenChange, onSubmit, initialData, est
   }, [initialData, form, isOpen]);
 
   const handleFormSubmit = async (data: DirectivoFormValues) => {
-    try {
-      await onSubmit(data);
-      toast({
-        title: `Directivo ${initialData ? 'actualizado' : 'creado'}`,
-        description: `El directivo "${data.nombre}" ha sido ${initialData ? 'actualizado' : 'registrado'} exitosamente.`,
-      });
-      onOpenChange(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Ocurrió un error al ${initialData ? 'actualizar' : 'crear'} el directivo.`,
-        variant: "destructive",
-      });
-    }
+    await onSubmit(data);
+    onOpenChange(false);
   };
 
   return (

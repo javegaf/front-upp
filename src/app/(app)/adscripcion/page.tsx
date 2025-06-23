@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import type { Estudiante, Establecimiento, Carrera, Directivo, Comuna } from "@/lib/definitions";
-import { mockEstudiantes, mockEstablecimientos, mockCarreras, mockDirectivos, mockComunas } from "@/lib/definitions";
+import * as api from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -14,8 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Building } from "lucide-react";
 import Image from "next/image";
 import { EditableHtmlDisplay } from "@/components/shared/editable-html-display";
-
-const mockAlumnosDisponibles: Estudiante[] = mockEstudiantes;
+import { useToast } from "@/hooks/use-toast";
 
 const ADSCRIPCION_STEPS = {
   STEP1: "seleccion-estudiantes",
@@ -24,7 +23,6 @@ const ADSCRIPCION_STEPS = {
 };
 
 const TEMPLATE_ESTABLISHMENT_KEY = "email_template_establishment";
-
 const DEFAULT_ESTABLISHMENT_TEMPLATE = `
 <p>Estimado/a {{nombre_directivo}},</p>
 <p>Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de {{cargo_directivo}} del {{nombre_establecimiento}}, el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad.</p>
@@ -33,41 +31,71 @@ const DEFAULT_ESTABLISHMENT_TEMPLATE = `
 `;
 
 export default function AdscripcionPage() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [availableStudents, setAvailableStudents] = useState<Estudiante[]>(mockAlumnosDisponibles);
+  const [availableStudents, setAvailableStudents] = useState<Estudiante[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<Estudiante[]>([]);
+  
+  const [allStudents, setAllStudents] = useState<Estudiante[]>([]);
+  const [allEstablecimientos, setAllEstablecimientos] = useState<Establecimiento[]>([]);
+  const [allCarreras, setAllCarreras] = useState<Carrera[]>([]);
+  const [allDirectivos, setAllDirectivos] = useState<Directivo[]>([]);
+  const [allComunas, setAllComunas] = useState<Comuna[]>([]);
 
-  const [availableEstablecimientos, setAvailableEstablecimientos] = useState<Establecimiento[]>([]);
   const [selectedEstablecimientoId, setSelectedEstablecimientoId] = useState<string | null>(null);
   
   const [establishmentTemplate, setEstablishmentTemplate] = useState<string>('');
   const [renderedEmail, setRenderedEmail] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
 
   useEffect(() => {
-    // Load data that would come from an API
-    setAvailableEstablecimientos(mockEstablecimientos);
-    
-    // Load email template from localStorage, or use a default
-    const savedTemplate = localStorage.getItem(TEMPLATE_ESTABLISHMENT_KEY) || DEFAULT_ESTABLISHMENT_TEMPLATE;
-    setEstablishmentTemplate(savedTemplate);
-  }, []);
+    const fetchInitialData = async () => {
+      setIsLoading(true);
+      try {
+        const [studentsData, establecimientosData, carrerasData, directivosData, comunasData] = await Promise.all([
+          api.getEstudiantes(),
+          api.getEstablecimientos(),
+          api.getCarreras(),
+          api.getDirectivos(),
+          api.getComunas(),
+        ]);
+        setAllStudents(studentsData);
+        setAvailableStudents(studentsData);
+        setAllEstablecimientos(establecimientosData);
+        setAllCarreras(carrerasData);
+        setAllDirectivos(directivosData);
+        setAllComunas(comunasData);
 
-  const getCarreraName = (carreraId: string) => mockCarreras.find(c => c.id === carreraId)?.nombre || "N/A";
-  const getComunaName = (comunaId: string) => mockComunas.find(c => c.id === comunaId)?.nombre || "N/A";
+        const savedTemplate = localStorage.getItem(TEMPLATE_ESTABLISHMENT_KEY) || DEFAULT_ESTABLISHMENT_TEMPLATE;
+        setEstablishmentTemplate(savedTemplate);
+      } catch (error) {
+        toast({
+            title: "Error al cargar datos",
+            description: "No se pudieron obtener los datos para el proceso de adscripción.",
+            variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchInitialData();
+  }, [toast]);
+
+  const getCarreraName = (carreraId: number) => allCarreras.find(c => c.id === carreraId)?.nombre || "N/A";
+  const getComunaName = (comunaId: number) => allComunas.find(c => c.id === comunaId)?.nombre || "N/A";
 
   const selectedEstablecimiento = useMemo(() => {
-    return availableEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
-  }, [selectedEstablecimientoId, availableEstablecimientos]);
+    return allEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
+  }, [selectedEstablecimientoId, allEstablecimientos]);
 
   const selectedDirectivo = useMemo(() => {
     if (!selectedEstablecimiento) return null;
-    return mockDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
-  }, [selectedEstablecimiento]);
+    return allDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
+  }, [selectedEstablecimiento, allDirectivos]);
 
-  // Effect to render the email preview when data changes
   useEffect(() => {
     if (!selectedEstablecimiento || !selectedDirectivo) {
         setRenderedEmail("<p class='text-muted-foreground p-4 text-center'>Por favor, seleccione un establecimiento para generar la previsualización del correo.</p>");
@@ -86,7 +114,6 @@ export default function AdscripcionPage() {
 
   }, [selectedEstablecimiento, selectedDirectivo, establishmentTemplate]);
 
-
   const filteredAvailableStudents = useMemo(() => {
     if (!searchTerm) {
       return availableStudents;
@@ -97,7 +124,7 @@ export default function AdscripcionPage() {
         student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         getCarreraName(student.carrera_id).toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm, availableStudents]);
+  }, [searchTerm, availableStudents, allCarreras]);
 
   const handleAddStudent = (studentToAdd: Estudiante) => {
     setSelectedStudents((prevSelected) => [...prevSelected, studentToAdd]);
@@ -122,6 +149,10 @@ export default function AdscripcionPage() {
       setCurrentStep(newStep);
     }
   };
+  
+  if (isLoading) {
+      return <p>Cargando datos para adscripción...</p>
+  }
 
   return (
     <div className="space-y-6">
@@ -291,7 +322,7 @@ export default function AdscripcionPage() {
                         <SelectValue placeholder="Seleccione un establecimiento..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableEstablecimientos.map((establecimiento) => (
+                        {allEstablecimientos.map((establecimiento) => (
                           <SelectItem key={establecimiento.id} value={establecimiento.id}>
                             {establecimiento.nombre}
                           </SelectItem>

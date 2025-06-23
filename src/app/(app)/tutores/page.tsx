@@ -3,35 +3,17 @@
 
 import { useState, useEffect } from "react";
 import type { Tutor } from "@/lib/definitions";
-import { mockTutores } from "@/lib/definitions";
+import * as api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { TutorForm } from "@/components/tutores/tutor-form";
 import { TutorTable } from "@/components/tutores/tutor-table";
-
-// Mock API functions
-const getTutoresFromAPI = async (): Promise<Tutor[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockTutores;
-};
-
-const addTutorToAPI = async (data: Omit<Tutor, "id">): Promise<Tutor> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return { ...data, id: String(Date.now()) };
-};
-
-const updateTutorInAPI = async (tutor: Tutor): Promise<Tutor> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return tutor;
-};
-
-const deleteTutorFromAPI = async (tutorId: string): Promise<void> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-};
+import { useToast } from "@/hooks/use-toast";
 
 export default function TutoresPage() {
+  const { toast } = useToast();
   const [tutores, setTutores] = useState<Tutor[]>([]);
   const [filteredTutores, setFilteredTutores] = useState<Tutor[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -39,15 +21,27 @@ export default function TutoresPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsLoading(true);
-      const data = await getTutoresFromAPI();
+  const fetchTutores = async () => {
+    setIsLoading(true);
+    try {
+      const data = await api.getTutores();
       setTutores(data);
       setFilteredTutores(data);
+    } catch (error) {
+      toast({
+        title: "Error al cargar tutores",
+        description: "No se pudieron obtener los datos de los tutores del servidor.",
+        variant: "destructive",
+      });
+      setTutores([]);
+      setFilteredTutores([]);
+    } finally {
       setIsLoading(false);
-    };
-    fetchInitialData();
+    }
+  };
+
+  useEffect(() => {
+    fetchTutores();
   }, []);
 
   useEffect(() => {
@@ -68,18 +62,29 @@ export default function TutoresPage() {
     setIsFormOpen(true);
   };
 
-  const handleDelete = async (tutorId: string) => {
-    await deleteTutorFromAPI(tutorId);
-    setTutores(prev => prev.filter((t) => t.id !== tutorId));
+  const handleDelete = async (tutorId: number) => {
+    try {
+        await api.deleteTutor(tutorId);
+        toast({ title: "Tutor Eliminado", description: "El tutor ha sido eliminado exitosamente." });
+        await fetchTutores();
+    } catch (error) {
+        toast({ title: "Error", description: "No se pudo eliminar el tutor.", variant: "destructive" });
+    }
   };
 
   const handleSubmit = async (data: Omit<Tutor, "id">) => {
-    if (editingTutor) {
-      const updated = await updateTutorInAPI({ ...data, id: editingTutor.id });
-      setTutores(prev => prev.map((t) => (t.id === updated.id ? updated : t)));
-    } else {
-      const newTutor = await addTutorToAPI(data);
-      setTutores(prev => [...prev, newTutor]);
+    try {
+        if (editingTutor) {
+            await api.updateTutor(editingTutor.id, data);
+            toast({ title: "Tutor Actualizado", description: `El tutor "${data.nombre}" ha sido actualizado.` });
+        } else {
+            await api.createTutor(data);
+            toast({ title: "Tutor Creado", description: `El tutor "${data.nombre}" ha sido registrado.` });
+        }
+        setIsFormOpen(false);
+        await fetchTutores();
+    } catch (error) {
+        toast({ title: "Error", description: "Ocurrió un error al guardar el tutor.", variant: "destructive" });
     }
   };
 

@@ -3,323 +3,18 @@
 
 import { useState, useEffect } from "react";
 import type { Establecimiento, Comuna, Cupo, NivelPractica, Carrera } from "@/lib/definitions";
-import { mockEstablecimientos, mockComunas, mockCupos, mockNivelesPractica, mockCarreras } from "@/lib/definitions";
+import * as api from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search, FilePenLine, Trash2, Settings2 } from "lucide-react";
+import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ColegioTable } from "@/components/colegios/colegio-table";
+import { ColegioForm, type ColegioFormValues } from "@/components/colegios/colegio-form";
 import { CupoManager } from "@/components/colegios/cupo-manager";
+import { useToast } from "@/hooks/use-toast";
 
-
-// Mock API functions
-const getEstablecimientosFromAPI = async (): Promise<Establecimiento[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockEstablecimientos;
-};
-
-const addEstablecimientoToAPI = async (data: Omit<Establecimiento, "id">): Promise<Establecimiento> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newEstablecimiento = { ...data, id: String(Date.now()) };
-  mockEstablecimientos.push(newEstablecimiento);
-  return newEstablecimiento;
-};
-
-const updateEstablecimientoInAPI = async (establecimiento: Establecimiento): Promise<Establecimiento> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockEstablecimientos.findIndex(e => e.id === establecimiento.id);
-  if (index !== -1) mockEstablecimientos[index] = establecimiento;
-  return establecimiento;
-};
-
-const deleteEstablecimientoFromAPI = async (establecimientoId: string): Promise<void> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockEstablecimientos.findIndex(e => e.id === establecimientoId);
-  if (index !== -1) mockEstablecimientos.splice(index, 1);
-};
-
-const addCupoToAPI = async (data: Omit<Cupo, "id">): Promise<Cupo> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newCupo = { ...data, id: String(Date.now()) };
-  mockCupos.push(newCupo);
-  return newCupo;
-};
-
-const deleteCupoFromAPI = async (cupoId: string): Promise<void> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockCupos.findIndex(c => c.id === cupoId);
-  if (index !== -1) mockCupos.splice(index, 1);
-};
-
-// Form Schema
-const colegioSchema = z.object({
-  rbd: z.string().min(1, "RBD es requerido"),
-  nombre: z.string().min(3, "Nombre es requerido"),
-  dependencia: z.string().min(1, "Dependencia es requerida"),
-  comuna_id: z.string().min(1, "Comuna es requerida"),
-});
-
-type ColegioFormValues = z.infer<typeof colegioSchema>;
-
-interface ColegioFormProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-  onSubmit: (data: ColegioFormValues) => Promise<void>;
-  initialData?: Establecimiento | null;
-  comunas: Comuna[];
-}
-
-// ColegioForm Component
-function ColegioForm({ isOpen, onOpenChange, onSubmit, initialData, comunas }: ColegioFormProps) {
-  const { toast } = useToast();
-  
-  const defaultValues = { rbd: "", nombre: "", dependencia: "", comuna_id: "" };
-
-  const form = useForm<ColegioFormValues>({
-    resolver: zodResolver(colegioSchema),
-    defaultValues: initialData || defaultValues,
-  });
-
-  React.useEffect(() => {
-    if (isOpen) {
-      form.reset(initialData || defaultValues);
-    }
-  }, [initialData, form, isOpen]);
-
-  const handleFormSubmit = async (data: ColegioFormValues) => {
-    try {
-      await onSubmit(data);
-      toast({
-        title: `Colegio ${initialData ? 'actualizado' : 'creado'}`,
-        description: `El colegio "${data.nombre}" ha sido ${initialData ? 'actualizado' : 'registrado'} exitosamente.`,
-      });
-      onOpenChange(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Ocurrió un error al ${initialData ? 'actualizar' : 'crear'} el colegio.`,
-        variant: "destructive",
-      });
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-card">
-        <DialogHeader>
-          <DialogTitle className="font-headline">
-            {initialData ? "Editar Colegio" : "Agregar Nuevo Colegio"}
-          </DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
-            <FormField control={form.control} name="rbd" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>RBD</FormLabel>
-                  <FormControl><Input placeholder="Ej: 12345-6" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-            )}/>
-            <FormField control={form.control} name="nombre" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre del Establecimiento</FormLabel>
-                  <FormControl><Input placeholder="Ej: Liceo Bicentenario" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-            )}/>
-            <FormField control={form.control} name="dependencia" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dependencia</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Seleccione una dependencia" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="Municipal">Municipal</SelectItem>
-                      <SelectItem value="Particular Subvencionado">Particular Subvencionado</SelectItem>
-                      <SelectItem value="Particular Pagado">Particular Pagado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-            )}/>
-             <FormField control={form.control} name="comuna_id" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Comuna</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Seleccione una comuna" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {comunas.map((comuna) => (
-                        <SelectItem key={comuna.id} value={comuna.id}>{comuna.nombre}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-            )}/>
-            <DialogFooter>
-              <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Guardando..." : (initialData ? "Actualizar Colegio" : "Agregar Colegio")}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-
-// ColegioTable Component
-interface ColegioTableProps {
-  establecimientos: Establecimiento[];
-  comunas: Comuna[];
-  cupos: Cupo[];
-  onEdit: (establecimiento: Establecimiento) => void;
-  onDelete: (establecimientoId: string) => Promise<void>;
-  onManageCupos: (establecimiento: Establecimiento) => void;
-}
-
-function ColegioTable({ establecimientos, comunas, cupos, onEdit, onDelete, onManageCupos }: ColegioTableProps) {
-  const { toast } = useToast();
-
-  const getComunaName = (comunaId: string) => comunas.find(c => c.id === comunaId)?.nombre || "N/A";
-  const getCuposCount = (establecimientoId: string) => cupos.filter(c => c.establecimiento_id === establecimientoId).length;
-
-  const handleDeleteConfirmation = async (establecimientoId: string) => {
-    try {
-      await onDelete(establecimientoId);
-      toast({
-        title: "Colegio Eliminado",
-        description: "El colegio ha sido eliminado exitosamente.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al eliminar el colegio.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  return (
-    <div className="rounded-md border shadow-sm bg-card">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>RBD</TableHead>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Dependencia</TableHead>
-            <TableHead>Comuna</TableHead>
-            <TableHead>Cupos</TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {establecimientos.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center h-24">
-                No hay colegios registrados.
-              </TableCell>
-            </TableRow>
-          ) : (
-            establecimientos.map((colegio) => (
-              <TableRow key={colegio.id}>
-                <TableCell className="font-medium">{colegio.rbd}</TableCell>
-                <TableCell>{colegio.nombre}</TableCell>
-                <TableCell>{colegio.dependencia}</TableCell>
-                <TableCell>{getComunaName(colegio.comuna_id)}</TableCell>
-                <TableCell>{getCuposCount(colegio.id)}</TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Button variant="outline" size="icon" onClick={() => onManageCupos(colegio)}>
-                    <Settings2 className="h-4 w-4" />
-                    <span className="sr-only">Gestionar Cupos</span>
-                  </Button>
-                  <Button variant="outline" size="icon" onClick={() => onEdit(colegio)}>
-                    <FilePenLine className="h-4 w-4" />
-                    <span className="sr-only">Editar</span>
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="icon">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Eliminar</span>
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Esta acción no se puede deshacer. Esto eliminará permanentemente el colegio
-                          <span className="font-semibold"> {colegio.nombre}</span>.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteConfirmation(colegio.id)}>
-                          Eliminar
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
-
-
-// Main Page Component
 export default function ColegiosPage() {
+  const { toast } = useToast();
   const [establecimientos, setEstablecimientos] = useState<Establecimiento[]>([]);
   const [filteredEstablecimientos, setFilteredEstablecimientos] = useState<Establecimiento[]>([]);
   const [comunas, setComunas] = useState<Comuna[]>([]);
@@ -336,19 +31,35 @@ export default function ColegiosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsLoading(true);
-      // Simulate fetching all related data
-      setEstablecimientos(mockEstablecimientos);
-      setFilteredEstablecimientos(mockEstablecimientos);
-      setComunas(mockComunas);
-      setCupos(mockCupos);
-      setNivelesPractica(mockNivelesPractica);
-      setCarreras(mockCarreras);
+  const fetchAllData = async () => {
+    setIsLoading(true);
+    try {
+      const [estabData, comunasData, cuposData, nivelesData, carrerasData] = await Promise.all([
+        api.getEstablecimientos(),
+        api.getComunas(),
+        api.getCupos(),
+        api.getNivelesPractica(),
+        api.getCarreras(),
+      ]);
+      setEstablecimientos(estabData);
+      setFilteredEstablecimientos(estabData);
+      setComunas(comunasData);
+      setCupos(cuposData);
+      setNivelesPractica(nivelesData);
+      setCarreras(carrerasData);
+    } catch (error) {
+      toast({
+        title: "Error al cargar datos",
+        description: "No se pudieron obtener los datos de colegios.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    };
-    fetchInitialData();
+    }
+  };
+
+  useEffect(() => {
+    fetchAllData();
   }, []);
   
   useEffect(() => {
@@ -371,17 +82,32 @@ export default function ColegiosPage() {
   };
 
   const handleDeleteColegio = async (colegioId: string) => {
-    await deleteEstablecimientoFromAPI(colegioId);
-    setEstablecimientos(prev => prev.filter((c) => c.id !== colegioId));
+    try {
+      await api.deleteEstablecimiento(colegioId);
+      toast({ title: "Colegio Eliminado" });
+      await fetchAllData();
+    } catch (error) {
+      toast({ title: "Error", description: "No se pudo eliminar el colegio.", variant: "destructive" });
+    }
   };
 
   const handleSubmitForm = async (data: ColegioFormValues) => {
-    if (editingColegio) {
-      const updated = await updateEstablecimientoInAPI({ ...data, id: editingColegio.id });
-      setEstablecimientos(prev => prev.map((c) => (c.id === updated.id ? updated : c)));
-    } else {
-      const newColegio = await addEstablecimientoToAPI(data);
-      setEstablecimientos(prev => [...prev, newColegio]);
+     const payload = {
+        ...data,
+        comuna_id: Number(data.comuna_id),
+    };
+    try {
+      if (editingColegio) {
+        await api.updateEstablecimiento(editingColegio.id, payload);
+        toast({ title: "Colegio Actualizado" });
+      } else {
+        await api.createEstablecimiento(payload);
+        toast({ title: "Colegio Creado" });
+      }
+      setIsFormOpen(false);
+      await fetchAllData();
+    } catch (error) {
+       toast({ title: "Error", description: "No se pudo guardar el colegio.", variant: "destructive" });
     }
   };
 
@@ -392,13 +118,27 @@ export default function ColegiosPage() {
 
   const handleAddCupo = async (data: { nivel_practica_id: string }) => {
     if (!managingCuposFor) return;
-    const newCupo = await addCupoToAPI({ ...data, establecimiento_id: managingCuposFor.id });
-    setCupos(prev => [...prev, newCupo]);
+    const payload = {
+        establecimiento_id: managingCuposFor.id,
+        nivel_practica_id: Number(data.nivel_practica_id),
+    };
+    try {
+        await api.createCupo(payload);
+        toast({ title: "Cupo Agregado" });
+        await fetchAllData(); // Re-fetch cupos
+    } catch (error) {
+        toast({ title: "Error", description: "No se pudo agregar el cupo.", variant: "destructive" });
+    }
   };
 
-  const handleDeleteCupo = async (cupoId: string) => {
-    await deleteCupoFromAPI(cupoId);
-    setCupos(prev => prev.filter(c => c.id !== cupoId));
+  const handleDeleteCupo = async (cupoId: number) => {
+    try {
+        await api.deleteCupo(cupoId);
+        toast({ title: "Cupo Eliminado" });
+        await fetchAllData(); // Re-fetch cupos
+    } catch (error) {
+        toast({ title: "Error", description: "No se pudo eliminar el cupo.", variant: "destructive" });
+    }
   };
 
   return (

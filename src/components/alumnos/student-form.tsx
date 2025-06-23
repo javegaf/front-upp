@@ -31,7 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "../ui/textarea";
 
 const studentSchema = z.object({
@@ -46,7 +45,7 @@ const studentSchema = z.object({
   cond_especial: z.string().optional(),
 });
 
-type StudentFormValues = z.infer<typeof studentSchema>;
+export type StudentFormValues = z.infer<typeof studentSchema>;
 
 interface StudentFormProps {
   isOpen: boolean;
@@ -62,7 +61,6 @@ export function StudentForm({
   isOpen, onOpenChange, onSubmit, initialData, 
   carreras, comunas, tutores 
 }: StudentFormProps) {
-  const { toast } = useToast();
   
   const defaultValues = {
     rut: "",
@@ -78,31 +76,24 @@ export function StudentForm({
 
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentSchema),
-    defaultValues: initialData ? { ...initialData, cond_especial: initialData.cond_especial || "" } : defaultValues,
+    defaultValues,
   });
 
   const handleFormSubmit = async (data: StudentFormValues) => {
-    try {
-      await onSubmit(data);
-      toast({
-        title: `Estudiante ${initialData ? 'actualizado' : 'creado'}`,
-        description: `${data.nombre} ${data.ap_paterno} ha sido ${initialData ? 'actualizado' : 'registrado'} exitosamente.`,
-      });
-      form.reset();
-      onOpenChange(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Ocurrió un error al ${initialData ? 'actualizar' : 'crear'} el estudiante.`,
-        variant: "destructive",
-      });
-    }
+    await onSubmit(data);
+    form.reset();
   };
   
   React.useEffect(() => {
     if (isOpen) {
         if (initialData) {
-            form.reset({ ...initialData, cond_especial: initialData.cond_especial || "" });
+            form.reset({ 
+                ...initialData,
+                carrera_id: String(initialData.carrera_id),
+                comuna_id: String(initialData.comuna_id),
+                tutor_id: initialData.tutor_id ? String(initialData.tutor_id) : "",
+                cond_especial: initialData.cond_especial || "" 
+            });
         } else {
             form.reset(defaultValues);
         }
@@ -164,7 +155,7 @@ export function StudentForm({
                     <FormControl><SelectTrigger><SelectValue placeholder="Seleccione una carrera" /></SelectTrigger></FormControl>
                     <SelectContent>
                       {carreras.map((carrera) => (
-                        <SelectItem key={carrera.id} value={carrera.id}>{carrera.nombre}</SelectItem>
+                        <SelectItem key={carrera.id} value={String(carrera.id)}>{carrera.nombre}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -178,7 +169,7 @@ export function StudentForm({
                     <FormControl><SelectTrigger><SelectValue placeholder="Seleccione una comuna" /></SelectTrigger></FormControl>
                     <SelectContent>
                       {comunas.map((comuna) => (
-                        <SelectItem key={comuna.id} value={comuna.id}>{comuna.nombre}</SelectItem>
+                        <SelectItem key={comuna.id} value={String(comuna.id)}>{comuna.nombre}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -192,7 +183,7 @@ export function StudentForm({
                     <FormControl><SelectTrigger><SelectValue placeholder="Seleccione un tutor" /></SelectTrigger></FormControl>
                     <SelectContent>
                       {tutores.map((tutor) => (
-                        <SelectItem key={tutor.id} value={tutor.id}>{tutor.nombre}</SelectItem>
+                        <SelectItem key={tutor.id} value={String(tutor.id)}>{tutor.nombre}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
