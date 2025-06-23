@@ -1,6 +1,7 @@
+
 "use client";
 
-import type { Alumno } from "@/lib/definitions";
+import type { Estudiante, Carrera } from "@/lib/definitions";
 import {
   Table,
   TableBody,
@@ -25,25 +26,30 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 interface StudentTableProps {
-  alumnos: Alumno[];
-  onEdit: (alumno: Alumno) => void;
-  onDelete: (alumnoId: string) => Promise<void>;
+  estudiantes: Estudiante[];
+  carreras: Carrera[];
+  onEdit: (estudiante: Estudiante) => void;
+  onDelete: (estudianteId: string) => Promise<void>;
 }
 
-export function StudentTable({ alumnos, onEdit, onDelete }: StudentTableProps) {
+export function StudentTable({ estudiantes, carreras, onEdit, onDelete }: StudentTableProps) {
   const { toast } = useToast();
 
-  const handleDeleteConfirmation = async (alumnoId: string) => {
+  const getCarreraName = (carreraId: string) => {
+    return carreras.find(c => c.id === carreraId)?.nombre || "Desconocida";
+  };
+
+  const handleDeleteConfirmation = async (estudianteId: string) => {
     try {
-      await onDelete(alumnoId);
+      await onDelete(estudianteId);
       toast({
-        title: "Alumno Eliminado",
-        description: "El alumno ha sido eliminado exitosamente.",
+        title: "Estudiante Eliminado",
+        description: "El estudiante ha sido eliminado exitosamente.",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Ocurrió un error al eliminar el alumno.",
+        description: "Ocurrió un error al eliminar el estudiante.",
         variant: "destructive",
       });
     }
@@ -54,31 +60,29 @@ export function StudentTable({ alumnos, onEdit, onDelete }: StudentTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nombres</TableHead>
-            <TableHead>Apellidos</TableHead>
+            <TableHead>RUT</TableHead>
+            <TableHead>Nombre Completo</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Carrera</TableHead>
-            <TableHead className="text-center">Semestre</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {alumnos.length === 0 && (
+          {estudiantes.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center h-24">
-                No hay alumnos registrados.
+              <TableCell colSpan={5} className="text-center h-24">
+                No hay estudiantes registrados.
               </TableCell>
             </TableRow>
           )}
-          {alumnos.map((alumno) => (
-            <TableRow key={alumno.id}>
-              <TableCell className="font-medium">{alumno.nombres}</TableCell>
-              <TableCell>{alumno.apellidos}</TableCell>
-              <TableCell>{alumno.email}</TableCell>
-              <TableCell>{alumno.carrera}</TableCell>
-              <TableCell className="text-center">{alumno.semestre}</TableCell>
+          {estudiantes.map((estudiante) => (
+            <TableRow key={estudiante.id}>
+              <TableCell className="font-medium">{estudiante.rut}</TableCell>
+              <TableCell>{`${estudiante.nombre} ${estudiante.ap_paterno} ${estudiante.ap_materno}`}</TableCell>
+              <TableCell>{estudiante.email}</TableCell>
+              <TableCell>{getCarreraName(estudiante.carrera_id)}</TableCell>
               <TableCell className="text-right space-x-2">
-                <Button variant="outline" size="icon" onClick={() => onEdit(alumno)}>
+                <Button variant="outline" size="icon" onClick={() => onEdit(estudiante)}>
                   <FilePenLine className="h-4 w-4" />
                   <span className="sr-only">Editar</span>
                 </Button>
@@ -93,13 +97,13 @@ export function StudentTable({ alumnos, onEdit, onDelete }: StudentTableProps) {
                     <AlertDialogHeader>
                       <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Esta acción no se puede deshacer. Esto eliminará permanentemente al alumno
-                        <span className="font-semibold"> {alumno.nombres} {alumno.apellidos}</span>.
+                        Esta acción no se puede deshacer. Esto eliminará permanentemente al estudiante
+                        <span className="font-semibold"> {estudiante.nombre} {estudiante.ap_paterno}</span>.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDeleteConfirmation(alumno.id)}>
+                      <AlertDialogAction onClick={() => handleDeleteConfirmation(estudiante.id)}>
                         Eliminar
                       </AlertDialogAction>
                     </AlertDialogFooter>

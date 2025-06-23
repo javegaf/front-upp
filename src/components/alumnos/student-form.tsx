@@ -1,7 +1,8 @@
+
 "use client";
 
 import * as React from "react";
-import type { Alumno } from "@/lib/definitions";
+import type { Estudiante, Carrera, Comuna, Tutor } from "@/lib/definitions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -30,16 +31,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { carreras } from "@/lib/definitions";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "../ui/textarea";
 
 const studentSchema = z.object({
-  nombres: z.string().min(2, "Nombres son requeridos"),
-  apellidos: z.string().min(2, "Apellidos son requeridos"),
+  rut: z.string().min(8, "RUT es requerido"),
+  nombre: z.string().min(2, "Nombres son requeridos"),
+  ap_paterno: z.string().min(2, "Apellido Paterno es requerido"),
+  ap_materno: z.string().min(2, "Apellido Materno es requerido"),
   email: z.string().email("Email inválido"),
-  carrera: z.string().min(1, "Carrera es requerida"),
-  semestre: z.coerce.number().min(1, "Semestre debe ser mayor a 0").max(12, "Semestre inválido"),
-  telefono: z.string().optional(),
+  carrera_id: z.string().min(1, "Carrera es requerida"),
+  comuna_id: z.string().min(1, "Comuna es requerida"),
+  tutor_id: z.string().min(1, "Tutor es requerido"),
+  cond_especial: z.string().optional(),
 });
 
 type StudentFormValues = z.infer<typeof studentSchema>;
@@ -48,69 +52,60 @@ interface StudentFormProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onSubmit: (data: StudentFormValues) => Promise<void>;
-  initialData?: Alumno | null;
+  initialData?: Estudiante | null;
+  carreras: Carrera[];
+  comunas: Comuna[];
+  tutores: Tutor[];
 }
 
-export function StudentForm({ isOpen, onOpenChange, onSubmit, initialData }: StudentFormProps) {
+export function StudentForm({ 
+  isOpen, onOpenChange, onSubmit, initialData, 
+  carreras, comunas, tutores 
+}: StudentFormProps) {
   const { toast } = useToast();
+  
+  const defaultValues = {
+    rut: "",
+    nombre: "",
+    ap_paterno: "",
+    ap_materno: "",
+    email: "",
+    carrera_id: "",
+    comuna_id: "",
+    tutor_id: "",
+    cond_especial: "",
+  };
+
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentSchema),
-    defaultValues: initialData
-      ? {
-          nombres: initialData.nombres,
-          apellidos: initialData.apellidos,
-          email: initialData.email,
-          carrera: initialData.carrera,
-          semestre: initialData.semestre,
-          telefono: initialData.telefono || "",
-        }
-      : {
-          nombres: "",
-          apellidos: "",
-          email: "",
-          carrera: "",
-          semestre: 1,
-          telefono: "",
-        },
+    defaultValues: initialData ? { ...initialData, cond_especial: initialData.cond_especial || "" } : defaultValues,
   });
 
   const handleFormSubmit = async (data: StudentFormValues) => {
     try {
       await onSubmit(data);
       toast({
-        title: `Alumno ${initialData ? 'actualizado' : 'creado'}`,
-        description: `${data.nombres} ${data.apellidos} ha sido ${initialData ? 'actualizado' : 'registrado'} exitosamente.`,
+        title: `Estudiante ${initialData ? 'actualizado' : 'creado'}`,
+        description: `${data.nombre} ${data.ap_paterno} ha sido ${initialData ? 'actualizado' : 'registrado'} exitosamente.`,
       });
       form.reset();
       onOpenChange(false);
     } catch (error) {
       toast({
         title: "Error",
-        description: `Ocurrió un error al ${initialData ? 'actualizar' : 'crear'} el alumno.`,
+        description: `Ocurrió un error al ${initialData ? 'actualizar' : 'crear'} el estudiante.`,
         variant: "destructive",
       });
     }
   };
   
   React.useEffect(() => {
-    if (initialData) {
-      form.reset({
-        nombres: initialData.nombres,
-        apellidos: initialData.apellidos,
-        email: initialData.email,
-        carrera: initialData.carrera,
-        semestre: initialData.semestre,
-        telefono: initialData.telefono || "",
-      });
-    } else {
-      form.reset({
-        nombres: "",
-        apellidos: "",
-        email: "",
-        carrera: "",
-        semestre: 1,
-        telefono: "",
-      });
+    if (isOpen) {
+        if (initialData) {
+            form.reset({ ...initialData, cond_especial: initialData.cond_especial || "" });
+        } else {
+            form.reset(defaultValues);
+        }
     }
   }, [initialData, form, isOpen]);
 
@@ -120,108 +115,101 @@ export function StudentForm({ isOpen, onOpenChange, onSubmit, initialData }: Stu
       <DialogContent className="sm:max-w-[425px] bg-card">
         <DialogHeader>
           <DialogTitle className="font-headline">
-            {initialData ? "Editar Alumno" : "Agregar Nuevo Alumno"}
+            {initialData ? "Editar Estudiante" : "Agregar Nuevo Estudiante"}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="nombres"
-              render={({ field }) => (
+            <FormField control={form.control} name="rut" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>RUT</FormLabel>
+                  <FormControl><Input placeholder="Ej: 12.345.678-9" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+            )}/>
+            <FormField control={form.control} name="nombre" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nombres</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: Juan Alberto" {...field} />
-                  </FormControl>
+                  <FormControl><Input placeholder="Ej: Juan Alberto" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="apellidos"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Apellidos</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: Pérez González" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
+            )}/>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="ap_paterno" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Apellido Paterno</FormLabel>
+                    <FormControl><Input placeholder="Ej: Pérez" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+              )}/>
+              <FormField control={form.control} name="ap_materno" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Apellido Materno</FormLabel>
+                    <FormControl><Input placeholder="Ej: González" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+              )}/>
+            </div>
+            <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="ejemplo@correo.com" {...field} />
-                  </FormControl>
+                  <FormControl><Input type="email" placeholder="ejemplo@correo.com" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="carrera"
-              render={({ field }) => (
+            )}/>
+             <FormField control={form.control} name="carrera_id" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Carrera</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione una carrera" />
-                      </SelectTrigger>
-                    </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Seleccione una carrera" /></SelectTrigger></FormControl>
                     <SelectContent>
                       {carreras.map((carrera) => (
-                        <SelectItem key={carrera} value={carrera}>
-                          {carrera}
-                        </SelectItem>
+                        <SelectItem key={carrera.id} value={carrera.id}>{carrera.nombre}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="semestre"
-              render={({ field }) => (
+            )}/>
+            <FormField control={form.control} name="comuna_id" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Semestre</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 5" {...field} />
-                  </FormControl>
+                  <FormLabel>Comuna</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Seleccione una comuna" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {comunas.map((comuna) => (
+                        <SelectItem key={comuna.id} value={comuna.id}>{comuna.nombre}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="telefono"
-              render={({ field }) => (
+            )}/>
+             <FormField control={form.control} name="tutor_id" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Teléfono (Opcional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: +56912345678" {...field} />
-                  </FormControl>
+                  <FormLabel>Tutor Académico</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Seleccione un tutor" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {tutores.map((tutor) => (
+                        <SelectItem key={tutor.id} value={tutor.id}>{tutor.nombre}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+            )}/>
+            <FormField control={form.control} name="cond_especial" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Condición Especial (Opcional)</FormLabel>
+                  <FormControl><Textarea placeholder="Describa si el estudiante tiene alguna condición especial a considerar..." {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+            )}/>
             <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  Cancelar
-                </Button>
-              </DialogClose>
+              <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Guardando..." : (initialData ? "Actualizar Alumno" : "Agregar Alumno")}
+                {form.formState.isSubmitting ? "Guardando..." : (initialData ? "Actualizar Estudiante" : "Agregar Estudiante")}
               </Button>
             </DialogFooter>
           </form>

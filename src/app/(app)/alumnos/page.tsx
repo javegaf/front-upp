@@ -1,7 +1,9 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Alumno } from "@/lib/definitions";
+import type { Estudiante, Carrera, Comuna, Tutor } from "@/lib/definitions";
+import { mockEstudiantes, mockCarreras, mockComunas, mockTutores } from "@/lib/definitions";
 import { Button } from "@/components/ui/button";
 import { StudentForm } from "@/components/alumnos/student-form";
 import { StudentTable } from "@/components/alumnos/student-table";
@@ -10,110 +12,115 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 // Mock data and functions - replace with actual API calls and server actions
-const getAlumnosFromAPI = async (): Promise<Alumno[]> => {
+const getEstudiantesFromAPI = async (): Promise<Estudiante[]> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
   // In a real app, this would fetch from your backend
-  return [
-    { id: "1", nombres: "Ana", apellidos: "García López", email: "ana.garcia@example.com", carrera: "Educación Parvularia", semestre: 7, telefono: "+56911111111" },
-    { id: "2", nombres: "Carlos", apellidos: "Rodríguez Soto", email: "carlos.rodriguez@example.com", carrera: "Pedagogía en Matemática y Física", semestre: 5, telefono: "+56922222222" },
-    { id: "3", nombres: "Luisa", apellidos: "Martínez Vera", email: "luisa.martinez@example.com", carrera: "Psicopedagogía", semestre: 8 },
-  ];
+  return mockEstudiantes;
 };
 
-const addAlumnoToAPI = async (data: Omit<Alumno, "id">): Promise<Alumno> => {
+const addEstudianteToAPI = async (data: Omit<Estudiante, "id">): Promise<Estudiante> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   return { ...data, id: String(Date.now()) }; // Simple ID generation for mock
 };
 
-const updateAlumnoInAPI = async (alumno: Alumno): Promise<Alumno> => {
+const updateEstudianteInAPI = async (estudiante: Estudiante): Promise<Estudiante> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return alumno;
+  return estudiante;
 };
 
-const deleteAlumnoFromAPI = async (alumnoId: string): Promise<void> => {
+const deleteEstudianteFromAPI = async (estudianteId: string): Promise<void> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   // No return value needed for delete
 };
 
 
 export default function AlumnosPage() {
-  const [alumnos, setAlumnos] = useState<Alumno[]>([]);
-  const [filteredAlumnos, setFilteredAlumnos] = useState<Alumno[]>([]);
+  const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
+  const [filteredEstudiantes, setFilteredEstudiantes] = useState<Estudiante[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingAlumno, setEditingAlumno] = useState<Alumno | null>(null);
+  const [editingEstudiante, setEditingEstudiante] = useState<Estudiante | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
+  // For passing to form selects
+  const [carreras, setCarreras] = useState<Carrera[]>([]);
+  const [comunas, setComunas] = useState<Comuna[]>([]);
+  const [tutores, setTutores] = useState<Tutor[]>([]);
+
   useEffect(() => {
-    const fetchAlumnos = async () => {
+    const fetchInitialData = async () => {
       setIsLoading(true);
-      const data = await getAlumnosFromAPI();
-      setAlumnos(data);
-      setFilteredAlumnos(data);
+      const data = await getEstudiantesFromAPI();
+      setEstudiantes(data);
+      setFilteredEstudiantes(data);
+      // In a real app, these would also be API calls
+      setCarreras(mockCarreras);
+      setComunas(mockComunas);
+      setTutores(mockTutores);
       setIsLoading(false);
     };
-    fetchAlumnos();
+    fetchInitialData();
   }, []);
   
   useEffect(() => {
-    const results = alumnos.filter(alumno =>
-      `${alumno.nombres} ${alumno.apellidos}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      alumno.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      alumno.carrera.toLowerCase().includes(searchTerm.toLowerCase())
+    const results = estudiantes.filter(estudiante =>
+      `${estudiante.nombre} ${estudiante.ap_paterno} ${estudiante.ap_materno}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      estudiante.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (carreras.find(c => c.id === estudiante.carrera_id)?.nombre || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredAlumnos(results);
-  }, [searchTerm, alumnos]);
+    setFilteredEstudiantes(results);
+  }, [searchTerm, estudiantes, carreras]);
 
 
-  const handleAddAlumno = () => {
-    setEditingAlumno(null);
+  const handleAddEstudiante = () => {
+    setEditingEstudiante(null);
     setIsFormOpen(true);
   };
 
-  const handleEditAlumno = (alumno: Alumno) => {
-    setEditingAlumno(alumno);
+  const handleEditEstudiante = (estudiante: Estudiante) => {
+    setEditingEstudiante(estudiante);
     setIsFormOpen(true);
   };
 
-  const handleDeleteAlumno = async (alumnoId: string) => {
+  const handleDeleteEstudiante = async (estudianteId: string) => {
     // This would be a server action in a real app
-    await deleteAlumnoFromAPI(alumnoId);
-    const updatedAlumnos = alumnos.filter((a) => a.id !== alumnoId);
-    setAlumnos(updatedAlumnos);
+    await deleteEstudianteFromAPI(estudianteId);
+    const updatedEstudiantes = estudiantes.filter((a) => a.id !== estudianteId);
+    setEstudiantes(updatedEstudiantes);
   };
 
-  const handleSubmitForm = async (data: Omit<Alumno, "id">) => {
-    if (editingAlumno) {
+  const handleSubmitForm = async (data: Omit<Estudiante, "id">) => {
+    if (editingEstudiante) {
       // This would be a server action
-      const updatedAlumno = await updateAlumnoInAPI({ ...data, id: editingAlumno.id });
-      setAlumnos(alumnos.map((a) => (a.id === updatedAlumno.id ? updatedAlumno : a)));
+      const updatedEstudiante = await updateEstudianteInAPI({ ...data, id: editingEstudiante.id });
+      setEstudiantes(estudiantes.map((a) => (a.id === updatedEstudiante.id ? updatedEstudiante : a)));
     } else {
       // This would be a server action
-      const newAlumno = await addAlumnoToAPI(data);
-      setAlumnos([...alumnos, newAlumno]);
+      const newEstudiante = await addEstudianteToAPI(data);
+      setEstudiantes([...estudiantes, newEstudiante]);
     }
     setIsFormOpen(false);
-    setEditingAlumno(null);
+    setEditingEstudiante(null);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline">Gestión de Alumnos</h1>
+          <h1 className="text-3xl font-bold font-headline">Gestión de Estudiantes</h1>
           <p className="text-muted-foreground">Administra la información de los estudiantes.</p>
         </div>
-        <Button onClick={handleAddAlumno} className="w-full sm:w-auto">
+        <Button onClick={handleAddEstudiante} className="w-full sm:w-auto">
           <PlusCircle className="mr-2 h-4 w-4" />
-          Agregar Alumno
+          Agregar Estudiante
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Listado de Alumnos</CardTitle>
-          <CardDescription>Busca, visualiza y gestiona los alumnos registrados en el sistema.</CardDescription>
+          <CardTitle>Listado de Estudiantes</CardTitle>
+          <CardDescription>Busca, visualiza y gestiona los estudiantes registrados en el sistema.</CardDescription>
           <div className="relative mt-2">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -127,12 +134,13 @@ export default function AlumnosPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p>Cargando alumnos...</p> 
+            <p>Cargando estudiantes...</p> 
           ) : (
             <StudentTable
-              alumnos={filteredAlumnos}
-              onEdit={handleEditAlumno}
-              onDelete={handleDeleteAlumno}
+              estudiantes={filteredEstudiantes}
+              carreras={carreras}
+              onEdit={handleEditEstudiante}
+              onDelete={handleDeleteEstudiante}
             />
           )}
         </CardContent>
@@ -142,7 +150,10 @@ export default function AlumnosPage() {
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
         onSubmit={handleSubmitForm}
-        initialData={editingAlumno}
+        initialData={editingEstudiante}
+        carreras={carreras}
+        comunas={comunas}
+        tutores={tutores}
       />
     </div>
   );

@@ -2,8 +2,8 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import type { Alumno, Colegio } from "@/lib/definitions";
-import { mockColegios } from "@/lib/definitions"; // Importar mockColegios
+import type { Estudiante, Establecimiento, Carrera, Directivo } from "@/lib/definitions";
+import { mockEstudiantes, mockEstablecimientos, mockCarreras, mockDirectivos } from "@/lib/definitions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -17,13 +17,7 @@ import { EditableHtmlDisplay } from "@/components/shared/editable-html-display";
 
 
 // Mock data - en una aplicación real, esto vendría de una API
-const mockAlumnosDisponibles: Alumno[] = [
-  { id: "101", nombres: "Elena", apellidos: "Valdés Rojas", email: "elena.valdes@example.com", carrera: "Educación Parvularia", semestre: 6, telefono: "+56912345670" },
-  { id: "102", nombres: "Javier", apellidos: "Mora Tapia", email: "javier.mora@example.com", carrera: "Pedagogía en Matemática y Física", semestre: 7, telefono: "+56912345671" },
-  { id: "103", nombres: "Camila", apellidos: "Silva Castro", email: "camila.silva@example.com", carrera: "Psicopedagogía", semestre: 8, telefono: "+56912345672" },
-  { id: "104", nombres: "Andrés", apellidos: "Pérez Luna", email: "andres.perez@example.com", carrera: "Educación Básica", semestre: 5, telefono: "+56912345673" },
-  { id: "105", nombres: "Sofía", apellidos: "González Ríos", email: "sofia.gonzalez@example.com", carrera: "Pedagogía en Inglés", semestre: 7, telefono: "+56912345674" },
-];
+const mockAlumnosDisponibles: Estudiante[] = mockEstudiantes;
 
 const ADSCRIPCION_STEPS = {
   STEP1: "seleccion-estudiantes",
@@ -31,15 +25,15 @@ const ADSCRIPCION_STEPS = {
   STEP3: "notificacion-estudiantes",
 };
 
-const generateEmailPreview = (colegio: Colegio | null): string => {
-  if (!colegio) return "<p class='text-muted-foreground p-4 text-center'>Por favor, seleccione un establecimiento para generar y editar la plantilla del correo.</p>";
+const generateEmailPreview = (establecimiento: Establecimiento | null, directivo: Directivo | null): string => {
+  if (!establecimiento || !directivo) return "<p class='text-muted-foreground p-4 text-center'>Por favor, seleccione un establecimiento para generar y editar la plantilla del correo.</p>";
 
-  const jefeUTP = colegio.personaContacto;
-  const nombreColegio = colegio.nombre;
+  const jefeUTP = directivo.nombre;
+  const nombreEstablecimiento = establecimiento.nombre;
 
   return `
 <p>Estimado/a ${jefeUTP},</p>
-<p>Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de jefe de UTP del ${nombreColegio} el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad, de acuerdo con el siguiente calendario de prácticas UCSC primer semestre 2025:</p>
+<p>Le saludo de manera cordial en nombre de la Unidad de Práctica Pedagógica (UPP) de la Facultad de Educación de la Universidad Católica de la Santísima Concepción, y presento a usted, en su calidad de ${directivo.cargo} del ${nombreEstablecimiento} el inicio de las pasantías de estudiantes de Pedagogía de nuestra Facultad, de acuerdo con el siguiente calendario de prácticas UCSC primer semestre 2025:</p>
 <table style="width:100%; border-collapse: collapse; margin-top: 1em; margin-bottom: 1em; border: 1px solid #ddd;">
   <thead>
     <tr>
@@ -84,13 +78,13 @@ Equipo Unidad de Prácticas Pedagógicas UCSC</p>
 
 export default function AdscripcionPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [availableStudents, setAvailableStudents] = useState<Alumno[]>(mockAlumnosDisponibles);
-  const [selectedStudents, setSelectedStudents] = useState<Alumno[]>([]);
+  const [availableStudents, setAvailableStudents] = useState<Estudiante[]>(mockAlumnosDisponibles);
+  const [selectedStudents, setSelectedStudents] = useState<Estudiante[]>([]);
 
-  const [availableColegios, setAvailableColegios] = useState<Colegio[]>([]);
-  const [selectedColegioId, setSelectedColegioId] = useState<string | null>(null);
+  const [availableEstablecimientos, setAvailableEstablecimientos] = useState<Establecimiento[]>([]);
+  const [selectedEstablecimientoId, setSelectedEstablecimientoId] = useState<string | null>(null);
 
-  const initialEmailPlaceholder = useMemo(() => generateEmailPreview(null), []);
+  const initialEmailPlaceholder = useMemo(() => generateEmailPreview(null, null), []);
   const [currentTemplateHtml, setCurrentTemplateHtml] = useState<string>(initialEmailPlaceholder);
   const [editedHtml, setEditedHtml] = useState<string>(initialEmailPlaceholder);
 
@@ -99,15 +93,18 @@ export default function AdscripcionPage() {
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
 
   useEffect(() => {
-    setAvailableColegios(mockColegios);
+    setAvailableEstablecimientos(mockEstablecimientos);
   }, []);
 
+  const getCarreraName = (carreraId: string) => mockCarreras.find(c => c.id === carreraId)?.nombre || "N/A";
+
   useEffect(() => {
-    const colegio = availableColegios.find(c => c.id === selectedColegioId) || null;
-    const newTemplate = generateEmailPreview(colegio);
+    const establecimiento = availableEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
+    const directivo = establecimiento ? mockDirectivos.find(d => d.establecimiento_id === establecimiento.id) || null : null;
+    const newTemplate = generateEmailPreview(establecimiento, directivo);
     setCurrentTemplateHtml(newTemplate);
     setEditedHtml(newTemplate);
-  }, [selectedColegioId, availableColegios]);
+  }, [selectedEstablecimientoId, availableEstablecimientos]);
 
 
   const filteredAvailableStudents = useMemo(() => {
@@ -115,25 +112,25 @@ export default function AdscripcionPage() {
       return availableStudents;
     }
     return availableStudents.filter(
-      (alumno) =>
-        `${alumno.nombres} ${alumno.apellidos}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        alumno.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        alumno.carrera.toLowerCase().includes(searchTerm.toLowerCase())
+      (student) =>
+        `${student.nombre} ${student.ap_paterno} ${student.ap_materno}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getCarreraName(student.carrera_id).toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, availableStudents]);
 
-  const handleAddStudent = (studentToAdd: Alumno) => {
+  const handleAddStudent = (studentToAdd: Estudiante) => {
     setSelectedStudents((prevSelected) => [...prevSelected, studentToAdd]);
     setAvailableStudents((prevAvailable) => prevAvailable.filter((s) => s.id !== studentToAdd.id));
   };
 
-  const handleRemoveStudent = (studentToRemove: Alumno) => {
+  const handleRemoveStudent = (studentToRemove: Estudiante) => {
     setAvailableStudents((prevAvailable) => [...prevAvailable, studentToRemove]);
     setSelectedStudents((prevSelected) => prevSelected.filter((s) => s.id !== studentToRemove.id));
   };
 
   const isStep1Valid = selectedStudents.length > 0;
-  const isStep2Valid = selectedColegioId !== null && editedHtml.length > 0 && editedHtml !== initialEmailPlaceholder && editedHtml !== generateEmailPreview(null);
+  const isStep2Valid = selectedEstablecimientoId !== null && editedHtml.length > 0 && editedHtml !== initialEmailPlaceholder && editedHtml !== generateEmailPreview(null, null);
 
 
   const goToNextStep = (nextStep: string) => {
@@ -147,9 +144,14 @@ export default function AdscripcionPage() {
     }
   };
 
-  const selectedColegio = useMemo(() => {
-    return availableColegios.find(c => c.id === selectedColegioId) || null;
-  }, [selectedColegioId, availableColegios]);
+  const selectedEstablecimiento = useMemo(() => {
+    return availableEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
+  }, [selectedEstablecimientoId, availableEstablecimientos]);
+
+  const selectedDirectivo = useMemo(() => {
+    if (!selectedEstablecimiento) return null;
+    return mockDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
+  }, [selectedEstablecimiento]);
 
   return (
     <div className="space-y-6">
@@ -189,12 +191,12 @@ export default function AdscripcionPage() {
                 <CardHeader>
                   <CardTitle>Paso 1: Selección de Estudiantes</CardTitle>
                   <CardDescription>
-                    Busca y selecciona los alumnos que participarán en el proceso de prácticas. Los alumnos seleccionados aparecerán en la tabla inferior.
+                    Busca y selecciona los estudiantes que participarán en el proceso de prácticas. Los estudiantes seleccionados aparecerán en la tabla inferior.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Buscar y Agregar Alumnos</h3>
+                    <h3 className="text-lg font-semibold">Buscar y Agregar Estudiantes</h3>
                     <div className="relative">
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -212,21 +214,19 @@ export default function AdscripcionPage() {
                             <TableRow>
                               <TableHead>Nombre Completo</TableHead>
                               <TableHead>Carrera</TableHead>
-                              <TableHead className="text-center">Semestre</TableHead>
                               <TableHead className="text-right">Acción</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {filteredAvailableStudents.map((alumno) => (
-                              <TableRow key={alumno.id}>
-                                <TableCell>{`${alumno.nombres} ${alumno.apellidos}`}</TableCell>
-                                <TableCell>{alumno.carrera}</TableCell>
-                                <TableCell className="text-center">{alumno.semestre}</TableCell>
+                            {filteredAvailableStudents.map((student) => (
+                              <TableRow key={student.id}>
+                                <TableCell>{`${student.nombre} ${student.ap_paterno} ${student.ap_materno}`}</TableCell>
+                                <TableCell>{getCarreraName(student.carrera_id)}</TableCell>
                                 <TableCell className="text-right">
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => handleAddStudent(alumno)}
+                                    onClick={() => handleAddStudent(student)}
                                   >
                                     <PlusCircle className="mr-2 h-4 w-4" />
                                     Agregar
@@ -239,35 +239,33 @@ export default function AdscripcionPage() {
                       </Card>
                     ) : (
                       <p className="text-muted-foreground text-sm text-center py-4">
-                        {searchTerm ? "No se encontraron alumnos con ese criterio." : "No hay más alumnos disponibles para agregar."}
+                        {searchTerm ? "No se encontraron estudiantes con ese criterio." : "No hay más estudiantes disponibles para agregar."}
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Alumnos Seleccionados para Adscripción ({selectedStudents.length})</h3>
+                    <h3 className="text-lg font-semibold">Estudiantes Seleccionados para Adscripción ({selectedStudents.length})</h3>
                     {selectedStudents.length > 0 ? (
                        <Card className="border shadow-sm">
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Nombre Completo</TableHead>
-                              <TableHead>Carrera</TableHead>
-                              <TableHead className="text-center">Semestre</TableHead>
+                               <TableHead>Nombre Completo</TableHead>
+                               <TableHead>Carrera</TableHead>
                               <TableHead className="text-right">Acción</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {selectedStudents.map((alumno) => (
-                              <TableRow key={alumno.id}>
-                                <TableCell>{`${alumno.nombres} ${alumno.apellidos}`}</TableCell>
-                                <TableCell>{alumno.carrera}</TableCell>
-                                <TableCell className="text-center">{alumno.semestre}</TableCell>
+                            {selectedStudents.map((student) => (
+                              <TableRow key={student.id}>
+                                <TableCell>{`${student.nombre} ${student.ap_paterno} ${student.ap_materno}`}</TableCell>
+                                <TableCell>{getCarreraName(student.carrera_id)}</TableCell>
                                 <TableCell className="text-right">
                                   <Button
                                     size="sm"
                                     variant="destructive"
-                                    onClick={() => handleRemoveStudent(alumno)}
+                                    onClick={() => handleRemoveStudent(student)}
                                   >
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     Quitar
@@ -282,10 +280,10 @@ export default function AdscripcionPage() {
                       <div className="flex flex-col items-center justify-center text-center min-h-[150px] border-dashed border-2 border-muted rounded-md p-6">
                         <Users className="h-12 w-12 text-muted-foreground opacity-50 mb-2" />
                         <p className="text-muted-foreground">
-                          No has seleccionado ningún alumno aún.
+                          No has seleccionado ningún estudiante aún.
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Utiliza la búsqueda de arriba para agregar alumnos.
+                          Utiliza la búsqueda de arriba para agregar estudiantes.
                         </p>
                       </div>
                     )}
@@ -312,28 +310,28 @@ export default function AdscripcionPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="colegio-select">Seleccionar Establecimiento</Label>
+                    <Label htmlFor="establecimiento-select">Seleccionar Establecimiento</Label>
                     <Select
-                      value={selectedColegioId || undefined}
-                      onValueChange={(value) => setSelectedColegioId(value)}
+                      value={selectedEstablecimientoId || undefined}
+                      onValueChange={(value) => setSelectedEstablecimientoId(value)}
                     >
-                      <SelectTrigger id="colegio-select" className="w-full sm:w-[400px]">
-                        <SelectValue placeholder="Seleccione un colegio..." />
+                      <SelectTrigger id="establecimiento-select" className="w-full sm:w-[400px]">
+                        <SelectValue placeholder="Seleccione un establecimiento..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableColegios.map((colegio) => (
-                          <SelectItem key={colegio.id} value={colegio.id}>
-                            {colegio.nombre}
+                        {availableEstablecimientos.map((establecimiento) => (
+                          <SelectItem key={establecimiento.id} value={establecimiento.id}>
+                            {establecimiento.nombre}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {selectedColegio && (
+                  {selectedEstablecimiento && selectedDirectivo && (
                     <div className="space-y-1 text-sm">
-                      <p><span className="font-semibold">Establecimiento:</span> {selectedColegio.nombre}</p>
-                      <p><span className="font-semibold">Contacto:</span> {selectedColegio.personaContacto} ({selectedColegio.emailContacto})</p>
+                      <p><span className="font-semibold">Establecimiento:</span> {selectedEstablecimiento.nombre}</p>
+                      <p><span className="font-semibold">Contacto:</span> {selectedDirectivo.nombre} ({selectedDirectivo.email})</p>
                       <p><span className="font-semibold">Estudiantes seleccionados:</span> {selectedStudents.length}</p>
                     </div>
                   )}
@@ -341,19 +339,19 @@ export default function AdscripcionPage() {
                   <div className="space-y-2">
                     <Label htmlFor="email-editor-contenteditable">Editor de Correo</Label>
                     <EditableHtmlDisplay
-                      key={selectedColegioId || 'no-colegio-selected'} // Force re-mount on colegio change
+                      key={selectedEstablecimientoId || 'no-establecimiento-selected'} // Force re-mount on establecimiento change
                       initialHtml={currentTemplateHtml}
                       onHtmlChange={setEditedHtml}
-                      editable={!!selectedColegioId}
+                      editable={!!selectedEstablecimientoId}
                       className={`w-full min-h-[300px] max-h-[60vh] overflow-y-auto 
-                        ${!selectedColegioId ? 'cursor-not-allowed opacity-70' : ''}
+                        ${!selectedEstablecimientoId ? 'cursor-not-allowed opacity-70' : ''}
                       `}
                       aria-label="Contenido del correo editable"
                     />
                   </div>
 
                   <div className="flex justify-between items-center mt-4">
-                    <Button variant="outline" disabled={!selectedColegioId}>
+                    <Button variant="outline" disabled={!selectedEstablecimientoId}>
                        <Building className="mr-2 h-4 w-4" />
                        Enviar Notificación (Próximamente)
                     </Button>
@@ -402,7 +400,3 @@ export default function AdscripcionPage() {
     </div>
   );
 }
-
-    
-
-    
