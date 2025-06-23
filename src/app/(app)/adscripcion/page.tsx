@@ -240,7 +240,7 @@ export default function AdscripcionPage() {
       },
       body: {
         directivo: selectedDirectivo,
-        fichas: createdFichas,
+        ficha: createdFichas,
         // Hardcoded values based on default template. Could be dynamic in a future iteration.
         semana_inicio_profesional: "Semana 10 de marzo",
         semana_termino_profesional: "Semana 16 de junio",
