@@ -1,8 +1,6 @@
 "use client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { APP_LOGO_ICON, APP_NAME } from "@/lib/constants";
-import { UserCircle } from "lucide-react";
 import Link from 'next/link';
 
 export function AppHeader() {
@@ -25,11 +23,7 @@ export function AppHeader() {
         </div>
         
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          {/* Can add ThemeToggle or other actions here */}
-          <Button variant="ghost" size="icon">
-            <UserCircle className="h-5 w-5" />
-            <span className="sr-only">User Profile</span>
-          </Button>
+          {/* Account button removed. This div acts as a spacer. */}
         </div>
       </div>
     </header>
