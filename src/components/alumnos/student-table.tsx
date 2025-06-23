@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { FilePenLine, Trash2 } from "lucide-react";
+import { FilePenLine, Trash2, Eye } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,9 +29,10 @@ interface StudentTableProps {
   carreras: Carrera[];
   onEdit: (estudiante: Estudiante) => void;
   onDelete: (estudianteId: number) => Promise<void>;
+  onViewDetails: (estudiante: Estudiante) => void;
 }
 
-export function StudentTable({ estudiantes, carreras, onEdit, onDelete }: StudentTableProps) {
+export function StudentTable({ estudiantes, carreras, onEdit, onDelete, onViewDetails }: StudentTableProps) {
 
   const getCarreraName = (carreraId: number) => {
     return carreras.find(c => c.id === carreraId)?.nombre || "Desconocida";
@@ -64,13 +65,17 @@ export function StudentTable({ estudiantes, carreras, onEdit, onDelete }: Studen
               <TableCell>{estudiante.email}</TableCell>
               <TableCell>{getCarreraName(estudiante.carrera_id)}</TableCell>
               <TableCell className="text-right space-x-2">
-                <Button variant="outline" size="icon" onClick={() => onEdit(estudiante)}>
+                <Button variant="outline" size="icon" onClick={() => onViewDetails(estudiante)} title="Ver Detalles">
+                  <Eye className="h-4 w-4" />
+                  <span className="sr-only">Ver detalles</span>
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => onEdit(estudiante)} title="Editar">
                   <FilePenLine className="h-4 w-4" />
                   <span className="sr-only">Editar</span>
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="icon">
+                    <Button variant="destructive" size="icon" title="Eliminar">
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Eliminar</span>
                     </Button>

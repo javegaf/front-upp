@@ -7,6 +7,7 @@ import * as api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { StudentForm, type StudentFormValues } from "@/components/alumnos/student-form";
 import { StudentTable } from "@/components/alumnos/student-table";
+import { StudentDetails } from "@/components/alumnos/student-details";
 import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -16,8 +17,13 @@ export default function AlumnosPage() {
   const { toast } = useToast();
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [filteredEstudiantes, setFilteredEstudiantes] = useState<Estudiante[]>([]);
+  
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEstudiante, setEditingEstudiante] = useState<Estudiante | null>(null);
+  
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedStudentForDetails, setSelectedStudentForDetails] = useState<Estudiante | null>(null);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -75,6 +81,11 @@ export default function AlumnosPage() {
     setIsFormOpen(true);
   };
 
+  const handleViewDetails = (estudiante: Estudiante) => {
+    setSelectedStudentForDetails(estudiante);
+    setIsDetailsOpen(true);
+  };
+
   const handleDeleteEstudiante = async (estudianteId: number) => {
     try {
       await api.deleteEstudiante(estudianteId);
@@ -97,7 +108,7 @@ export default function AlumnosPage() {
         ...data,
         carrera_id: Number(data.carrera_id),
         comuna_id: Number(data.comuna_id),
-        tutor_id: Number(data.tutor_id),
+        tutor_id: data.tutor_id ? Number(data.tutor_id) : null,
         cond_especial: data.cond_especial || null,
     };
     
@@ -164,6 +175,7 @@ export default function AlumnosPage() {
               carreras={carreras}
               onEdit={handleEditEstudiante}
               onDelete={handleDeleteEstudiante}
+              onViewDetails={handleViewDetails}
             />
           )}
         </CardContent>
@@ -174,6 +186,15 @@ export default function AlumnosPage() {
         onOpenChange={setIsFormOpen}
         onSubmit={handleSubmitForm}
         initialData={editingEstudiante}
+        carreras={carreras}
+        comunas={comunas}
+        tutores={tutores}
+      />
+
+      <StudentDetails
+        isOpen={isDetailsOpen}
+        onOpenChange={setIsDetailsOpen}
+        student={selectedStudentForDetails}
         carreras={carreras}
         comunas={comunas}
         tutores={tutores}
