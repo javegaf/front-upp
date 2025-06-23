@@ -170,7 +170,7 @@ export default function AdscripcionPage() {
         <CardContent>
           <Tabs value={currentStep} onValueChange={handleTabChange} className="w-full">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6">
-              <TabsTrigger value={ADSCRIPCION_STEPS.STEP1} disabled={!unlockedSteps.includes(ADSCRIPCION_STEPS.STEP1)}>
+              <TabsTrigger value={ADSCRIPCION_STEPS.STEP1} disabled={unlockedSteps.includes(ADSCRIPCION_STEPS.STEP2)}>
                 <Users className="mr-2 h-4 w-4" />
                 Paso 1: Selección de Estudiantes
               </TabsTrigger>
@@ -185,117 +185,119 @@ export default function AdscripcionPage() {
             </TabsList>
 
             <TabsContent value={ADSCRIPCION_STEPS.STEP1}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Paso 1: Selección de Estudiantes</CardTitle>
-                  <CardDescription>
-                    Busca y selecciona los estudiantes que participarán en el proceso de prácticas. Los estudiantes seleccionados aparecerán en la tabla inferior.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Buscar y Agregar Estudiantes</h3>
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="search"
-                        placeholder="Buscar por nombre, email o carrera..."
-                        className="pl-8 w-full sm:w-[300px]"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
-                    {filteredAvailableStudents.length > 0 ? (
-                      <Card className="border shadow-sm max-h-60 overflow-y-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Nombre Completo</TableHead>
-                              <TableHead>Carrera</TableHead>
-                              <TableHead className="text-right">Acción</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {filteredAvailableStudents.map((student) => (
-                              <TableRow key={student.id}>
-                                <TableCell>{`${student.nombre} ${student.ap_paterno} ${student.ap_materno}`}</TableCell>
-                                <TableCell>{getCarreraName(student.carrera_id)}</TableCell>
-                                <TableCell className="text-right">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleAddStudent(student)}
-                                  >
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    Agregar
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </Card>
-                    ) : (
-                      <p className="text-muted-foreground text-sm text-center py-4">
-                        {searchTerm ? "No se encontraron estudiantes con ese criterio." : "No hay más estudiantes disponibles para agregar."}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Estudiantes Seleccionados para Adscripción ({selectedStudents.length})</h3>
-                    {selectedStudents.length > 0 ? (
-                       <Card className="border shadow-sm">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                               <TableHead>Nombre Completo</TableHead>
-                               <TableHead>Carrera</TableHead>
-                              <TableHead className="text-right">Acción</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {selectedStudents.map((student) => (
-                              <TableRow key={student.id}>
-                                <TableCell>{`${student.nombre} ${student.ap_paterno} ${student.ap_materno}`}</TableCell>
-                                <TableCell>{getCarreraName(student.carrera_id)}</TableCell>
-                                <TableCell className="text-right">
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => handleRemoveStudent(student)}
-                                  >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Quitar
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </Card>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center text-center min-h-[150px] border-dashed border-2 border-muted rounded-md p-6">
-                        <Users className="h-12 w-12 text-muted-foreground opacity-50 mb-2" />
-                        <p className="text-muted-foreground">
-                          No has seleccionado ningún estudiante aún.
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Utiliza la búsqueda de arriba para agregar estudiantes.
-                        </p>
+              <fieldset disabled={unlockedSteps.includes(ADSCRIPCION_STEPS.STEP2)}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Paso 1: Selección de Estudiantes</CardTitle>
+                    <CardDescription>
+                      Busca y selecciona los estudiantes que participarán en el proceso de prácticas. Los estudiantes seleccionados aparecerán en la tabla inferior.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Buscar y Agregar Estudiantes</h3>
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="search"
+                          placeholder="Buscar por nombre, email o carrera..."
+                          className="pl-8 w-full sm:w-[300px]"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                       </div>
-                    )}
-                  </div>
-                  <div className="flex justify-end mt-4">
-                    <Button
-                      onClick={() => goToNextStep(ADSCRIPCION_STEPS.STEP2)}
-                      disabled={!isStep1Valid}
-                    >
-                      Siguiente Paso <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                      {filteredAvailableStudents.length > 0 ? (
+                        <Card className="border shadow-sm max-h-60 overflow-y-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Nombre Completo</TableHead>
+                                <TableHead>Carrera</TableHead>
+                                <TableHead className="text-right">Acción</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {filteredAvailableStudents.map((student) => (
+                                <TableRow key={student.id}>
+                                  <TableCell>{`${student.nombre} ${student.ap_paterno} ${student.ap_materno}`}</TableCell>
+                                  <TableCell>{getCarreraName(student.carrera_id)}</TableCell>
+                                  <TableCell className="text-right">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleAddStudent(student)}
+                                    >
+                                      <PlusCircle className="mr-2 h-4 w-4" />
+                                      Agregar
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </Card>
+                      ) : (
+                        <p className="text-muted-foreground text-sm text-center py-4">
+                          {searchTerm ? "No se encontraron estudiantes con ese criterio." : "No hay más estudiantes disponibles para agregar."}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Estudiantes Seleccionados para Adscripción ({selectedStudents.length})</h3>
+                      {selectedStudents.length > 0 ? (
+                         <Card className="border shadow-sm">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                 <TableHead>Nombre Completo</TableHead>
+                                 <TableHead>Carrera</TableHead>
+                                <TableHead className="text-right">Acción</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {selectedStudents.map((student) => (
+                                <TableRow key={student.id}>
+                                  <TableCell>{`${student.nombre} ${student.ap_paterno} ${student.ap_materno}`}</TableCell>
+                                  <TableCell>{getCarreraName(student.carrera_id)}</TableCell>
+                                  <TableCell className="text-right">
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => handleRemoveStudent(student)}
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Quitar
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </Card>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-center min-h-[150px] border-dashed border-2 border-muted rounded-md p-6">
+                          <Users className="h-12 w-12 text-muted-foreground opacity-50 mb-2" />
+                          <p className="text-muted-foreground">
+                            No has seleccionado ningún estudiante aún.
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Utiliza la búsqueda de arriba para agregar estudiantes.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex justify-end mt-4">
+                      <Button
+                        onClick={() => goToNextStep(ADSCRIPCION_STEPS.STEP2)}
+                        disabled={!isStep1Valid}
+                      >
+                        Siguiente Paso <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </fieldset>
             </TabsContent>
 
             <TabsContent value={ADSCRIPCION_STEPS.STEP2}>
