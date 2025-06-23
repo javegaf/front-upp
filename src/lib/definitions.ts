@@ -83,7 +83,7 @@ export type StablishmentBody = {
   semana_inicio_pp: string;
   semana_termino_pp: string;
   numero_semanas_pp: number;
-  ficha?: Ficha[];
+  fichas?: Ficha[];
 };
 
 export type SendEmailToEstablecimientoPayload = {

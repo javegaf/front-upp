@@ -141,14 +141,14 @@ export default function AdscripcionPage() {
   const isStep1Valid = selectedStudents.length > 0 && selectedEstablecimientoId !== null;
   const isStep2Valid = selectedEstablecimientoId !== null;
 
-  const handleCreateFichas = async (): Promise<boolean> => {
+  const handleCreateFichas = async (): Promise<Ficha[] | null> => {
     if (!selectedEstablecimientoId || selectedStudents.length === 0) {
       toast({
         title: "Información incompleta",
         description: "Debes seleccionar un establecimiento y al menos un estudiante.",
         variant: "destructive",
       });
-      return false;
+      return null;
     }
 
     const fichaCreationPromises: Promise<Ficha>[] = [];
@@ -200,7 +200,7 @@ export default function AdscripcionPage() {
             description: "No se encontraron cupos o niveles de práctica válidos para los estudiantes seleccionados.",
             variant: "destructive",
         });
-        return false;
+        return null;
     }
 
     try {
@@ -210,14 +210,14 @@ export default function AdscripcionPage() {
         title: "Fichas Creadas Exitosamente",
         description: `Se han creado ${newFichas.length} fichas de práctica.`,
       });
-      return true;
+      return newFichas;
     } catch (error) {
       toast({
         title: "Error al crear fichas",
         description: "Ocurrió un error al intentar registrar las fichas en el sistema.",
         variant: "destructive",
       });
-      return false;
+      return null;
     }
   };
 
@@ -231,6 +231,15 @@ export default function AdscripcionPage() {
       return;
     }
 
+    if (createdFichas.length === 0) {
+        toast({
+            title: "No hay fichas para enviar",
+            description: "No se encontraron fichas creadas en este proceso. Por favor, vuelva al paso 1 e inténtelo de nuevo.",
+            variant: "destructive",
+        });
+        return;
+    }
+
     setIsSendingEmail(true);
 
     const emailPayload = {
@@ -240,7 +249,7 @@ export default function AdscripcionPage() {
       },
       body: {
         directivo: selectedDirectivo,
-        ficha: createdFichas,
+        fichas: createdFichas,
         // Hardcoded values based on default template. Could be dynamic in a future iteration.
         semana_inicio_profesional: "Semana 10 de marzo",
         semana_termino_profesional: "Semana 16 de junio",
@@ -272,10 +281,10 @@ export default function AdscripcionPage() {
   const goToNextStep = async (nextStep: string) => {
     if (currentStep === ADSCRIPCION_STEPS.STEP1) {
       setIsCreatingFichas(true);
-      const success = await handleCreateFichas();
+      const newFichas = await handleCreateFichas();
       setIsCreatingFichas(false);
-      if (!success) {
-        return; 
+      if (!newFichas || newFichas.length === 0) {
+        return; // Stop if ficha creation failed or produced no fichas
       }
     }
     setUnlockedSteps((prev) => [...new Set([...prev, nextStep])]);
