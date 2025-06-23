@@ -98,21 +98,32 @@ export default function AdscripcionPage() {
     return allDirectivos.find(d => d.establecimiento_id === selectedEstablecimiento.id) || null;
   }, [selectedEstablecimiento, allDirectivos]);
 
+  const renderJinjaLikeTemplate = (template: string, data: Record<string, any>): string => {
+    if (!template) return "";
+    // Regex to find all {{ variable_name }} occurrences
+    return template.replace(/\{\{\s*([\w_]+)\s*\}\}/g, (match, key) => {
+        // If the key exists in data, replace it. Otherwise, keep the placeholder.
+        return key in data ? data[key] : match;
+    });
+  };
+
   useEffect(() => {
     if (!selectedEstablecimiento || !selectedDirectivo) {
         setRenderedEmail("<p class='text-muted-foreground p-4 text-center'>Por favor, seleccione un establecimiento para generar la previsualización del correo.</p>");
         return;
     }
 
-    let emailBody = establishmentTemplate;
     const nominaLink = "https://docs.google.com/spreadsheets/d/1X-TPDs1zXhBjeESi0Z34wizh9YO7vdLa/edit?usp=drive_link";
 
-    emailBody = emailBody.replace(/{{nombre_directivo}}/g, selectedDirectivo.nombre);
-    emailBody = emailBody.replace(/{{cargo_directivo}}/g, selectedDirectivo.cargo);
-    emailBody = emailBody.replace(/{{nombre_establecimiento}}/g, selectedEstablecimiento.nombre);
-    emailBody = emailBody.replace(/{{link_nomina}}/g, nominaLink);
+    const templateData = {
+        nombre_directivo: selectedDirectivo.nombre,
+        cargo_directivo: selectedDirectivo.cargo,
+        nombre_establecimiento: selectedEstablecimiento.nombre,
+        link_nomina: `<a href="${nominaLink}" target="_blank" rel="noopener noreferrer">Ver Nómina de Estudiantes</a>`,
+    };
 
-    setRenderedEmail(emailBody);
+    const rendered = renderJinjaLikeTemplate(establishmentTemplate, templateData);
+    setRenderedEmail(rendered);
 
   }, [selectedEstablecimiento, selectedDirectivo, establishmentTemplate]);
 
@@ -249,6 +260,7 @@ export default function AdscripcionPage() {
       },
       body: {
         directivo: selectedDirectivo,
+        establecimiento: selectedEstablecimiento,
         fichas: createdFichas,
         // Hardcoded values based on default template. Could be dynamic in a future iteration.
         semana_inicio_profesional: "Semana 10 de marzo",
@@ -261,7 +273,7 @@ export default function AdscripcionPage() {
     };
     
     try {
-      await api.sendEmailToEstablecimiento(selectedEstablecimiento.id, emailPayload);
+      await api.sendEmailToEstablecimiento(emailPayload);
       toast({
         title: "Notificación Enviada",
         description: `El correo ha sido enviado a ${selectedDirectivo.email}.`,

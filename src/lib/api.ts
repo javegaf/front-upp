@@ -108,8 +108,8 @@ export const getFichas = (): Promise<Ficha[]> => fetchAPI('/api/v1/fichas');
 export const createFicha = (data: Omit<Ficha, 'id'>): Promise<Ficha> => fetchAPI('/api/v1/fichas', { method: 'POST', body: JSON.stringify(data) });
 
 // Email API
-export const sendEmailToEstablecimiento = (establecimientoId: string, payload: SendEmailToEstablecimientoPayload): Promise<any> => {
-    return fetchAPI(`/api/v1/email/send-email/stablishment?establecimiento_id=${establecimientoId}`, {
+export const sendEmailToEstablecimiento = (payload: SendEmailToEstablecimientoPayload): Promise<any> => {
+    return fetchAPI(`/api/v1/email/send-email/stablishment`, {
         method: 'POST',
         body: JSON.stringify(payload),
     });

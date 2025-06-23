@@ -2784,6 +2784,9 @@
           "directivo": {
             "$ref": "#/components/schemas/Directivo"
           },
+          "establecimiento": {
+            "$ref": "#/components/schemas/Establecimiento"
+          },
           "semana_inicio_profesional": {
             "type": "string",
             "title": "Semana Inicio Profesional"
@@ -2823,7 +2826,8 @@
           "numero_semanas_profesional",
           "semana_inicio_pp",
           "semana_termino_pp",
-          "numero_semanas_pp"
+          "numero_semanas_pp",
+          "fichas"
         ],
         "title": "StablishmentBody"
       },

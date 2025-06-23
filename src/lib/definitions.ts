@@ -77,6 +77,7 @@ export type EmailSchema = {
 
 export type StablishmentBody = {
   directivo?: Directivo | null;
+  establecimiento?: Establecimiento | null;
   semana_inicio_profesional: string;
   semana_termino_profesional: string;
   numero_semanas_profesional: number;
