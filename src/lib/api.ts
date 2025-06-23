@@ -87,6 +87,10 @@ export const getCupos = (): Promise<Cupo[]> => fetchAPI('/api/v1/cupos');
 export const createCupo = (data: Omit<Cupo, 'id'>): Promise<Cupo> => fetchAPI('/api/v1/cupos', { method: 'POST', body: JSON.stringify(data) });
 export const deleteCupo = (id: number): Promise<void> => fetchAPI(`/api/v1/cupos/${id}`, { method: 'DELETE' });
 
+// Ficha API
+export const getFichas = (): Promise<Ficha[]> => fetchAPI('/api/v1/fichas');
+export const createFicha = (data: Omit<Ficha, 'id'>): Promise<Ficha> => fetchAPI('/api/v1/fichas', { method: 'POST', body: JSON.stringify(data) });
+
 // Carga Masiva API
 export const uploadFile = (file: File): Promise<any> => {
     const formData = new FormData();
