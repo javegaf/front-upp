@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import type { Estudiante, Establecimiento, Carrera, Directivo, Comuna, Cupo, NivelPractica, Ficha, EmailSchema } from "@/lib/definitions";
+import type { Estudiante, Establecimiento, Carrera, Directivo, Comuna, Cupo, NivelPractica, Ficha, EmailSchema, SendEmailToEstablecimientoPayload } from "@/lib/definitions";
 import * as api from "@/lib/api";
 import { format, startOfWeek, addWeeks, parseISO, differenceInWeeks } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -285,6 +285,7 @@ export default function AdscripcionPage() {
     }
     return availableStudents.filter(
       (student) =>
+        student.rut.toLowerCase().includes(searchTerm.toLowerCase()) ||
         `${student.nombre} ${student.ap_paterno} ${student.ap_materno}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         getCarreraName(student.carrera_id).toLowerCase().includes(searchTerm.toLowerCase())
@@ -641,7 +642,7 @@ export default function AdscripcionPage() {
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                             type="search"
-                            placeholder="Buscar por nombre, email o carrera..."
+                            placeholder="Buscar por nombre, RUT, email o carrera..."
                             className="pl-8 w-full sm:w-[300px]"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -895,3 +896,5 @@ export default function AdscripcionPage() {
     </div>
   );
 }
+
+    

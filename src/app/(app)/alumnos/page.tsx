@@ -85,6 +85,7 @@ export default function AlumnosPage() {
   
   useEffect(() => {
     const results = estudiantes.filter(estudiante =>
+      estudiante.rut.toLowerCase().includes(searchTerm.toLowerCase()) ||
       `${estudiante.nombre} ${estudiante.ap_paterno} ${estudiante.ap_materno}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       estudiante.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (carreras.find(c => c.id === estudiante.carrera_id)?.nombre || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -181,7 +182,7 @@ export default function AlumnosPage() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Buscar por nombre, email o carrera..."
+              placeholder="Buscar por nombre, RUT, email o carrera..."
               className="pl-8 w-full sm:w-[300px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -228,3 +229,5 @@ export default function AlumnosPage() {
     </div>
   );
 }
+
+    
