@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import type { Estudiante, Establecimiento, Carrera, Directivo, Comuna, Cupo, NivelPractica, Ficha, EmailSchema, SendEmailToEstablecimientoPayload } from "@/lib/definitions";
 import * as api from "@/lib/api";
 import { format, startOfWeek, addWeeks, parseISO, differenceInWeeks } from "date-fns";
+import { es } from "date-fns/locale/es";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -91,7 +92,7 @@ export default function AdscripcionPage() {
     let currentWeekStart = startOfWeek(addWeeks(new Date(), 1), { weekStartsOn: 1 }); // Monday
 
     for (let i = 0; i < 39; i++) {
-        const week_start_formatted = format(currentWeekStart, "dd 'de' MMMM, yyyy");
+        const week_start_formatted = format(currentWeekStart, "dd 'de' MMMM, yyyy", { locale: es });
         const week_value = format(currentWeekStart, "yyyy-MM-dd");
         options.push({
             label: `Semana del ${week_start_formatted}`,
@@ -184,8 +185,8 @@ export default function AdscripcionPage() {
         estudiante: previewStudent,
         nombre_establecimiento: selectedEstablecimiento.nombre,
         nivel_practica: nivel?.nombre || 'N/A',
-        semana_inicio: ficha.fecha_inicio ? format(parseISO(ficha.fecha_inicio), "dd 'de' MMMM, yyyy") : "N/A",
-        semana_termino: ficha.fecha_termino ? format(parseISO(ficha.fecha_termino), "dd 'de' MMMM, yyyy") : 'N/A',
+        semana_inicio: ficha.fecha_inicio ? format(parseISO(ficha.fecha_inicio), "dd 'de' MMMM, yyyy", { locale: es }) : "N/A",
+        semana_termino: ficha.fecha_termino ? format(parseISO(ficha.fecha_termino), "dd 'de' MMMM, yyyy", { locale: es }) : 'N/A',
         directivo: selectedDirectivo,
     };
     
@@ -222,7 +223,7 @@ export default function AdscripcionPage() {
             
             if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z)?)?$/.test(value)) {
                 try {
-                    return format(parseISO(value), "dd 'de' MMMM, yyyy");
+                    return format(parseISO(value), "dd 'de' MMMM, yyyy", { locale: es });
                 } catch (e) { /* fallback */ }
             }
 
@@ -265,11 +266,11 @@ export default function AdscripcionPage() {
     const templateData = {
         directivo: selectedDirectivo,
         establecimiento: selectedEstablecimiento,
-        semana_inicio_profesional: professionalDates.inicio ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM") : "N/A",
-        semana_termino_profesional: professionalDates.termino ? format(parseISO(professionalDates.termino), "dd 'de' MMMM") : "N/A",
+        semana_inicio_profesional: professionalDates.inicio ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM", { locale: es }) : "N/A",
+        semana_termino_profesional: professionalDates.termino ? format(parseISO(professionalDates.termino), "dd 'de' MMMM", { locale: es }) : "N/A",
         numero_semanas_profesional: calculateWeeks(professionalDates.inicio, professionalDates.termino),
-        semana_inicio_pp: pedagogicalDates.inicio ? format(parseISO(pedagogicalDates.inicio), "dd 'de' MMMM") : "N/A",
-        semana_termino_pp: pedagogicalDates.termino ? format(parseISO(pedagogicalDates.termino), "dd 'de' MMMM") : "N/A",
+        semana_inicio_pp: pedagogicalDates.inicio ? format(parseISO(pedagogicalDates.inicio), "dd 'de' MMMM", { locale: es }) : "N/A",
+        semana_termino_pp: pedagogicalDates.termino ? format(parseISO(pedagogicalDates.termino), "dd 'de' MMMM", { locale: es }) : "N/A",
         numero_semanas_pp: calculateWeeks(pedagogicalDates.inicio, pedagogicalDates.termino),
         fichas: fichasForTemplate,
     };
@@ -413,11 +414,11 @@ export default function AdscripcionPage() {
         directivo: selectedDirectivo,
         establecimiento: null,
         fichas: createdFichas,
-        semana_inicio_profesional: professionalDates.inicio ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM") : "N/A",
-        semana_termino_profesional: professionalDates.termino ? format(parseISO(professionalDates.termino), "dd 'de' MMMM") : "N/A",
+        semana_inicio_profesional: professionalDates.inicio ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM", { locale: es }) : "N/A",
+        semana_termino_profesional: professionalDates.termino ? format(parseISO(professionalDates.termino), "dd 'de' MMMM", { locale: es }) : "N/A",
         numero_semanas_profesional: calculateWeeks(professionalDates.inicio, professionalDates.termino),
-        semana_inicio_pp: pedagogicalDates.inicio ? format(parseISO(pedagogicalDates.inicio), "dd 'de' MMMM") : "N/A",
-        semana_termino_pp: pedagogicalDates.termino ? format(parseISO(pedagogicalDates.termino), "dd 'de' MMMM") : "N/A",
+        semana_inicio_pp: pedagogicalDates.inicio ? format(parseISO(pedagogicalDates.inicio), "dd 'de' MMMM", { locale: es }) : "N/A",
+        semana_termino_pp: pedagogicalDates.termino ? format(parseISO(pedagogicalDates.termino), "dd 'de' MMMM", { locale: es }) : "N/A",
         numero_semanas_pp: calculateWeeks(pedagogicalDates.inicio, pedagogicalDates.termino),
       }
     };
