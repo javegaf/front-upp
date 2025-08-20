@@ -103,15 +103,7 @@ export function ColegioForm({ isOpen, onOpenChange, onSubmit, initialData, comun
             <FormField control={form.control} name="dependencia" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Dependencia</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Seleccione una dependencia" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="Municipal">Municipal</SelectItem>
-                      <SelectItem value="Particular Subvencionado">Particular Subvencionado</SelectItem>
-                      <SelectItem value="Particular Pagado">Particular Pagado</SelectItem>
-                       <SelectItem value="Servicio Local de Educación">Servicio Local de Educación</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl><Input placeholder="Ej: Municipal" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
             )}/>
