@@ -13,9 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Mail, Send } from "lucide-react";
+import { Users, BellRing, BellPlus, Search, PlusCircle, Trash2, ChevronRight, Mail, Send, ChevronsUpDown, Check } from "lucide-react";
 import { EditableHtmlDisplay } from "@/components/shared/editable-html-display";
 import { useToast } from "@/hooks/use-toast";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+
 
 const ADSCRIPCION_STEPS = {
   STEP1: "seleccion-estudiantes",
@@ -77,6 +81,8 @@ export default function AdscripcionPage() {
 
   const [currentStep, setCurrentStep] = useState<string>(ADSCRIPCION_STEPS.STEP1);
   const [unlockedSteps, setUnlockedSteps] = useState<string[]>([ADSCRIPCION_STEPS.STEP1]);
+  
+  const [comboboxOpen, setComboboxOpen] = useState(false);
 
   const selectedEstablecimiento = useMemo(() => {
     return allEstablecimientos.find(c => c.id === selectedEstablecimientoId) || null;
@@ -412,7 +418,7 @@ export default function AdscripcionPage() {
       },
       body: {
         directivo: selectedDirectivo,
-        establecimiento: null,
+        establecimiento: selectedEstablecimiento,
         fichas: createdFichas,
         semana_inicio_profesional: professionalDates.inicio ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM", { locale: es }) : "N/A",
         semana_termino_profesional: professionalDates.termino ? format(parseISO(professionalDates.termino), "dd 'de' MMMM", { locale: es }) : "N/A",
@@ -564,21 +570,49 @@ export default function AdscripcionPage() {
                   <CardContent className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="establecimiento-select">Seleccionar Establecimiento</Label>
-                        <Select
-                        value={selectedEstablecimientoId || undefined}
-                        onValueChange={(value) => setSelectedEstablecimientoId(value)}
-                        >
-                        <SelectTrigger id="establecimiento-select" className="w-full sm:w-[400px]">
-                            <SelectValue placeholder="Seleccione un establecimiento..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {allEstablecimientos.map((establecimiento) => (
-                            <SelectItem key={establecimiento.id} value={establecimiento.id}>
-                                {establecimiento.nombre}
-                            </SelectItem>
-                            ))}
-                        </SelectContent>
-                        </Select>
+                        <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={comboboxOpen}
+                              className="w-full sm:w-[400px] justify-between"
+                            >
+                              {selectedEstablecimientoId
+                                ? allEstablecimientos.find((e) => e.id === selectedEstablecimientoId)?.nombre
+                                : "Seleccione un establecimiento..."}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-full sm:w-[400px] p-0">
+                            <Command>
+                              <CommandInput placeholder="Buscar establecimiento..." />
+                              <CommandEmpty>No se encontraron establecimientos.</CommandEmpty>
+                              <CommandGroup>
+                                <CommandList>
+                                  {allEstablecimientos.map((establecimiento) => (
+                                    <CommandItem
+                                      key={establecimiento.id}
+                                      value={establecimiento.nombre}
+                                      onSelect={() => {
+                                        setSelectedEstablecimientoId(establecimiento.id === selectedEstablecimientoId ? null : establecimiento.id);
+                                        setComboboxOpen(false);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          selectedEstablecimientoId === establecimiento.id ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      {establecimiento.nombre}
+                                    </CommandItem>
+                                  ))}
+                                </CommandList>
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -897,5 +931,3 @@ export default function AdscripcionPage() {
     </div>
   );
 }
-
-    
