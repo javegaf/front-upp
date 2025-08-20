@@ -109,6 +109,7 @@ export const deleteCupo = (id: number): Promise<void> => fetchAPI(`/api/v1/cupos
 export const getFichas = (): Promise<Ficha[]> => fetchAPI('/api/v1/fichas');
 export const createFicha = (data: Omit<Ficha, 'id'>): Promise<Ficha> => fetchAPI('/api/v1/fichas', { method: 'POST', body: JSON.stringify(data) });
 export const updateFicha = (id: number, data: Omit<Ficha, 'id'>): Promise<Ficha> => fetchAPI(`/api/v1/fichas/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export const deleteFicha = (id: number): Promise<void> => fetchAPI(`/api/v1/fichas/${id}`, { method: 'DELETE' });
 
 // Email API
 export const sendEmailToEstablecimiento = (establecimientoId: string, payload: SendEmailToEstablecimientoPayload): Promise<any> => {

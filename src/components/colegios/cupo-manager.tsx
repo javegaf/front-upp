@@ -5,7 +5,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import type { Establecimiento, Cupo, NivelPractica, Carrera } from "@/lib/definitions";
+import type { Establecimiento, Cupo, NivelPractica, Carrera, Ficha } from "@/lib/definitions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -66,8 +66,10 @@ interface CupoManagerProps {
   cupos: Cupo[];
   nivelesPractica: NivelPractica[];
   carreras: Carrera[];
+  fichas: Ficha[];
   onAddCupo: (data: CupoFormValues) => Promise<void>;
   onDeleteCupo: (cupoId: number) => Promise<void>;
+  onDeleteCupoCascading: (cupoId: number, fichaId: number) => Promise<void>;
 }
 
 export function CupoManager({
@@ -77,9 +79,15 @@ export function CupoManager({
   cupos,
   nivelesPractica,
   carreras,
+  fichas,
   onAddCupo,
   onDeleteCupo,
+  onDeleteCupoCascading,
 }: CupoManagerProps) {
+  const { toast } = useToast();
+  const [cupoToDelete, setCupoToDelete] = React.useState<Cupo | null>(null);
+  const [showCascadeDeleteAlert, setShowCascadeDeleteAlert] = React.useState(false);
+  
   const form = useForm<CupoFormValues>({
     resolver: zodResolver(cupoSchema),
     defaultValues: { nivel_practica_id: "" },
@@ -103,6 +111,36 @@ export function CupoManager({
   const handleFormSubmit = async (data: CupoFormValues) => {
     await onAddCupo(data);
     form.reset();
+  };
+
+  const handleDeleteAttempt = async (cupo: Cupo) => {
+    setCupoToDelete(cupo);
+    try {
+        await onDeleteCupo(cupo.id);
+    } catch (error) {
+        // Error is expected if cupo is in use, now check for associated ficha
+        const associatedFicha = fichas.find(f => f.cupo_id === cupo.id);
+        if (associatedFicha) {
+            setShowCascadeDeleteAlert(true);
+        } else {
+            // If error is for another reason, show a generic toast.
+            toast({
+              title: "Error al eliminar",
+              description: "No se pudo eliminar el cupo. Contacte al administrador si el problema persiste.",
+              variant: "destructive"
+            });
+        }
+    }
+  };
+
+  const handleCascadeDeleteConfirm = async () => {
+    if (!cupoToDelete) return;
+    const associatedFicha = fichas.find(f => f.cupo_id === cupoToDelete.id);
+    if (associatedFicha) {
+        await onDeleteCupoCascading(cupoToDelete.id, associatedFicha.id);
+    }
+    setShowCascadeDeleteAlert(false);
+    setCupoToDelete(null);
   };
 
   return (
@@ -173,27 +211,9 @@ export function CupoManager({
                             <TableCell>{nombre}</TableCell>
                             <TableCell>{carreraNombre}</TableCell>
                             <TableCell className="text-right">
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="icon">
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                    Esta acción eliminará el cupo para "{nombre}".
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => onDeleteCupo(cupo.id)}>
-                                      Eliminar
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+                              <Button variant="destructive" size="icon" onClick={() => handleDeleteAttempt(cupo)}>
+                                  <Trash2 className="h-4 w-4" />
+                              </Button>
                             </TableCell>
                         </TableRow>
                     )
@@ -211,6 +231,24 @@ export function CupoManager({
             </Button>
           </DialogClose>
         </DialogFooter>
+
+        <AlertDialog open={showCascadeDeleteAlert} onOpenChange={setShowCascadeDeleteAlert}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Cupo en Uso</AlertDialogTitle>
+              <AlertDialogDescription>
+                Este cupo está asignado a un estudiante. Para eliminarlo, también se debe eliminar la ficha de práctica del estudiante. ¿Deseas continuar? Esta acción es irreversible.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setCupoToDelete(null)}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleCascadeDeleteConfirm}>
+                Sí, eliminar ficha y cupo
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
       </DialogContent>
     </Dialog>
   );

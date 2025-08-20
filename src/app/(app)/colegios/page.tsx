@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Establecimiento, Comuna, Cupo, NivelPractica, Carrera, Directivo } from "@/lib/definitions";
+import type { Establecimiento, Comuna, Cupo, NivelPractica, Carrera, Directivo, Ficha } from "@/lib/definitions";
 import * as api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Search } from "lucide-react";
@@ -24,6 +24,7 @@ export default function ColegiosPage() {
   const [nivelesPractica, setNivelesPractica] = useState<NivelPractica[]>([]);
   const [carreras, setCarreras] = useState<Carrera[]>([]);
   const [directivos, setDirectivos] = useState<Directivo[]>([]);
+  const [fichas, setFichas] = useState<Ficha[]>([]);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingColegio, setEditingColegio] = useState<Establecimiento | null>(null);
@@ -41,13 +42,14 @@ export default function ColegiosPage() {
   const fetchAllData = async () => {
     setIsLoading(true);
     try {
-      const [estabData, comunasData, cuposData, nivelesData, carrerasData, directivosData] = await Promise.all([
+      const [estabData, comunasData, cuposData, nivelesData, carrerasData, directivosData, fichasData] = await Promise.all([
         api.getEstablecimientos(),
         api.getComunas(),
         api.getCupos(),
         api.getNivelesPractica(),
         api.getCarreras(),
         api.getDirectivos(),
+        api.getFichas(),
       ]);
       setEstablecimientos(estabData);
       setFilteredEstablecimientos(estabData);
@@ -56,6 +58,7 @@ export default function ColegiosPage() {
       setNivelesPractica(nivelesData);
       setCarreras(carrerasData);
       setDirectivos(directivosData);
+      setFichas(fichasData);
     } catch (error) {
       toast({
         title: "Error al cargar datos",
@@ -137,9 +140,23 @@ export default function ColegiosPage() {
         toast({ title: "Cupo Eliminado" });
         await fetchAllData();
     } catch (error) {
-        toast({ title: "Error", description: "No se pudo eliminar el cupo.", variant: "destructive" });
+        toast({ title: "Error", description: "No se pudo eliminar el cupo. Puede que esté en uso.", variant: "destructive" });
+        throw error;
     }
   };
+
+  const handleDeleteCupoCascading = async (cupoId: number, fichaId: number) => {
+    try {
+      await api.deleteFicha(fichaId);
+      toast({ title: "Ficha asociada eliminada", description: "La ficha del estudiante ha sido eliminada." });
+      await api.deleteCupo(cupoId);
+      toast({ title: "Cupo Eliminado", description: "El cupo ha sido eliminado exitosamente." });
+      await fetchAllData();
+    } catch (error) {
+       toast({ title: "Error en cascada", description: "No se pudo completar la eliminación del cupo y su ficha.", variant: "destructive" });
+    }
+  };
+
 
   // Directivo Handlers
   const handleManageDirectivos = (establecimiento: Establecimiento) => {
@@ -238,8 +255,10 @@ export default function ColegiosPage() {
           cupos={cupos.filter(c => c.establecimiento_id === managingFor.id)}
           nivelesPractica={nivelesPractica}
           carreras={carreras}
+          fichas={fichas}
           onAddCupo={handleAddCupo}
           onDeleteCupo={handleDeleteCupo}
+          onDeleteCupoCascading={handleDeleteCupoCascading}
         />
       )}
 
