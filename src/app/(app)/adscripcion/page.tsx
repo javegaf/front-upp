@@ -51,6 +51,7 @@ export default function AdscripcionPage() {
   const [allDirectivos, setAllDirectivos] = useState<Directivo[]>([]);
   const [allComunas, setAllComunas] = useState<Comuna[]>([]);
   const [allCupos, setAllCupos] = useState<Cupo[]>([]);
+  const [allFichas, setAllFichas] = useState<Ficha[]>([]);
   const [allNivelesPractica, setAllNivelesPractica] = useState<NivelPractica[]>([]);
   const [createdFichas, setCreatedFichas] = useState<Ficha[]>([]);
 
@@ -117,7 +118,7 @@ export default function AdscripcionPage() {
     const fetchInitialData = async () => {
       setIsLoading(true);
       try {
-        const [studentsData, establecimientosData, carrerasData, directivosData, comunasData, cuposData, nivelesData, estTemplateData, stuTemplateData] = await Promise.all([
+        const [studentsData, establecimientosData, carrerasData, directivosData, comunasData, cuposData, nivelesData, estTemplateData, stuTemplateData, fichasData] = await Promise.all([
           api.getEstudiantes(),
           api.getEstablecimientos(),
           api.getCarreras(),
@@ -127,6 +128,7 @@ export default function AdscripcionPage() {
           api.getNivelesPractica(),
           api.getEstablishmentEmailTemplate(),
           api.getStudentEmailTemplate(),
+          api.getFichas(),
         ]);
         setAllStudents(studentsData);
         setAvailableStudents(studentsData);
@@ -138,6 +140,7 @@ export default function AdscripcionPage() {
         setAllNivelesPractica(nivelesData);
         setEstablishmentTemplate(estTemplateData || '');
         setStudentTemplate(stuTemplateData || '');
+        setAllFichas(fichasData);
 
       } catch (error) {
         toast({
@@ -317,13 +320,20 @@ export default function AdscripcionPage() {
 
   const getAvailableCuposForStudent = (student: Estudiante) => {
     if (!selectedEstablecimientoId) return [];
+
+    const cuposOcupadosEnDB = allFichas.map(f => f.cupo_id);
+    const cuposOcupadosEnUI = Object.values(studentCupoAssignments)
+      .filter(cupoId => cupoId !== null && cupoId !== studentCupoAssignments[student.id]);
     
+    const cuposOcupados = new Set([...cuposOcupadosEnDB, ...cuposOcupadosEnUI]);
+
     const nivelesForCarrera = allNivelesPractica.filter(n => n.carrera_id === student.carrera_id);
     const nivelIds = nivelesForCarrera.map(n => n.id);
 
     return allCupos.filter(cupo => 
         cupo.establecimiento_id === selectedEstablecimientoId && 
-        nivelIds.includes(cupo.nivel_practica_id)
+        nivelIds.includes(cupo.nivel_practica_id) &&
+        !cuposOcupados.has(cupo.id)
     );
   };
 
