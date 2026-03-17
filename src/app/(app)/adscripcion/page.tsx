@@ -317,45 +317,54 @@ export default function AdscripcionPage() {
   };
 
   useEffect(() => {
-    if (!selectedEstablecimiento || !selectedDirectivo) {
-      setRenderedEmail(
-        "<p class='text-muted-foreground p-4 text-center'>Por favor, selecciona un establecimiento para generar la previsualización del correo.</p>"
-      );
-      return;
-    }
+  if (!selectedEstablecimiento || !selectedDirectivo) {
+    setRenderedEmail(
+      "<p class='text-muted-foreground p-4 text-center'>Por favor, selecciona un establecimiento para generar la previsualización del correo.</p>"
+    );
+    return;
+  }
 
-    const fichasForTemplate = createdFichas.map((ficha) => {
-      const student = allStudents.find((s) => s.id === ficha.estudiante_id);
-      return {
-        ...ficha,
-        estudiante: student || {},
-      };
-    });
+  const fichasForTemplate = createdFichas.map((ficha) => {
+    const student = allStudents.find((s) => s.id === ficha.estudiante_id);
+    const cupo = allCupos.find((c) => c.id === ficha.cupo_id);
+    const nivel = allNivelesPractica.find((n) => n.id === cupo?.nivel_practica_id);
 
-    const templateData = {
-      directivo: selectedDirectivo,
-      establecimiento: selectedEstablecimiento,
-      semana_inicio_profesional: professionalDates.inicio
-        ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM", { locale: es })
-        : "N/A",
-      semana_termino_profesional: professionalDates.termino
-        ? format(parseISO(professionalDates.termino), "dd 'de' MMMM", { locale: es })
-        : "N/A",
-      numero_semanas_profesional: calculateWeeks(
-        professionalDates.inicio,
-        professionalDates.termino
-      ),
-      semana_inicio_pp: pedagogicalDates.inicio
-        ? format(parseISO(pedagogicalDates.inicio), "dd 'de' MMMM", { locale: es })
-        : "N/A",
-      semana_termino_pp: pedagogicalDates.termino
-        ? format(parseISO(pedagogicalDates.termino), "dd 'de' MMMM", { locale: es })
-        : "N/A",
-      numero_semanas_pp: calculateWeeks(pedagogicalDates.inicio, pedagogicalDates.termino),
-      fichas: fichasForTemplate,
+    return {
+      ...ficha,
+      estudiante: student
+        ? {
+            ...student,
+            carrera: getCarreraName(student.carrera_id),
+          }
+        : {},
+      nivel_practica: nivel?.nombre || "",
     };
+  });
 
-    const rendered = renderTemplate(establishmentTemplate, templateData);
+  const templateData = {
+    directivo: selectedDirectivo,
+    establecimiento: selectedEstablecimiento,
+    semana_inicio_profesional: professionalDates.inicio
+      ? format(parseISO(professionalDates.inicio), "dd 'de' MMMM", { locale: es })
+      : "N/A",
+    semana_termino_profesional: professionalDates.termino
+      ? format(parseISO(professionalDates.termino), "dd 'de' MMMM", { locale: es })
+      : "N/A",
+    numero_semanas_profesional: calculateWeeks(
+      professionalDates.inicio,
+      professionalDates.termino
+    ),
+    semana_inicio_pp: pedagogicalDates.inicio
+      ? format(parseISO(pedagogicalDates.inicio), "dd 'de' MMMM", { locale: es })
+      : "N/A",
+    semana_termino_pp: pedagogicalDates.termino
+      ? format(parseISO(pedagogicalDates.termino), "dd 'de' MMMM", { locale: es })
+      : "N/A",
+    numero_semanas_pp: calculateWeeks(pedagogicalDates.inicio, pedagogicalDates.termino),
+    fichas: fichasForTemplate,
+  };
+
+  const rendered = renderTemplate(establishmentTemplate, templateData);
     setRenderedEmail(rendered);
   }, [
     selectedEstablecimiento,
@@ -365,6 +374,9 @@ export default function AdscripcionPage() {
     pedagogicalDates,
     createdFichas,
     allStudents,
+    allCupos,
+    allNivelesPractica,
+    allCarreras,
   ]);
 
   const filteredAvailableStudents = useMemo(() => {

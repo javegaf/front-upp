@@ -43,6 +43,8 @@ const ESTABLISHMENT_LABELS: Record<string, string> = {
   "ficha.estudiante.email": "Correo del estudiante",
   "ficha.fecha_inicio": "Semana de inicio del estudiante",
   "ficha.fecha_termino": "Semana de término del estudiante",
+  "ficha.estudiante.carrera": "Carrera del estudiante",
+  "ficha.nivel_practica": "Nivel de práctica del estudiante",
 };
 
 const STUDENT_LABELS: Record<string, string> = {
